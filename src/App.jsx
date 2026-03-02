@@ -20,14 +20,6 @@ import {
 
 /**
  * ArchFlow Landing Page (Vite + React + Tailwind) — FLAT THEME + LUCIDE ICONS
- * Additions in this version:
- * - Hero is now lg:grid-cols-2 and includes HeroAnimatedPanel() on the right (lg+ only)
- * - HeroAnimatedPanel cycles 4 screens every 4s (3.5s visible + 0.5s transition)
- * - Screen 1: ADR with typewriter title + sequential fields + Proposed→Accepted crossfade
- * - Screen 2: C4 Container diagram (SVG) nodes fade/scale + arrows drawn
- * - Screen 3: ERD (SVG) tables slide/fade + fields appear line-by-line + relationships drawn
- * - Screen 4: Kanban board with columns fade + cards drop sequentially + In Progress pulse
- * - Horizontal scroll remains removed
  */
 
 const PURPLE_PRIMARY = "#6D28D9"; // --af-primary
@@ -86,14 +78,13 @@ const CodeBlock = ({ children }) => (
   </pre>
 );
 
+/**
+ * ✅ IMPORTANT:
+ * - Removido group-hover daqui.
+ * - Agora o hover é LOCAL: você aplica hover:* no elemento específico ou group-hover:* em um group específico.
+ */
 const Icon = ({ as: As, className }) => (
-  <As
-    className={cx(
-      "h-4 w-4 text-white/80 group-hover:text-[var(--af-pin)] transition",
-      className,
-    )}
-    aria-hidden="true"
-  />
+  <As className={cx("h-4 w-4 text-white/80 transition", className)} aria-hidden="true" />
 );
 
 const SectionTitle = ({
@@ -112,33 +103,29 @@ const SectionTitle = ({
         )}
       >
         <span className="group inline-flex items-center">
-          <Icon as={IconComp} className="h-4 w-4" />
+          <Icon as={IconComp} className="h-4 w-4 group-hover:text-[var(--af-pin)]" />
         </span>
-        <p className="text-sm font-medium tracking-wide text-white/70">
-          {eyebrow}
-        </p>
+        <p className="text-sm font-medium tracking-wide text-white/70">{eyebrow}</p>
       </div>
     )}
     <h2 className="text-2xl md:text-3xl font-semibold tracking-tight text-white">
       {title}
     </h2>
-    {desc && (
-      <p className="mt-3 text-base leading-relaxed text-white/70">{desc}</p>
-    )}
+    {desc && <p className="mt-3 text-base leading-relaxed text-white/70">{desc}</p>}
   </div>
 );
 
 const LogoPill = ({ children, icon: IconComp = Sparkles }) => (
   <div className="group inline-flex items-center gap-2 rounded-full bg-white/5 px-4 py-2 text-sm text-white/70 ring-1 ring-white/10 hover:ring-[var(--af-line)]/60 hover:text-white transition">
-    <Icon as={IconComp} className="h-4 w-4" />
+    <Icon as={IconComp} className="h-4 w-4 group-hover:text-[var(--af-pin)]" />
     {children}
   </div>
 );
 
 const CheckRow = ({ children }) => (
-  <div className="group flex items-start gap-3">
+  <div className="flex items-start gap-3">
     <span className="mt-0.5 inline-flex h-5 w-5 items-center justify-center">
-      <Icon as={CheckCircle2} className="h-5 w-5" />
+      <Icon as={CheckCircle2} className="h-5 w-5 hover:text-[var(--af-pin)]" />
     </span>
     <p className="text-sm text-white/75">{children}</p>
   </div>
@@ -307,15 +294,13 @@ function HeroAnimatedPanel() {
     [],
   );
 
-  // CONFIG
   const transitionMs = 500;
-  const screenDurationMs = 7500; // tempo por tela
+  const screenDurationMs = 7500;
   const autoplayIntervalMs = screenDurationMs + transitionMs;
 
   const [idx, setIdx] = useState(0);
   const pauseUntilRef = useRef(0);
 
-  // ✅ runId por tela (só incrementa quando aquela tela vira ativa)
   const [runs, setRuns] = useState([0, 0, 0, 0]);
   const lastIdxRef = useRef(-1);
 
@@ -352,7 +337,6 @@ function HeroAnimatedPanel() {
         "bg-[#0a0a0a] ring-1 ring-[var(--af-line)]/35",
       )}
     >
-      {/* header */}
       <div className="h-12 flex items-center justify-between px-4 border-b border-white/10">
         <div className="relative h-5 w-full">
           {screens.map((s, i) => {
@@ -361,8 +345,7 @@ function HeroAnimatedPanel() {
               <div
                 key={s.key}
                 className={cx(
-                  "absolute inset-0 flex items-center",
-                  "transition-all",
+                  "absolute inset-0 flex items-center transition-all",
                   isActive
                     ? "opacity-100 translate-y-0"
                     : "opacity-0 translate-y-3 pointer-events-none",
@@ -379,10 +362,8 @@ function HeroAnimatedPanel() {
         </div>
       </div>
 
-      {/* body */}
       <div className="relative h-[calc(420px-48px)]">
         <PanelScreen active={idx === 0}>
-          {/* ✅ remount só quando ADR fica ativa */}
           <ScreenADR key={`adr-${runs[0]}`} active={idx === 0} />
         </PanelScreen>
 
@@ -398,7 +379,6 @@ function HeroAnimatedPanel() {
           <ScreenKanban key={`kb-${runs[3]}`} active={idx === 3} />
         </PanelScreen>
 
-        {/* dots clicáveis */}
         <div className="absolute bottom-3 left-0 right-0 flex items-center justify-center gap-2">
           {screens.map((s, i) => {
             const isActive = i === idx;
@@ -428,13 +408,8 @@ function PanelScreen({ active, children }) {
   return (
     <div
       className={cx(
-        "absolute inset-0",
-        "p-4",
-        "flex flex-col",
-        "transition-all duration-500",
-        active
-          ? "opacity-100 pointer-events-auto"
-          : "opacity-0 pointer-events-none",
+        "absolute inset-0 p-4 flex flex-col transition-all duration-500",
+        active ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none",
       )}
       style={{ transform: active ? "translateY(0px)" : "translateY(12px)" }}
     >
@@ -551,7 +526,6 @@ function ScreenADR({ active }) {
   return (
     <div className="h-full min-h-0">
       <div className="h-full min-h-0 rounded-2xl bg-black/40 ring-1 ring-white/10 overflow-hidden flex flex-col">
-        {/* header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center rounded-full bg-white/5 px-2.5 py-1 text-[10px] font-semibold text-white/80 ring-1 ring-white/10">
@@ -574,9 +548,7 @@ function ScreenADR({ active }) {
           <span className="text-[10px] text-white/40">v1.0 • 2025-01-15</span>
         </div>
 
-        {/* body */}
         <div className="px-4 py-4 flex-1 min-h-0 flex flex-col">
-          {/* title */}
           <div
             className="text-sm font-semibold min-h-[22px]"
             style={{ color: "rgba(255,255,255,0.85)" }}
@@ -589,14 +561,11 @@ function ScreenADR({ active }) {
               )}
               style={{
                 background: "var(--af-pin)",
-                animation: titleDone
-                  ? "none"
-                  : "afCursorBlink 700ms linear infinite",
+                animation: titleDone ? "none" : "afCursorBlink 700ms linear infinite",
               }}
             />
           </div>
 
-          {/* primary fields */}
           <div className="mt-4 space-y-3">
             <Field
               label="Problema"
@@ -614,13 +583,10 @@ function ScreenADR({ active }) {
               visible={showDecision}
             />
 
-            {/* status crossfade */}
             <div
               className={cx(
                 "transition-all duration-500",
-                showStatus
-                  ? "opacity-100 translate-y-0"
-                  : "opacity-0 translate-y-3",
+                showStatus ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3",
               )}
             >
               <div className="flex items-center gap-2 font-mono text-xs">
@@ -648,7 +614,6 @@ function ScreenADR({ active }) {
               </div>
             </div>
 
-            {/* compact cards */}
             <RevealBlock show={showMore}>
               <div className="mt-2 grid grid-cols-2 gap-3">
                 <TinyList
@@ -686,39 +651,28 @@ function ScreenADR({ active }) {
               </div>
             </RevealBlock>
 
-            {/* deeper info */}
             <RevealBlock show={showDeep}>
               <div className="mt-3 grid grid-cols-2 gap-3">
                 <div className="rounded-xl bg-white/5 ring-1 ring-white/10 p-3">
-                  <p className="text-[10px] font-semibold text-white/70">
-                    Plano de rollout
-                  </p>
+                  <p className="text-[10px] font-semibold text-white/70">Plano de rollout</p>
                   <p className="mt-1 text-[10px] text-white/50 leading-snug">
-                    1) Read model em paralelo · 2) Shadow traffic · 3) Cutover
-                    por feature flag
+                    1) Read model em paralelo · 2) Shadow traffic · 3) Cutover por feature flag
                   </p>
                 </div>
                 <div className="rounded-xl bg-white/5 ring-1 ring-white/10 p-3">
-                  <p className="text-[10px] font-semibold text-white/70">
-                    Critérios de aceite
-                  </p>
+                  <p className="text-[10px] font-semibold text-white/70">Critérios de aceite</p>
                   <p className="mt-1 text-[10px] text-white/50 leading-snug">
                     p95 read &lt; 120ms · erro &lt; 0.5% · lag &lt; 5s
                   </p>
                 </div>
                 <div className="rounded-xl bg-white/5 ring-1 ring-white/10 p-3">
-                  <p className="text-[10px] font-semibold text-white/70">
-                    Riscos
-                  </p>
+                  <p className="text-[10px] font-semibold text-white/70">Riscos</p>
                   <p className="mt-1 text-[10px] text-white/50 leading-snug">
-                    Projeção inconsistente · reprocessamento · duplicidade de
-                    eventos
+                    Projeção inconsistente · reprocessamento · duplicidade de eventos
                   </p>
                 </div>
                 <div className="rounded-xl bg-white/5 ring-1 ring-white/10 p-3">
-                  <p className="text-[10px] font-semibold text-white/70">
-                    Links
-                  </p>
+                  <p className="text-[10px] font-semibold text-white/70">Links</p>
                   <p className="mt-1 text-[10px] text-white/50 leading-snug">
                     Story • PR • Migration • Runbook
                   </p>
@@ -738,7 +692,6 @@ function ScreenADR({ active }) {
             </RevealBlock>
           </div>
 
-          {/* keeps card feeling full height */}
           <div className="flex-1" />
         </div>
       </div>
@@ -753,59 +706,17 @@ function ScreenC4({ active }) {
 
   const nodes = [
     { id: "user", x: 22, y: 50, title: "User", sub: "[Person]", delay: 0 },
-
-    // ↑ mais espaço: antes ~118
-    {
-      id: "fe",
-      x: 138,
-      y: 50,
-      title: "Frontend",
-      sub: "[Container]",
-      delay: 300,
-    },
-
-    // ↑ mais espaço: antes ~206
-    {
-      id: "gw",
-      x: 254,
-      y: 50,
-      title: "API Gateway",
-      sub: "[Container]",
-      delay: 600,
-    },
-
-    // mantém coluna da direita alinhada no gateway
-    {
-      id: "svc",
-      x: 254,
-      y: 124,
-      title: "Order Service",
-      sub: "[Container]",
-      delay: 900,
-    },
+    { id: "fe", x: 138, y: 50, title: "Frontend", sub: "[Container]", delay: 300 },
+    { id: "gw", x: 254, y: 50, title: "API Gateway", sub: "[Container]", delay: 600 },
+    { id: "svc", x: 254, y: 124, title: "Order Service", sub: "[Container]", delay: 900 },
     { id: "db", x: 254, y: 194, title: "PostgreSQL", sub: "[DB]", delay: 1200 },
   ];
 
-  // linhas recalculadas (retângulos 80x36)
   const edges = [
-    // user -> fe
     { id: "e1", x1: 22 + 80, y1: 50 + 18, x2: 138, y2: 50 + 18, delay: 450 },
-
-    // fe -> gw
     { id: "e2", x1: 138 + 80, y1: 50 + 18, x2: 254, y2: 50 + 18, delay: 750 },
-
-    // gw -> svc
     { id: "e3", x1: 254 + 40, y1: 50 + 36, x2: 254 + 40, y2: 124, delay: 1050 },
-
-    // svc -> db
-    {
-      id: "e4",
-      x1: 254 + 40,
-      y1: 124 + 36,
-      x2: 254 + 40,
-      y2: 194,
-      delay: 1350,
-    },
+    { id: "e4", x1: 254 + 40, y1: 124 + 36, x2: 254 + 40, y2: 194, delay: 1350 },
   ];
 
   return (
@@ -818,14 +729,8 @@ function ScreenC4({ active }) {
           <span className="text-[10px] text-white/40">v2.3</span>
         </div>
 
-        {/* ✅ área central fixa */}
         <div className="mt-2 flex-1 min-h-0 flex items-center justify-center">
-          <svg
-            viewBox="0 0 340 260"
-            className="w-full max-w-[360px]"
-            preserveAspectRatio="xMidYMid meet"
-          >
-            {/* lines (no arrows) */}
+          <svg viewBox="0 0 340 260" className="w-full max-w-[360px]" preserveAspectRatio="xMidYMid meet">
             {edges.map((e) => (
               <line
                 key={e.id}
@@ -867,22 +772,10 @@ function ScreenC4({ active }) {
                   stroke="var(--af-line)"
                   strokeWidth="1.2"
                 />
-                <text
-                  x={n.x + 40}
-                  y={n.y + 15}
-                  textAnchor="middle"
-                  fontSize="9"
-                  fill="rgba(255,255,255,0.8)"
-                >
+                <text x={n.x + 40} y={n.y + 15} textAnchor="middle" fontSize="9" fill="rgba(255,255,255,0.8)">
                   {n.title}
                 </text>
-                <text
-                  x={n.x + 40}
-                  y={n.y + 28}
-                  textAnchor="middle"
-                  fontSize="7"
-                  fill="rgba(255,255,255,0.4)"
-                >
+                <text x={n.x + 40} y={n.y + 28} textAnchor="middle" fontSize="7" fill="rgba(255,255,255,0.4)">
                   {n.sub}
                 </text>
               </g>
@@ -890,7 +783,6 @@ function ScreenC4({ active }) {
           </svg>
         </div>
 
-        {/* footer info fixo */}
         <div className="mt-3 grid grid-cols-2 gap-3 px-2 pb-2">
           <div className="rounded-xl bg-white/5 ring-1 ring-white/10 p-3">
             <p className="text-[10px] font-semibold text-white/70">Fluxo</p>
@@ -908,14 +800,8 @@ function ScreenC4({ active }) {
       </div>
 
       <style>{`
-        @keyframes c4In {
-          from { opacity: 0; transform: scale(0.88); }
-          to { opacity: 1; transform: scale(1); }
-        }
-        @keyframes c4Draw {
-          from { stroke-dashoffset: 120; opacity: 0.15; }
-          to { stroke-dashoffset: 0; opacity: 0.85; }
-        }
+        @keyframes c4In { from { opacity: 0; transform: scale(0.88); } to { opacity: 1; transform: scale(1); } }
+        @keyframes c4Draw { from { stroke-dashoffset: 120; opacity: 0.15; } to { stroke-dashoffset: 0; opacity: 0.85; } }
       `}</style>
     </div>
   );
@@ -925,79 +811,37 @@ function ScreenC4({ active }) {
 
 function ScreenERD({ active }) {
   const tables = [
-    {
-      id: "users",
-      x: 22,
-      y: 30,
-      name: "users",
-      delay: 0,
-      fields: ["id (PK)", "name", "email"],
-    },
-    {
-      id: "orders",
-      x: 190,
-      y: 30,
-      name: "orders",
-      delay: 500,
-      fields: ["id (PK)", "user_id (FK)", "status"],
-    },
-
-    // ↓ antes estava muito baixo (y: 150). Subimos e centralizamos melhor:
-    {
-      id: "items",
-      x: 190,
-      y: 128,
-      name: "order_items",
-      delay: 1000,
-      fields: ["id (PK)", "order_id(FK)", "product_id"],
-    },
+    { id: "users", x: 22, y: 30, name: "users", delay: 0, fields: ["id (PK)", "name", "email"] },
+    { id: "orders", x: 190, y: 30, name: "orders", delay: 500, fields: ["id (PK)", "user_id (FK)", "status"] },
+    { id: "items", x: 190, y: 128, name: "order_items", delay: 1000, fields: ["id (PK)", "order_id(FK)", "product_id"] },
   ];
-  const [visibleFields, setVisibleFields] = useState({
-    users: 0,
-    orders: 0,
-    items: 0,
-  });
 
+  const [visibleFields, setVisibleFields] = useState({ users: 0, orders: 0, items: 0 });
   const runIdRef = useRef(0);
 
   useEffect(() => {
-    // incrementa "run" sempre que ativar/desativar
     runIdRef.current += 1;
     const runId = runIdRef.current;
 
-    // reset sempre
     setVisibleFields({ users: 0, orders: 0, items: 0 });
-
     if (!active) return;
 
     const timers = [];
-
-    // agenda revelação 1x, ignorando runs antigos
     tables.forEach((t) => {
       t.fields.forEach((_, i) => {
-        const tid = setTimeout(
-          () => {
-            if (runIdRef.current !== runId) return; // ignora disparos velhos
-            setVisibleFields((prev) => ({
-              ...prev,
-              [t.id]: Math.max(prev[t.id], i + 1),
-            }));
-          },
-          t.delay + 250 + i * 80,
-        );
-
+        const tid = setTimeout(() => {
+          if (runIdRef.current !== runId) return;
+          setVisibleFields((prev) => ({ ...prev, [t.id]: Math.max(prev[t.id], i + 1) }));
+        }, t.delay + 250 + i * 80);
         timers.push(tid);
       });
     });
 
-    return () => {
-      timers.forEach(clearTimeout);
-    };
+    return () => timers.forEach(clearTimeout);
   }, [active]);
 
   const Table = ({ t }) => {
     const count = visibleFields[t.id] ?? 0;
-
     return (
       <g
         style={{
@@ -1008,42 +852,12 @@ function ScreenERD({ active }) {
           animationDelay: active ? `${t.delay}ms` : "0ms",
         }}
       >
-        <rect
-          x={t.x}
-          y={t.y}
-          width="140"
-          height="92"
-          rx="10"
-          fill="#0a0a0a"
-          stroke="rgba(255,255,255,0.10)"
-        />
-        <rect
-          x={t.x}
-          y={t.y}
-          width="140"
-          height="24"
-          rx="10"
-          fill="#0a0a0a"
-          stroke="var(--af-line)"
-          strokeWidth="1.2"
-        />
-        <text
-          x={t.x + 10}
-          y={t.y + 16}
-          fontSize="9"
-          fontWeight="700"
-          fill="rgba(255,255,255,0.85)"
-        >
+        <rect x={t.x} y={t.y} width="140" height="92" rx="10" fill="#0a0a0a" stroke="rgba(255,255,255,0.10)" />
+        <rect x={t.x} y={t.y} width="140" height="24" rx="10" fill="#0a0a0a" stroke="var(--af-line)" strokeWidth="1.2" />
+        <text x={t.x + 10} y={t.y + 16} fontSize="9" fontWeight="700" fill="rgba(255,255,255,0.85)">
           {t.name}
         </text>
-
-        <line
-          x1={t.x}
-          y1={t.y + 26}
-          x2={t.x + 140}
-          y2={t.y + 26}
-          stroke="rgba(255,255,255,0.10)"
-        />
+        <line x1={t.x} y1={t.y + 26} x2={t.x + 140} y2={t.y + 26} stroke="rgba(255,255,255,0.10)" />
 
         {t.fields.map((f, i) => {
           const visible = i < count;
@@ -1057,15 +871,10 @@ function ScreenERD({ active }) {
               fontSize="8"
               fontFamily="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace"
               fill={visible ? "rgba(255,255,255,0.70)" : "rgba(255,255,255,0)"}
-              style={{
-                opacity: visible ? 1 : 0,
-                transition: "opacity 200ms ease",
-              }}
+              style={{ opacity: visible ? 1 : 0, transition: "opacity 200ms ease" }}
             >
               {(isPK || isFK) && (
-                <tspan fill="var(--af-pin)">
-                  {isPK ? "PK " : isFK ? "FK " : ""}
-                </tspan>
+                <tspan fill="var(--af-pin)">{isPK ? "PK " : isFK ? "FK " : ""}</tspan>
               )}
               <tspan>{f.replace("(PK)", "").replace("(FK)", "")}</tspan>
             </text>
@@ -1075,7 +884,6 @@ function ScreenERD({ active }) {
     );
   };
 
-  // Crow's foot relationship (no arrow)
   const Relationship = ({ x1, y1, x2, y2, delay }) => {
     const dash = 220;
     return (
@@ -1100,36 +908,14 @@ function ScreenERD({ active }) {
     <div className="h-full min-h-0">
       <div className="h-full min-h-0 rounded-2xl bg-black/40 ring-1 ring-white/10 p-3 flex flex-col">
         <div className="flex items-center justify-between px-2 py-1">
-          <p className="text-[10px] font-semibold text-white/70">
-            ERD (exemplo)
-          </p>
+          <p className="text-[10px] font-semibold text-white/70">ERD (exemplo)</p>
           <span className="text-[10px] text-white/40">schema v1</span>
         </div>
 
         <div className="mt-2 flex-1 min-h-0 flex items-center justify-center">
-          <svg
-            viewBox="0 0 340 250"
-            className="w-full max-w-[360px]"
-            preserveAspectRatio="xMidYMid meet"
-          >
-            {/* relationships after appear */}
-            <Relationship
-              x1={22 + 140}
-              y1={34 + 52}
-              x2={190}
-              y2={34 + 52}
-              delay={850}
-              manyAtEnd={true} // users 1—N orders (many at orders)
-            />
-            <Relationship
-              x1={190 + 70}
-              y1={30 + 92} // base da tabela orders (y + height)
-              x2={190 + 70}
-              y2={128} // topo da tabela items (novo y)
-              delay={1500}
-              manyAtEnd={true}
-            />
-
+          <svg viewBox="0 0 340 250" className="w-full max-w-[360px]" preserveAspectRatio="xMidYMid meet">
+            <Relationship x1={22 + 140} y1={34 + 52} x2={190} y2={34 + 52} delay={850} />
+            <Relationship x1={190 + 70} y1={30 + 92} x2={190 + 70} y2={128} delay={1500} />
             {tables.map((t) => (
               <Table key={t.id} t={t} />
             ))}
@@ -1153,26 +939,8 @@ function ScreenERD({ active }) {
       </div>
 
       <style>{`
-        @keyframes erdIn {
-          from { opacity: 0; transform: translateY(12px); }
-          to { opacity: 1; transform: translateY(0px); }
-        }
-        @keyframes erdDraw {
-          from { stroke-dashoffset: 220; opacity: 0.15; }
-          to { stroke-dashoffset: 0; opacity: 0.85; }
-        }
-          @keyframes erdIn {
-          from { opacity: 0; transform: translateY(12px); }
-          to { opacity: 1; transform: translateY(0px); }
-        }
-        @keyframes erdDraw {
-          from { stroke-dashoffset: 220; opacity: 0.15; }
-          to { stroke-dashoffset: 0; opacity: 0.85; }
-        }
-        @keyframes erdDotIn {
-          from { opacity: 0; transform: scale(0.6); }
-          to { opacity: 0.95; transform: scale(1); }
-        }
+        @keyframes erdIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0px); } }
+        @keyframes erdDraw { from { stroke-dashoffset: 220; opacity: 0.15; } to { stroke-dashoffset: 0; opacity: 0.85; } }
       `}</style>
     </div>
   );
@@ -1231,28 +999,21 @@ function ScreenKanban({ active }) {
     <div className="h-full min-h-0">
       <div className="h-full min-h-0 rounded-2xl bg-black/40 ring-1 ring-white/10 p-3 flex flex-col">
         <div className="flex items-center justify-between px-2 py-1">
-          <p className="text-[10px] font-semibold text-white/70">
-            Board (scrumban)
-          </p>
+          <p className="text-[10px] font-semibold text-white/70">Board (scrumban)</p>
           <span className="text-[10px] text-white/40">Sprint 12</span>
         </div>
 
         <div
           className={cx(
-            "mt-3 flex-1 min-h-0 flex gap-2.5",
-            "transition-opacity duration-500",
+            "mt-3 flex-1 min-h-0 flex gap-2.5 transition-opacity duration-500",
             active ? "opacity-100" : "opacity-0",
           )}
         >
           {columns.map((col, ci) => (
             <div key={col.name} className="w-[84px] flex flex-col min-h-0">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-semibold text-white/60">
-                  {col.name}
-                </span>
-                <span className="rounded-full bg-white/10 px-1.5 text-[9px] text-white/60">
-                  {col.count}
-                </span>
+                <span className="text-[10px] font-semibold text-white/60">{col.name}</span>
+                <span className="rounded-full bg-white/10 px-1.5 text-[9px] text-white/60">{col.count}</span>
               </div>
 
               <div className="mt-2 space-y-2 min-h-0 overflow-hidden">
@@ -1270,9 +1031,7 @@ function ScreenKanban({ active }) {
                       style={{
                         opacity: 0,
                         transform: "translateY(-10px)",
-                        animation: active
-                          ? "kbCardIn 450ms ease forwards"
-                          : "none",
+                        animation: active ? "kbCardIn 450ms ease forwards" : "none",
                         animationDelay: active ? `${d}ms` : "0ms",
                       }}
                     >
@@ -1287,9 +1046,7 @@ function ScreenKanban({ active }) {
                         <div
                           className="pointer-events-none absolute inset-0"
                           style={{
-                            animation: active
-                              ? "afPulse 2s ease-in-out infinite"
-                              : "none",
+                            animation: active ? "afPulse 2s ease-in-out infinite" : "none",
                           }}
                         />
                       )}
@@ -1302,10 +1059,7 @@ function ScreenKanban({ active }) {
         </div>
 
         <style>{`
-          @keyframes kbCardIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0px); }
-          }
+          @keyframes kbCardIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0px); } }
         `}</style>
       </div>
     </div>
@@ -1328,10 +1082,7 @@ function Marquee() {
           <LogoPill icon={ShieldCheck}>Traceability</LogoPill>
           <LogoPill icon={Search}>Single Source of Truth</LogoPill>
         </div>
-        <div
-          className="animate-[marquee_22s_linear_infinite] flex items-center gap-3 py-4 pr-6"
-          aria-hidden="true"
-        >
+        <div className="animate-[marquee_22s_linear_infinite] flex items-center gap-3 py-4 pr-6" aria-hidden="true">
           <LogoPill icon={Layers}>Architecture-First</LogoPill>
           <LogoPill icon={BookText}>ADRs</LogoPill>
           <LogoPill icon={Boxes}>C4 Model</LogoPill>
@@ -1344,29 +1095,53 @@ function Marquee() {
       </div>
 
       <style>{`
-        @keyframes marquee {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
+        @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
       `}</style>
     </div>
   );
 }
 
+/**
+ * ✅ Navbar corrigida:
+ * - clique nos itens faz scroll suave para a seção correta
+ * - offset do header é calculado pelo próprio header (ref) (não “chutado”)
+ */
 function Navbar() {
+  const headerRef = useRef(null);
+
   const links = [
-    { label: "Produto", href: "#produto" },
-    { label: "Pilares", href: "#pilares" },
-    { label: "Features", href: "#features" },
-    { label: "Roadmap", href: "#roadmap" },
-    { label: "Stack", href: "#stack" },
+    { label: "Produto", id: "produto" },
+    { label: "Pilares", id: "pilares" },
+    { label: "Features", id: "features" },
+    { label: "Roadmap", id: "roadmap" },
+    { label: "Stack", id: "stack" },
   ];
 
+  const scrollToId = (id) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+
+    const headerH = headerRef.current?.offsetHeight ?? 72;
+    const y = el.getBoundingClientRect().top + window.scrollY - headerH - 12; // +12 “respira”
+
+    window.scrollTo({ top: y, behavior: "smooth" });
+  };
+
   return (
-    <header className="sticky top-0 z-40 border-b border-white/10 bg-black/80 backdrop-blur-xl">
+    <header
+      ref={headerRef}
+      className="sticky top-0 z-50 border-b border-white/10 bg-black/80 backdrop-blur-xl"
+    >
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-        <a href="#top" className="group inline-flex items-center gap-2">
-          <Icon as={Sparkles} className="h-5 w-5" />
+        <a
+          href="#top"
+          className="inline-flex items-center gap-2"
+          onClick={(e) => {
+            e.preventDefault();
+            scrollToId("top");
+          }}
+        >
+          <img src="/archflow-logo.png" alt="ArchFlow" className="h-10 w-10 object-contain" />
           <span className="text-sm font-semibold tracking-tight text-white">
             ArchFlow<span className="text-white/60">.io</span>
           </span>
@@ -1375,8 +1150,12 @@ function Navbar() {
         <nav className="hidden items-center gap-6 md:flex">
           {links.map((l) => (
             <a
-              key={l.href}
-              href={l.href}
+              key={l.id}
+              href={`#${l.id}`}
+              onClick={(e) => {
+                e.preventDefault();
+                scrollToId(l.id);
+              }}
               className="text-sm text-white/70 hover:text-white hover:underline hover:decoration-[var(--af-primary)] hover:decoration-2 hover:underline-offset-8 transition"
             >
               {l.label}
@@ -1389,11 +1168,31 @@ function Navbar() {
 }
 
 function Hero() {
-  // Typewriter for "arquitetura."
   const fullWord = "arquitetura.";
   const [typed, setTyped] = useState("");
-  const [showCursor, setShowCursor] = useState(true);
-  const [blinkCursor, setBlinkCursor] = useState(false);
+  const [titleDone, setTitleDone] = useState(false);
+
+  useEffect(() => {
+    let i = 0;
+    let intervalId = null;
+
+    setTyped("");
+    setTitleDone(false);
+
+    intervalId = setInterval(() => {
+      i += 1;
+      setTyped(fullWord.slice(0, i));
+      if (i >= fullWord.length) {
+        clearInterval(intervalId);
+        intervalId = null;
+        setTitleDone(true);
+      }
+    }, 60);
+
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, []);
 
   return (
     <section className="relative">
@@ -1401,13 +1200,8 @@ function Hero() {
         <div className="pointer-events-none absolute inset-0 opacity-[0.14] [background-image:linear-gradient(to_right,rgba(255,255,255,.08)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,.08)_1px,transparent_1px)] [background-size:72px_72px]" />
       </div>
 
-      <div
-        className="relative mx-auto max-w-6xl px-4 pt-16 pb-10 md:pt-24 md:pb-16"
-        id="top"
-      >
-        {/* Linha 1: conteúdo + painel */}
+      <div className="relative mx-auto max-w-6xl px-4 pt-16 pb-10 md:pt-24 md:pb-16" id="top">
         <div className="grid gap-10 lg:grid-cols-2 lg:items-start">
-          {/* LEFT */}
           <div className="flex flex-col items-start gap-6">
             <div className="flex flex-wrap items-center gap-2">
               <Badge tone="accent">Architecture-First</Badge>
@@ -1419,15 +1213,21 @@ function Hero() {
               A ferramenta ágil que entende{" "}
               <span className="text-white">
                 <span>{typed}</span>
-              </span>
+                <span
+                  className={cx("ml-1 inline-block w-[1px] h-[1em] align-middle", titleDone && "opacity-0")}
+                  style={{
+                    background: "var(--af-pin)",
+                    animation: titleDone ? "none" : "afCursorBlink 700ms linear infinite",
+                  }}
+                />
+              </span>{" "}
               Não só tasks.
             </h1>
 
             <p className="max-w-2xl text-base md:text-lg leading-relaxed text-white/75">
               O <span className="text-white font-medium">ArchFlow</span> coloca{" "}
-              <Accent>decisões arquiteturais</Accent>,{" "}
-              <Accent>diagramas</Accent> e <Accent>schema</Accent> no centro da
-              gestão ágil — com rastreabilidade completa do conceito ao deploy.
+              <Accent>decisões arquiteturais</Accent>, <Accent>diagramas</Accent> e{" "}
+              <Accent>schema</Accent> no centro da gestão ágil — com rastreabilidade completa do conceito ao deploy.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3">
@@ -1435,51 +1235,42 @@ function Hero() {
                 href="#cta"
                 className="group inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold text-white bg-white/5 hover:bg-white/8 ring-1 ring-white/15 hover:ring-[var(--af-line)]/80 hover:text-[var(--af-primary)] transition"
               >
-                <Icon as={ArrowRight} className="h-4 w-4" />
+                <Icon as={ArrowRight} className="h-4 w-4 group-hover:text-[var(--af-pin)]" />
                 Solicitar acesso
               </a>
               <a
                 href="#produto"
                 className="group inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold text-white/85 hover:text-white bg-white/5 hover:bg-white/8 ring-1 ring-white/10 hover:ring-[var(--af-line)]/60 transition"
               >
-                <Icon as={ChevronRight} className="h-4 w-4" />
+                <Icon as={ChevronRight} className="h-4 w-4 group-hover:text-[var(--af-pin)]" />
                 Ver como funciona
               </a>
             </div>
-
-            {/* Marquee fica aqui como antes */}
           </div>
 
-          {/* RIGHT (lg+) */}
           <div className="hidden lg:block">
             <HeroAnimatedPanel />
           </div>
         </div>
 
-        {/* Linha 2: os 3 cards FULL WIDTH (mesmo tamanho de antes) */}
         <div className="mt-10 grid w-full gap-4 md:grid-cols-3">
-          <Card className="group p-5 hover:ring-[var(--af-line)]/40 transition">
+          <Card className="p-5 hover:ring-[var(--af-line)]/40 transition">
             <div className="flex items-start gap-3">
-              <Icon as={Layers} className="h-5 w-5 mt-0.5" />
+              <Icon as={Layers} className="h-5 w-5 mt-0.5 hover:text-[var(--af-pin)]" />
               <div>
-                <p className="text-sm font-medium text-white">
-                  Menos fragmentação
-                </p>
+                <p className="text-sm font-medium text-white">Menos fragmentação</p>
                 <p className="mt-1 text-sm text-white/70">
-                  ADRs, diagramas, board e schema no mesmo produto — reduz
-                  context switching.
+                  ADRs, diagramas, board e schema no mesmo produto — reduz context switching.
                 </p>
               </div>
             </div>
           </Card>
 
-          <Card className="group p-5 hover:ring-[var(--af-line)]/40 transition">
+          <Card className="p-5 hover:ring-[var(--af-line)]/40 transition">
             <div className="flex items-start gap-3">
-              <Icon as={BookText} className="h-5 w-5 mt-0.5" />
+              <Icon as={BookText} className="h-5 w-5 mt-0.5 hover:text-[var(--af-pin)]" />
               <div>
-                <p className="text-sm font-medium text-white">
-                  Documentação viva
-                </p>
+                <p className="text-sm font-medium text-white">Documentação viva</p>
                 <p className="mt-1 text-sm text-white/70">
                   Versionamento por sprint e vínculo com execução: menos drift.
                 </p>
@@ -1487,13 +1278,11 @@ function Hero() {
             </div>
           </Card>
 
-          <Card className="group p-5 hover:ring-[var(--af-line)]/40 transition">
+          <Card className="p-5 hover:ring-[var(--af-line)]/40 transition">
             <div className="flex items-start gap-3">
-              <Icon as={Target} className="h-5 w-5 mt-0.5" />
+              <Icon as={Target} className="h-5 w-5 mt-0.5 hover:text-[var(--af-pin)]" />
               <div>
-                <p className="text-sm font-medium text-white">
-                  Onboarding rápido
-                </p>
+                <p className="text-sm font-medium text-white">Onboarding rápido</p>
                 <p className="mt-1 text-sm text-white/70">
                   Contexto técnico acessível por card: por que foi feito assim?
                 </p>
@@ -1501,6 +1290,7 @@ function Hero() {
             </div>
           </Card>
         </div>
+
         <div className="mt-6 w-full">
           <Marquee />
         </div>
@@ -1509,7 +1299,7 @@ function Hero() {
   );
 }
 
-/* -------------------- the rest of your page stays the same -------------------- */
+/* -------------------- SECTIONS -------------------- */
 
 function ProblemSolution() {
   return (
@@ -1531,16 +1321,13 @@ function ProblemSolution() {
           </div>
 
           <div className="mt-8">
-            <Card className="group p-6 hover:ring-[var(--af-line)]/40 transition">
+            <Card className="p-6 hover:ring-[var(--af-line)]/40 transition">
               <div className="flex items-start gap-3">
-                <Icon as={Target} className="h-5 w-5 mt-0.5" />
+                <Icon as={Target} className="h-5 w-5 mt-0.5 hover:text-[var(--af-pin)]" />
                 <div>
-                  <p className="text-sm font-semibold text-white">
-                    A questão central
-                  </p>
+                  <p className="text-sm font-semibold text-white">A questão central</p>
                   <p className="mt-2 text-sm leading-relaxed text-white/70">
-                    Como construir software de qualidade se as suas ferramentas
-                    não entendem arquitetura?
+                    Como construir software de qualidade se as suas ferramentas não entendem arquitetura?
                   </p>
                 </div>
               </div>
@@ -1575,26 +1362,22 @@ Kanban Card:
           </div>
 
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
-            <Card className="group p-5 hover:ring-[var(--af-line)]/40 transition">
+            <Card className="p-5 hover:ring-[var(--af-line)]/40 transition">
               <div className="flex items-start gap-3">
-                <Icon as={ShieldCheck} className="h-5 w-5 mt-0.5" />
+                <Icon as={ShieldCheck} className="h-5 w-5 mt-0.5 hover:text-[var(--af-pin)]" />
                 <div>
-                  <p className="text-sm font-semibold text-white">
-                    Fonte única
-                  </p>
+                  <p className="text-sm font-semibold text-white">Fonte única</p>
                   <p className="mt-1 text-sm text-white/70">
                     Tudo versionado e vinculado ao trabalho real.
                   </p>
                 </div>
               </div>
             </Card>
-            <Card className="group p-5 hover:ring-[var(--af-line)]/40 transition">
+            <Card className="p-5 hover:ring-[var(--af-line)]/40 transition">
               <div className="flex items-start gap-3">
-                <Icon as={GitBranch} className="h-5 w-5 mt-0.5" />
+                <Icon as={GitBranch} className="h-5 w-5 mt-0.5 hover:text-[var(--af-pin)]" />
                 <div>
-                  <p className="text-sm font-semibold text-white">
-                    Menos drift
-                  </p>
+                  <p className="text-sm font-semibold text-white">Menos drift</p>
                   <p className="mt-1 text-sm text-white/70">
                     Diagramas e schema evoluem junto com o sprint.
                   </p>
@@ -1623,20 +1406,17 @@ function Pillars() {
 
       <div className="mt-10 grid gap-5 md:grid-cols-2">
         {pillars.map((p) => (
-          <Card
-            key={p.title}
-            className="group p-6 hover:ring-[var(--af-line)]/40 transition"
-          >
+          <Card key={p.title} className="p-6 hover:ring-[var(--af-line)]/40 transition">
             <div className="flex items-start justify-between gap-4">
               <h3 className="text-lg font-semibold text-white">{p.title}</h3>
-              <Icon as={p.icon} className="h-5 w-5 mt-0.5" />
+              <Icon as={p.icon} className="h-5 w-5 mt-0.5 hover:text-[var(--af-pin)]" />
             </div>
 
             <div className="mt-4 space-y-3">
               {p.bullets.map((b) => (
-                <div key={b} className="group flex items-start gap-3">
+                <div key={b} className="flex items-start gap-3">
                   <span className="mt-0.5 inline-flex h-4 w-4 items-center justify-center">
-                    <Icon as={ChevronRight} className="h-4 w-4" />
+                    <Icon as={ChevronRight} className="h-4 w-4 hover:text-[var(--af-pin)]" />
                   </span>
                   <p className="text-sm text-white/70 leading-relaxed">{b}</p>
                 </div>
@@ -1662,16 +1442,13 @@ function Features() {
           desc="O ArchFlow conecta gestão ágil com arquitetura e banco — do jeito que dev trabalha."
         />
 
-        <Card className="group p-6 lg:w-[420px] hover:ring-[var(--af-line)]/40 transition">
+        <Card className="p-6 lg:w-[420px] hover:ring-[var(--af-line)]/40 transition">
           <div className="flex items-start gap-3">
-            <Icon as={Layers} className="h-5 w-5 mt-0.5" />
+            <Icon as={Layers} className="h-5 w-5 mt-0.5 hover:text-[var(--af-pin)]" />
             <div>
-              <p className="text-sm font-semibold text-white">
-                Por que isso é diferente?
-              </p>
+              <p className="text-sm font-semibold text-white">Por que isso é diferente?</p>
               <p className="mt-2 text-sm text-white/70 leading-relaxed">
-                Em vez de “linkar” arquitetura em algum lugar, o produto trata
-                arquitetura como entidade de primeira classe — com
+                Em vez de “linkar” arquitetura em algum lugar, o produto trata arquitetura como entidade de primeira classe — com
                 versionamento, diffs e rastreabilidade.
               </p>
               <div className="mt-4 flex flex-wrap gap-2">
@@ -1687,27 +1464,21 @@ function Features() {
 
       <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {mvpFeatures.map((f) => (
-          <Card
-            key={f.title}
-            className="group p-6 hover:ring-[var(--af-line)]/40 transition"
-          >
+          <Card key={f.title} className="p-6 hover:ring-[var(--af-line)]/40 transition">
             <div className="flex items-start gap-3">
-              <Icon as={f.icon} className="h-5 w-5 mt-0.5" />
+              <Icon as={f.icon} className="h-5 w-5 mt-0.5 hover:text-[var(--af-pin)]" />
               <div>
-                <h3 className="text-base font-semibold text-white">
-                  {f.title}
-                </h3>
-                <p className="mt-2 text-sm text-white/70 leading-relaxed">
-                  {f.desc}
-                </p>
+                <h3 className="text-base font-semibold text-white">{f.title}</h3>
+                <p className="mt-2 text-sm text-white/70 leading-relaxed">{f.desc}</p>
 
                 <div className="mt-5">
+                  {/* ✅ group só aqui (link), não no card */}
                   <a
                     href="#cta"
                     className="group inline-flex items-center gap-2 text-sm font-semibold text-white/75 hover:text-[var(--af-primary)] transition"
                   >
-                    Ver exemplo{" "}
-                    <ArrowRight className="h-4 w-4 text-white/80 group-hover:text-[var(--af-pin)] transition" />
+                    Ver exemplo
+                    <ArrowRight className="h-4 w-4 text-white/80 transition group-hover:text-[var(--af-pin)]" />
                   </a>
                 </div>
               </div>
@@ -1721,7 +1492,9 @@ function Features() {
   );
 }
 
-/* Keeping your existing sections below as-is (ArchTaskGraph, Workflow, Roadmap, Stack, CTA) */
+/* Keeping your existing sections below as-is (ArchTaskGraph, Workflow, Roadmap, Stack, CTA)
+   — (mantive o resto igual, só ajustando "group" onde causava hover global)
+*/
 
 function ArchTaskGraph() {
   const ref = useRef(null);
@@ -1773,21 +1546,12 @@ function ArchTaskGraph() {
 
   return (
     <section ref={ref} className="mx-auto max-w-6xl px-4 py-4">
-      <SectionTitle
-        eyebrow="Fluxo visual"
-        title="De uma decisão ao deploy — conectados."
-      />
+      <SectionTitle eyebrow="Fluxo visual" title="De uma decisão ao deploy — conectados." />
 
       <div className="mt-8">
         <Card className="p-6">
           <div className="flex justify-center">
-            <svg
-              viewBox="0 0 720 140"
-              className="w-full max-w-4xl"
-              role="img"
-              aria-label="ADR to Deploy flow graph"
-              preserveAspectRatio="xMidYMid meet"
-            >
+            <svg viewBox="0 0 720 140" className="w-full max-w-4xl" role="img" aria-label="ADR to Deploy flow graph" preserveAspectRatio="xMidYMid meet">
               {lines.map((l, idx) => (
                 <line
                   key={idx}
@@ -1813,30 +1577,12 @@ function ArchTaskGraph() {
                   className="cursor-pointer"
                   style={{
                     transformOrigin: `${n.x}px 70px`,
-                    animation: start
-                      ? `nodePulse 2000ms ease-in-out infinite`
-                      : "none",
-                    animationDelay: start
-                      ? `${afterLinesMs + idx * 180}ms`
-                      : "0ms",
+                    animation: start ? `nodePulse 2000ms ease-in-out infinite` : "none",
+                    animationDelay: start ? `${afterLinesMs + idx * 180}ms` : "0ms",
                   }}
                 >
-                  <circle
-                    cx={n.x}
-                    cy={70}
-                    r={28}
-                    fill="#0a0a0a"
-                    stroke="var(--af-line)"
-                    strokeWidth="1.5"
-                  />
-                  <text
-                    x={n.x}
-                    y={74}
-                    textAnchor="middle"
-                    fontSize="8"
-                    fill="rgba(255,255,255,0.75)"
-                    style={{ userSelect: "none" }}
-                  >
+                  <circle cx={n.x} cy={70} r={28} fill="#0a0a0a" stroke="var(--af-line)" strokeWidth="1.5" />
+                  <text x={n.x} y={74} textAnchor="middle" fontSize="8" fill="rgba(255,255,255,0.75)" style={{ userSelect: "none" }}>
                     {n.label}
                   </text>
                 </g>
@@ -1845,8 +1591,7 @@ function ArchTaskGraph() {
           </div>
 
           <p className="text-xs text-white/50 text-center mt-4">
-            Cada nó é rastreável: clique para ver ADR, diagrama, migration e PR
-            vinculados.
+            Cada nó é rastreável: clique para ver ADR, diagrama, migration e PR vinculados.
           </p>
         </Card>
       </div>
@@ -1926,10 +1671,7 @@ function Workflow() {
       <div className="mt-10 grid gap-5 lg:grid-cols-2">
         <div className="space-y-5">
           {steps.map((s) => (
-            <Card
-              key={s.k}
-              className="group p-6 hover:ring-[var(--af-line)]/40 transition"
-            >
+            <Card key={s.k} className="p-6 hover:ring-[var(--af-line)]/40 transition">
               <div className="flex items-start gap-4">
                 <div className="shrink-0">
                   <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-white/5 ring-1 ring-white/10 text-sm font-semibold text-white/80 hover:ring-[var(--af-line)]/70 hover:text-[var(--af-primary)] transition">
@@ -1939,29 +1681,23 @@ function Workflow() {
 
                 <div className="flex-1">
                   <div className="flex items-start justify-between gap-3">
-                    <h3 className="text-base font-semibold text-white">
-                      {s.title}
-                    </h3>
-                    <span className="group inline-flex items-center">
-                      <Icon as={s.icon} className="h-5 w-5" />
+                    <h3 className="text-base font-semibold text-white">{s.title}</h3>
+                    <span className="inline-flex items-center">
+                      <Icon as={s.icon} className="h-5 w-5 hover:text-[var(--af-pin)]" />
                     </span>
                   </div>
 
-                  <p className="mt-1 text-sm text-white/70 leading-relaxed">
-                    {s.desc}
-                  </p>
+                  <p className="mt-1 text-sm text-white/70 leading-relaxed">{s.desc}</p>
                 </div>
               </div>
             </Card>
           ))}
         </div>
 
-        <Card className="group p-6 hover:ring-[var(--af-line)]/40 transition">
+        <Card className="p-6 hover:ring-[var(--af-line)]/40 transition">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <p className="text-sm font-semibold text-white">
-                Traceability graph (exemplo)
-              </p>
+              <p className="text-sm font-semibold text-white">Traceability graph (exemplo)</p>
               <p className="mt-1 text-sm text-white/70">
                 Um “mapa” simples do fluxo que o ArchFlow torna navegável.
               </p>
@@ -1980,15 +1716,10 @@ function Workflow() {
                     key={i}
                     style={{
                       opacity: isVisible ? 1 : 0,
-                      transform: isVisible
-                        ? "translateY(0px)"
-                        : "translateY(8px)",
+                      transform: isVisible ? "translateY(0px)" : "translateY(8px)",
                       transition: "opacity 0.35s ease, transform 0.35s ease",
                       color: isAccent ? "var(--af-primary)" : undefined,
-                      animation:
-                        isAccent && isVisible
-                          ? "afPulse 2s ease-in-out infinite"
-                          : "none",
+                      animation: isAccent && isVisible ? "afPulse 2s ease-in-out infinite" : "none",
                       whiteSpace: "pre",
                     }}
                   >
@@ -2000,29 +1731,21 @@ function Workflow() {
           </div>
 
           <div className="mt-6 grid gap-4 sm:grid-cols-2">
-            <div className="group rounded-xl bg-white/4 p-4 ring-1 ring-white/10 hover:ring-[var(--af-line)]/40 transition">
+            <div className="rounded-xl bg-white/4 p-4 ring-1 ring-white/10 hover:ring-[var(--af-line)]/40 transition">
               <div className="flex items-start gap-3">
-                <Icon as={Target} className="h-5 w-5 mt-0.5" />
+                <Icon as={Target} className="h-5 w-5 mt-0.5 hover:text-[var(--af-pin)]" />
                 <div>
-                  <p className="text-xs font-semibold text-white/80">
-                    Benefício
-                  </p>
-                  <p className="mt-1 text-sm text-white/70">
-                    Menos “por que isso existe?” no time.
-                  </p>
+                  <p className="text-xs font-semibold text-white/80">Benefício</p>
+                  <p className="mt-1 text-sm text-white/70">Menos “por que isso existe?” no time.</p>
                 </div>
               </div>
             </div>
-            <div className="group rounded-xl bg-white/4 p-4 ring-1 ring-white/10 hover:ring-[var(--af-line)]/40 transition">
+            <div className="rounded-xl bg-white/4 p-4 ring-1 ring-white/10 hover:ring-[var(--af-line)]/40 transition">
               <div className="flex items-start gap-3">
-                <Icon as={BookText} className="h-5 w-5 mt-0.5" />
+                <Icon as={BookText} className="h-5 w-5 mt-0.5 hover:text-[var(--af-pin)]" />
                 <div>
-                  <p className="text-xs font-semibold text-white/80">
-                    Benefício
-                  </p>
-                  <p className="mt-1 text-sm text-white/70">
-                    Menos documentação obsoleta.
-                  </p>
+                  <p className="text-xs font-semibold text-white/80">Benefício</p>
+                  <p className="mt-1 text-sm text-white/70">Menos documentação obsoleta.</p>
                 </div>
               </div>
             </div>
@@ -2047,25 +1770,20 @@ function Roadmap() {
 
       <div className="mt-10 grid gap-5 lg:grid-cols-3">
         {roadmap.map((r, idx) => (
-          <Card
-            key={r.phase}
-            className="group p-6 hover:ring-[var(--af-line)]/40 transition"
-          >
+          <Card key={r.phase} className="p-6 hover:ring-[var(--af-line)]/40 transition">
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-2">
-                <Icon as={r.icon} className="h-5 w-5" />
-                <h3 className="text-base font-semibold text-white">
-                  {r.phase}
-                </h3>
+                <Icon as={r.icon} className="h-5 w-5 hover:text-[var(--af-pin)]" />
+                <h3 className="text-base font-semibold text-white">{r.phase}</h3>
               </div>
               <Badge tone="solid">{idx === 0 ? "Agora" : "Depois"}</Badge>
             </div>
 
             <div className="mt-4 space-y-3">
               {r.items.map((it) => (
-                <div key={it} className="group flex items-start gap-3">
+                <div key={it} className="flex items-start gap-3">
                   <span className="mt-0.5 inline-flex h-4 w-4 items-center justify-center">
-                    <Icon as={ChevronRight} className="h-4 w-4" />
+                    <Icon as={ChevronRight} className="h-4 w-4 hover:text-[var(--af-pin)]" />
                   </span>
                   <p className="text-sm text-white/70 leading-relaxed">{it}</p>
                 </div>
@@ -2098,23 +1816,20 @@ function Stack() {
                 key={s.name}
                 className="group inline-flex items-center gap-2 rounded-full bg-white/5 px-3 py-1 text-xs text-white/75 ring-1 ring-white/10 hover:ring-[var(--af-line)]/60 transition"
               >
-                <Icon as={s.icon} className="h-4 w-4" />
+                <Icon as={s.icon} className="h-4 w-4 group-hover:text-[var(--af-pin)]" />
                 {s.name}
               </span>
             ))}
           </div>
         </div>
 
-        <Card className="group p-6 hover:ring-[var(--af-line)]/40 transition">
+        <Card className="p-6 hover:ring-[var(--af-line)]/40 transition">
           <div className="flex items-start gap-3">
-            <Icon as={Database} className="h-5 w-5 mt-0.5" />
+            <Icon as={Database} className="h-5 w-5 mt-0.5 hover:text-[var(--af-pin)]" />
             <div>
-              <p className="text-sm font-semibold text-white">
-                Exemplo: geração de migration
-              </p>
+              <p className="text-sm font-semibold text-white">Exemplo: geração de migration</p>
               <p className="mt-1 text-sm text-white/70">
-                Quando o schema muda, você quer menos drift e mais
-                rastreabilidade.
+                Quando o schema muda, você quer menos drift e mais rastreabilidade.
               </p>
 
               <div className="mt-5">
@@ -2147,7 +1862,7 @@ Gera automaticamente:
 function CTA() {
   return (
     <section className="relative mx-auto max-w-6xl px-4 pb-20" id="cta">
-      <Card className="group overflow-hidden hover:ring-[var(--af-line)]/40 transition">
+      <Card className="overflow-hidden hover:ring-[var(--af-line)]/40 transition">
         <div className="relative p-8 md:p-10">
           <div className="relative grid gap-8 lg:grid-cols-2 lg:items-center">
             <div>
@@ -2164,8 +1879,7 @@ function CTA() {
                 .
               </h3>
               <p className="mt-3 text-sm md:text-base text-white/70 leading-relaxed">
-                Se você quer uma ferramenta ágil que realmente entende software
-                (decisões, diagramas e schema), o ArchFlow foi feito pra isso.
+                Se você quer uma ferramenta ágil que realmente entende software (decisões, diagramas e schema), o ArchFlow foi feito pra isso.
               </p>
 
               <div className="mt-6 flex flex-col sm:flex-row gap-3">
@@ -2173,14 +1887,14 @@ function CTA() {
                   href="#"
                   className="group inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold text-white bg-white/5 hover:bg-white/8 ring-1 ring-white/15 hover:ring-[var(--af-line)]/80 hover:text-[var(--af-primary)] transition"
                 >
-                  <Icon as={ArrowRight} className="h-4 w-4" />
+                  <Icon as={ArrowRight} className="h-4 w-4 group-hover:text-[var(--af-pin)]" />
                   Solicitar acesso
                 </a>
                 <a
                   href="#"
                   className="group inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold text-white/85 hover:text-white bg-white/5 hover:bg-white/8 ring-1 ring-white/10 hover:ring-[var(--af-line)]/60 transition"
                 >
-                  <Icon as={ChevronRight} className="h-4 w-4" />
+                  <Icon as={ChevronRight} className="h-4 w-4 group-hover:text-[var(--af-pin)]" />
                   Falar com o time
                 </a>
               </div>
@@ -2191,41 +1905,32 @@ function CTA() {
             </div>
 
             <div className="grid gap-4">
-              <div className="group rounded-2xl bg-black/50 p-6 ring-1 ring-white/10 hover:ring-[var(--af-line)]/40 transition">
+              <div className="rounded-2xl bg-black/50 p-6 ring-1 ring-white/10 hover:ring-[var(--af-line)]/40 transition">
                 <div className="flex items-start gap-3">
-                  <Icon as={ShieldCheck} className="h-5 w-5 mt-0.5" />
+                  <Icon as={ShieldCheck} className="h-5 w-5 mt-0.5 hover:text-[var(--af-pin)]" />
                   <div className="flex-1">
-                    <p className="text-xs font-semibold text-white/70">
-                      O que você ganha
-                    </p>
+                    <p className="text-xs font-semibold text-white/70">O que você ganha</p>
                     <div className="mt-4 space-y-3">
                       <CheckRow>Rastreabilidade real do ADR ao deploy</CheckRow>
-                      <CheckRow>
-                        Documentação viva e versionada por sprint
-                      </CheckRow>
+                      <CheckRow>Documentação viva e versionada por sprint</CheckRow>
                       <CheckRow>Menos drift em diagramas e schema</CheckRow>
-                      <CheckRow>
-                        Menos contexto perdido — mais velocidade com qualidade
-                      </CheckRow>
+                      <CheckRow>Menos contexto perdido — mais velocidade com qualidade</CheckRow>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div className="group rounded-2xl bg-white/4 p-6 ring-1 ring-white/10 hover:ring-[var(--af-line)]/40 transition">
+              <div className="rounded-2xl bg-white/4 p-6 ring-1 ring-white/10 hover:ring-[var(--af-line)]/40 transition">
                 <div className="flex items-start gap-3">
-                  <Icon as={Target} className="h-5 w-5 mt-0.5" />
+                  <Icon as={Target} className="h-5 w-5 mt-0.5 hover:text-[var(--af-pin)]" />
                   <div>
                     <p className="text-sm font-semibold text-white">
                       “Arquitetura{" "}
-                      <span className="text-white/90 hover:text-[var(--af-primary)] transition">
-                        É
-                      </span>{" "}
+                      <span className="text-white/90 hover:text-[var(--af-primary)] transition">É</span>{" "}
                       o projeto.”
                     </p>
                     <p className="mt-2 text-sm text-white/70">
-                      No ArchFlow, arquitetura deixa de ser anexo e vira parte
-                      do fluxo — rastreável, versionada e útil.
+                      No ArchFlow, arquitetura deixa de ser anexo e vira parte do fluxo — rastreável, versionada e útil.
                     </p>
                   </div>
                 </div>
@@ -2237,13 +1942,11 @@ function CTA() {
 
       <footer className="mt-10 border-t border-white/10 pt-8">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <div className="group flex items-center gap-2">
-            <Icon as={Sparkles} className="h-5 w-5" />
+          <div className="flex items-center gap-2">
+            <Icon as={Sparkles} className="h-5 w-5 hover:text-[var(--af-pin)]" />
             <div>
               <p className="text-sm font-semibold text-white">ArchFlow</p>
-              <p className="text-xs text-white/55">
-                Architecture-First Project Management
-              </p>
+              <p className="text-xs text-white/55">Architecture-First Project Management</p>
             </div>
           </div>
 
@@ -2277,33 +1980,9 @@ function CTA() {
 }
 
 export default function ArchFlowLanding() {
-  useEffect(() => {
-    const handler = (e) => {
-      const a = e.target.closest('a[href^="#"]');
-      if (!a) return;
-
-      const href = a.getAttribute("href");
-      if (!href || href === "#") return;
-
-      const id = href.slice(1);
-      const el = document.getElementById(id);
-      if (!el) return;
-
-      e.preventDefault();
-
-      const headerOffset = 72; // altura aproximada do navbar
-      const y = el.getBoundingClientRect().top + window.scrollY - headerOffset;
-
-      window.scrollTo({ top: y, behavior: "smooth" });
-    };
-
-    document.addEventListener("click", handler);
-    return () => document.removeEventListener("click", handler);
-  }, []);
-
   return (
     <div
-      className="min-h-screen w-full overflow-x-hidden bg-black text-white"
+      className="min-h-screen w-full bg-black text-white"
       style={{
         fontFamily:
           "Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial",
@@ -2313,107 +1992,83 @@ export default function ArchFlowLanding() {
       }}
     >
       <style>{`
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-  :root { color-scheme: dark; } /* ✅ força scrollbar do sistema em dark quando o browser ignora custom */
+        :root { color-scheme: dark; }
 
-  html, body { height: 100%; overflow-x: hidden; }
-  body { margin: 0; background: #000; }
+        html, body { height: 100%; overflow-x: hidden; }
+        body { margin: 0; background: #000; }
+        html { scroll-behavior: smooth; }
 
-  /* ✅ Smooth scroll (âncoras) */
-  html { scroll-behavior: smooth; }
+        /* ✅ garante âncora com offset (fallback, caso alguém use #id direto) */
+        section[id] { scroll-margin-top: 96px; }
 
-  /* ✅ Scrollbar bem sutil (preto) — quando suportado */
-  :root{
-    --sb-track: rgba(255,255,255,0.03);
-    --sb-thumb-a: rgba(0,0,0,0.22);
-    --sb-thumb-b: rgba(0,0,0,0.48);
-    --sb-thumb-hover-a: rgba(0,0,0,0.38);
-    --sb-thumb-hover-b: rgba(0,0,0,0.68);
-    --sb-border: rgba(0,0,0,0.85);
-  }
+        :root{
+          --sb-track: rgba(255,255,255,0.03);
+          --sb-thumb-a: rgba(0,0,0,0.22);
+          --sb-thumb-b: rgba(0,0,0,0.48);
+          --sb-thumb-hover-a: rgba(0,0,0,0.38);
+          --sb-thumb-hover-b: rgba(0,0,0,0.68);
+          --sb-border: rgba(0,0,0,0.85);
+        }
 
-  /* Firefox */
-  html, body {
-    scrollbar-width: thin;
-    scrollbar-color: rgba(0,0,0,0.60) rgba(255,255,255,0.03);
-  }
+        html, body {
+          scrollbar-width: thin;
+          scrollbar-color: rgba(0,0,0,0.60) rgba(255,255,255,0.03);
+        }
 
-  /* WebKit (Chrome/Edge/Safari) — html/body + qualquer container com overflow */
-  html::-webkit-scrollbar,
-  body::-webkit-scrollbar,
-  *::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
-  }
+        html::-webkit-scrollbar,
+        body::-webkit-scrollbar,
+        *::-webkit-scrollbar { width: 10px; height: 10px; }
 
-  html::-webkit-scrollbar-track,
-  body::-webkit-scrollbar-track,
-  *::-webkit-scrollbar-track {
-    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.04));
-    border-radius: 999px;
-    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04);
-  }
+        html::-webkit-scrollbar-track,
+        body::-webkit-scrollbar-track,
+        *::-webkit-scrollbar-track {
+          background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.04));
+          border-radius: 999px;
+          box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04);
+        }
 
-  html::-webkit-scrollbar-thumb,
-  body::-webkit-scrollbar-thumb,
-  *::-webkit-scrollbar-thumb {
-    border-radius: 999px;
-    border: 2px solid var(--sb-border);
-    background:
-      radial-gradient(80% 120% at 50% 0%,
-        rgba(255,255,255,0.08) 0%,
-        rgba(255,255,255,0.00) 55%),
-      linear-gradient(180deg, var(--sb-thumb-a), var(--sb-thumb-b));
-    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06);
-  }
+        html::-webkit-scrollbar-thumb,
+        body::-webkit-scrollbar-thumb,
+        *::-webkit-scrollbar-thumb {
+          border-radius: 999px;
+          border: 2px solid var(--sb-border);
+          background:
+            radial-gradient(80% 120% at 50% 0%, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.00) 55%),
+            linear-gradient(180deg, var(--sb-thumb-a), var(--sb-thumb-b));
+          box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06);
+        }
 
-  html::-webkit-scrollbar-thumb:hover,
-  body::-webkit-scrollbar-thumb:hover,
-  *::-webkit-scrollbar-thumb:hover {
-    background:
-      radial-gradient(80% 120% at 50% 0%,
-        rgba(255,255,255,0.10) 0%,
-        rgba(255,255,255,0.00) 55%),
-      linear-gradient(180deg, var(--sb-thumb-hover-a), var(--sb-thumb-hover-b));
-    box-shadow:
-      0 0 0 1px rgba(255,255,255,0.06),
-      0 10px 26px rgba(0,0,0,0.22),
-      inset 0 0 0 1px rgba(255,255,255,0.08);
-  }
+        html::-webkit-scrollbar-thumb:hover,
+        body::-webkit-scrollbar-thumb:hover,
+        *::-webkit-scrollbar-thumb:hover {
+          background:
+            radial-gradient(80% 120% at 50% 0%, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.00) 55%),
+            linear-gradient(180deg, var(--sb-thumb-hover-a), var(--sb-thumb-hover-b));
+          box-shadow:
+            0 0 0 1px rgba(255,255,255,0.06),
+            0 10px 26px rgba(0,0,0,0.22),
+            inset 0 0 0 1px rgba(255,255,255,0.08);
+        }
 
-  /* remove “setas/botões” */
-  html::-webkit-scrollbar-button,
-  body::-webkit-scrollbar-button,
-  *::-webkit-scrollbar-button { width: 0; height: 0; display: none; }
+        html::-webkit-scrollbar-button,
+        body::-webkit-scrollbar-button,
+        *::-webkit-scrollbar-button { width: 0; height: 0; display: none; }
 
-  html::-webkit-scrollbar-corner,
-  body::-webkit-scrollbar-corner,
-  *::-webkit-scrollbar-corner { background: transparent; }
+        html::-webkit-scrollbar-corner,
+        body::-webkit-scrollbar-corner,
+        *::-webkit-scrollbar-corner { background: transparent; }
 
-  /* (mantém suas animações existentes) */
-  @keyframes afCursorBlink {
-    0%, 49% { opacity: 1; }
-    50%, 100% { opacity: 0; }
-  }
-  @keyframes afPulse {
-    0% { opacity: 1; }
-    50% { opacity: 0.7; }
-    100% { opacity: 1; }
-  }
-  @keyframes drawLine {
-    from { stroke-dashoffset: 120; }
-    to { stroke-dashoffset: 0; }
-  }
-  @keyframes nodePulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.06); }
-    100% { transform: scale(1); }
-  }
-`}</style>
+        @keyframes afCursorBlink { 0%,49% { opacity: 1; } 50%,100% { opacity: 0; } }
+        @keyframes afPulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
+        @keyframes drawLine { from { stroke-dashoffset: 120; } to { stroke-dashoffset: 0; } }
+        @keyframes nodePulse { 0% { transform: scale(1); } 50% { transform: scale(1.06); } 100% { transform: scale(1); } }
+      `}</style>
 
       <Navbar />
-      <main>
+
+      <main className="overflow-x-hidden">
         <Hero />
         <ProblemSolution />
         <Pillars />
