@@ -307,14 +307,43 @@ function HeroAnimatedPanel() {
     [],
   );
 
+  // CONFIG
+  const transitionMs = 500;
+  const screenDurationMs = 7500; // tempo por tela
+  const autoplayIntervalMs = screenDurationMs + transitionMs;
+
   const [idx, setIdx] = useState(0);
+  const pauseUntilRef = useRef(0);
+
+  // ✅ runId por tela (só incrementa quando aquela tela vira ativa)
+  const [runs, setRuns] = useState([0, 0, 0, 0]);
+  const lastIdxRef = useRef(-1);
+
+  useEffect(() => {
+    if (lastIdxRef.current === idx) return;
+    lastIdxRef.current = idx;
+
+    setRuns((prev) => {
+      const next = [...prev];
+      next[idx] = (next[idx] ?? 0) + 1;
+      return next;
+    });
+  }, [idx]);
 
   useEffect(() => {
     const t = setInterval(() => {
+      const now = Date.now();
+      if (now < pauseUntilRef.current) return;
       setIdx((v) => (v + 1) % screens.length);
-    }, 4000); // 3.5s visible + 0.5s transition budget
+    }, autoplayIntervalMs);
+
     return () => clearInterval(t);
-  }, [screens.length]);
+  }, [screens.length, autoplayIntervalMs]);
+
+  const goTo = (i) => {
+    setIdx(i);
+    pauseUntilRef.current = Date.now() + autoplayIntervalMs * 2;
+  };
 
   return (
     <Card
@@ -327,18 +356,19 @@ function HeroAnimatedPanel() {
       <div className="h-12 flex items-center justify-between px-4 border-b border-white/10">
         <div className="relative h-5 w-full">
           {screens.map((s, i) => {
-            const active = i === idx;
+            const isActive = i === idx;
             return (
               <div
                 key={s.key}
                 className={cx(
                   "absolute inset-0 flex items-center",
-                  "transition-all duration-500",
-                  active
+                  "transition-all",
+                  isActive
                     ? "opacity-100 translate-y-0"
                     : "opacity-0 translate-y-3 pointer-events-none",
                 )}
                 style={{
+                  transitionDuration: `${transitionMs}ms`,
                   color: "rgba(255,255,255,0.85)",
                 }}
               >
@@ -351,32 +381,39 @@ function HeroAnimatedPanel() {
 
       {/* body */}
       <div className="relative h-[calc(420px-48px)]">
-        {/* Screen wrappers: transition 0.5s (fade/slide) */}
         <PanelScreen active={idx === 0}>
-          <ScreenADR active={idx === 0} />
-        </PanelScreen>
-        <PanelScreen active={idx === 1}>
-          <ScreenC4 active={idx === 1} />
-        </PanelScreen>
-        <PanelScreen active={idx === 2}>
-          <ScreenERD active={idx === 2} />
-        </PanelScreen>
-        <PanelScreen active={idx === 3}>
-          <ScreenKanban active={idx === 3} />
+          {/* ✅ remount só quando ADR fica ativa */}
+          <ScreenADR key={`adr-${runs[0]}`} active={idx === 0} />
         </PanelScreen>
 
-        {/* progress dots */}
+        <PanelScreen active={idx === 1}>
+          <ScreenC4 key={`c4-${runs[1]}`} active={idx === 1} />
+        </PanelScreen>
+
+        <PanelScreen active={idx === 2}>
+          <ScreenERD key={`erd-${runs[2]}`} active={idx === 2} />
+        </PanelScreen>
+
+        <PanelScreen active={idx === 3}>
+          <ScreenKanban key={`kb-${runs[3]}`} active={idx === 3} />
+        </PanelScreen>
+
+        {/* dots clicáveis */}
         <div className="absolute bottom-3 left-0 right-0 flex items-center justify-center gap-2">
           {screens.map((s, i) => {
-            const active = i === idx;
+            const isActive = i === idx;
             return (
-              <div
+              <button
                 key={s.key}
+                type="button"
+                onClick={() => goTo(i)}
+                aria-label={`Go to ${s.key}`}
                 className={cx(
-                  "transition-all duration-300",
-                  active
-                    ? "bg-[var(--af-pin)] w-4 h-1.5 rounded-full"
-                    : "bg-white/20 w-1.5 h-1.5 rounded-full",
+                  "transition-all duration-300 rounded-full",
+                  "focus:outline-none focus:ring-2 focus:ring-[var(--af-line)]/50",
+                  isActive
+                    ? "bg-[var(--af-pin)] w-4 h-1.5"
+                    : "bg-white/20 w-1.5 h-1.5",
                 )}
               />
             );
@@ -391,17 +428,17 @@ function PanelScreen({ active, children }) {
   return (
     <div
       className={cx(
-        "absolute inset-0 px-4 py-4",
+        "absolute inset-0",
+        "p-4",
+        "flex flex-col",
         "transition-all duration-500",
         active
-          ? "opacity-100 translate-y-0"
-          : "opacity-0 translate-y-3 pointer-events-none",
+          ? "opacity-100 pointer-events-auto"
+          : "opacity-0 pointer-events-none",
       )}
-      style={{
-        transform: active ? "translateY(0px)" : "translateY(12px)",
-      }}
+      style={{ transform: active ? "translateY(0px)" : "translateY(12px)" }}
     >
-      {children}
+      <div className="flex-1 min-h-0 w-full">{children}</div>
     </div>
   );
 }
@@ -409,32 +446,33 @@ function PanelScreen({ active, children }) {
 /* ----------------------------- SCREEN 1: ADR ----------------------------- */
 
 function ScreenADR({ active }) {
-  // title typewriter (50ms / char)
   const fullTitle = "Usar CQRS para separar leitura/escrita";
   const [typed, setTyped] = useState("");
   const [titleDone, setTitleDone] = useState(false);
 
-  // fields reveal + status crossfade
   const [showCtx, setShowCtx] = useState(false);
   const [showDecision, setShowDecision] = useState(false);
   const [showStatus, setShowStatus] = useState(false);
   const [statusAccepted, setStatusAccepted] = useState(false);
 
+  const [showMore, setShowMore] = useState(false);
+  const [showDeep, setShowDeep] = useState(false);
+
   useEffect(() => {
     if (!active) {
-      // reset when not active
       setTyped("");
       setTitleDone(false);
       setShowCtx(false);
       setShowDecision(false);
       setShowStatus(false);
       setStatusAccepted(false);
+      setShowMore(false);
+      setShowDeep(false);
       return;
     }
 
     let i = 0;
     let intervalId = null;
-    const timeouts = [];
 
     intervalId = setInterval(() => {
       i += 1;
@@ -448,9 +486,8 @@ function ScreenADR({ active }) {
 
     return () => {
       if (intervalId) clearInterval(intervalId);
-      timeouts.forEach((t) => clearTimeout(t));
     };
-  }, [active, fullTitle]);
+  }, [active]);
 
   useEffect(() => {
     if (!active || !titleDone) return;
@@ -458,15 +495,17 @@ function ScreenADR({ active }) {
     const t1 = setTimeout(() => setShowCtx(true), 800);
     const t2 = setTimeout(() => setShowDecision(true), 1400);
     const t3 = setTimeout(() => setShowStatus(true), 2000);
-
-    // status pill crossfade Proposed -> Accepted
     const t4 = setTimeout(() => setStatusAccepted(true), 2400);
+    const t5 = setTimeout(() => setShowMore(true), 2800);
+    const t6 = setTimeout(() => setShowDeep(true), 3400);
 
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
       clearTimeout(t3);
       clearTimeout(t4);
+      clearTimeout(t5);
+      clearTimeout(t6);
     };
   }, [active, titleDone]);
 
@@ -476,9 +515,7 @@ function ScreenADR({ active }) {
         "transition-all duration-500",
         visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3",
       )}
-      style={{
-        color: "rgba(255,255,255,0.85)",
-      }}
+      style={{ color: "rgba(255,255,255,0.85)" }}
     >
       <div className="flex gap-2 font-mono text-xs">
         <span style={{ color: "rgba(255,255,255,0.50)" }}>{label}:</span>
@@ -487,9 +524,33 @@ function ScreenADR({ active }) {
     </div>
   );
 
+  const RevealBlock = ({ show, children }) => (
+    <div
+      className={cx(
+        "transition-all duration-500",
+        show ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3",
+      )}
+    >
+      {children}
+    </div>
+  );
+
+  const TinyList = ({ title, items }) => (
+    <div className="rounded-xl bg-white/5 ring-1 ring-white/10 p-3">
+      <p className="text-[10px] font-semibold text-white/70">{title}</p>
+      <ul className="mt-1 space-y-1">
+        {items.map((it) => (
+          <li key={it} className="text-[10px] text-white/50 leading-snug">
+            • {it}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+
   return (
-    <div className="h-full">
-      <div className="rounded-2xl bg-black/40 ring-1 ring-white/10 overflow-hidden">
+    <div className="h-full min-h-0">
+      <div className="h-full min-h-0 rounded-2xl bg-black/40 ring-1 ring-white/10 overflow-hidden flex flex-col">
         {/* header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
           <div className="flex items-center gap-2">
@@ -504,13 +565,18 @@ function ScreenADR({ active }) {
               />
               <span style={{ color: "rgba(255,255,255,0.85)" }}>Accepted</span>
             </span>
+
+            <span className="hidden sm:inline-flex items-center rounded-full bg-white/5 px-2.5 py-1 text-[10px] text-white/60 ring-1 ring-white/10">
+              Impact: Medium
+            </span>
           </div>
 
-          <span className="text-[10px] text-white/40">v1.0</span>
+          <span className="text-[10px] text-white/40">v1.0 • 2025-01-15</span>
         </div>
 
         {/* body */}
-        <div className="px-4 py-4">
+        <div className="px-4 py-4 flex-1 min-h-0 flex flex-col">
+          {/* title */}
           <div
             className="text-sm font-semibold min-h-[22px]"
             style={{ color: "rgba(255,255,255,0.85)" }}
@@ -530,19 +596,25 @@ function ScreenADR({ active }) {
             />
           </div>
 
+          {/* primary fields */}
           <div className="mt-4 space-y-3">
             <Field
+              label="Problema"
+              value="Leitura saturando API e banco em picos"
+              visible={showCtx}
+            />
+            <Field
               label="Contexto"
-              value="Sistema com alta carga de leitura"
+              value="Sistema com alta carga de leitura (orders)"
               visible={showCtx}
             />
             <Field
               label="Decisão"
-              value="Event Sourcing + CQRS"
+              value="Event Sourcing + CQRS (read model separado)"
               visible={showDecision}
             />
 
-            {/* Status: Proposed -> Accepted crossfade */}
+            {/* status crossfade */}
             <div
               className={cx(
                 "transition-all duration-500",
@@ -575,24 +647,99 @@ function ScreenADR({ active }) {
                 </div>
               </div>
             </div>
+
+            {/* compact cards */}
+            <RevealBlock show={showMore}>
+              <div className="mt-2 grid grid-cols-2 gap-3">
+                <TinyList
+                  title="Alternativas"
+                  items={[
+                    "Cache agressivo (Redis) + invalidation",
+                    "Read replicas + tuning",
+                    "CQRS sem Event Sourcing",
+                  ]}
+                />
+                <TinyList
+                  title="Trade-offs"
+                  items={[
+                    "Mais componentes para operar",
+                    "Consistência eventual em leitura",
+                    "Mais complexidade de debug",
+                  ]}
+                />
+                <TinyList
+                  title="Impacto"
+                  items={[
+                    "API Gateway: rotas read/write",
+                    "Order Service: handlers/consumers",
+                    "Read Model: projeções",
+                  ]}
+                />
+                <TinyList
+                  title="Observabilidade"
+                  items={[
+                    "Tracing por correlation-id",
+                    "Lag da projeção (SLO)",
+                    "Alertas de falha de consumer",
+                  ]}
+                />
+              </div>
+            </RevealBlock>
+
+            {/* deeper info */}
+            <RevealBlock show={showDeep}>
+              <div className="mt-3 grid grid-cols-2 gap-3">
+                <div className="rounded-xl bg-white/5 ring-1 ring-white/10 p-3">
+                  <p className="text-[10px] font-semibold text-white/70">
+                    Plano de rollout
+                  </p>
+                  <p className="mt-1 text-[10px] text-white/50 leading-snug">
+                    1) Read model em paralelo · 2) Shadow traffic · 3) Cutover
+                    por feature flag
+                  </p>
+                </div>
+                <div className="rounded-xl bg-white/5 ring-1 ring-white/10 p-3">
+                  <p className="text-[10px] font-semibold text-white/70">
+                    Critérios de aceite
+                  </p>
+                  <p className="mt-1 text-[10px] text-white/50 leading-snug">
+                    p95 read &lt; 120ms · erro &lt; 0.5% · lag &lt; 5s
+                  </p>
+                </div>
+                <div className="rounded-xl bg-white/5 ring-1 ring-white/10 p-3">
+                  <p className="text-[10px] font-semibold text-white/70">
+                    Riscos
+                  </p>
+                  <p className="mt-1 text-[10px] text-white/50 leading-snug">
+                    Projeção inconsistente · reprocessamento · duplicidade de
+                    eventos
+                  </p>
+                </div>
+                <div className="rounded-xl bg-white/5 ring-1 ring-white/10 p-3">
+                  <p className="text-[10px] font-semibold text-white/70">
+                    Links
+                  </p>
+                  <p className="mt-1 text-[10px] text-white/50 leading-snug">
+                    Story • PR • Migration • Runbook
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-3 flex flex-wrap gap-1">
+                {["CQRS", "Event Sourcing", "Orders", "Read Model"].map((t) => (
+                  <span
+                    key={t}
+                    className="inline-flex items-center rounded-full bg-[var(--af-pin)]/20 px-2 py-0.5 text-[9px] font-semibold text-[var(--af-pin)]"
+                  >
+                    {t}
+                  </span>
+                ))}
+              </div>
+            </RevealBlock>
           </div>
 
-          <div className="mt-5 grid grid-cols-2 gap-3">
-            <div className="rounded-xl bg-white/5 ring-1 ring-white/10 p-3">
-              <p className="text-[10px] font-semibold text-white/70">Impacto</p>
-              <p className="mt-1 text-[10px] text-white/50">
-                +Escalabilidade · +Complexidade
-              </p>
-            </div>
-            <div className="rounded-xl bg-white/5 ring-1 ring-white/10 p-3">
-              <p className="text-[10px] font-semibold text-white/70">
-                Vínculos
-              </p>
-              <p className="mt-1 text-[10px] text-white/50">
-                Story · PR · Migration
-              </p>
-            </div>
-          </div>
+          {/* keeps card feeling full height */}
+          <div className="flex-1" />
         </div>
       </div>
     </div>
@@ -602,63 +749,68 @@ function ScreenADR({ active }) {
 /* ----------------------------- SCREEN 2: C4 ----------------------------- */
 
 function ScreenC4({ active }) {
-  // Use CSS animations triggered by "active" (re-mount behavior via key)
   const mountKey = active ? "on" : "off";
 
   const nodes = [
-    { id: "user", x: 20, y: 32, title: "User", sub: "[Person]", delay: 0 },
+    { id: "user", x: 22, y: 50, title: "User", sub: "[Person]", delay: 0 },
+
+    // ↑ mais espaço: antes ~118
     {
       id: "fe",
-      x: 120,
-      y: 32,
+      x: 138,
+      y: 50,
       title: "Frontend",
       sub: "[Container]",
       delay: 300,
     },
+
+    // ↑ mais espaço: antes ~206
     {
       id: "gw",
-      x: 220,
-      y: 32,
+      x: 254,
+      y: 50,
       title: "API Gateway",
       sub: "[Container]",
       delay: 600,
     },
+
+    // mantém coluna da direita alinhada no gateway
     {
       id: "svc",
-      x: 220,
-      y: 120,
+      x: 254,
+      y: 124,
       title: "Order Service",
       sub: "[Container]",
       delay: 900,
     },
+    { id: "db", x: 254, y: 194, title: "PostgreSQL", sub: "[DB]", delay: 1200 },
+  ];
+
+  // linhas recalculadas (retângulos 80x36)
+  const edges = [
+    // user -> fe
+    { id: "e1", x1: 22 + 80, y1: 50 + 18, x2: 138, y2: 50 + 18, delay: 450 },
+
+    // fe -> gw
+    { id: "e2", x1: 138 + 80, y1: 50 + 18, x2: 254, y2: 50 + 18, delay: 750 },
+
+    // gw -> svc
+    { id: "e3", x1: 254 + 40, y1: 50 + 36, x2: 254 + 40, y2: 124, delay: 1050 },
+
+    // svc -> db
     {
-      id: "db",
-      x: 220,
-      y: 208,
-      title: "PostgreSQL",
-      sub: "[DB]",
-      delay: 1200,
+      id: "e4",
+      x1: 254 + 40,
+      y1: 124 + 36,
+      x2: 254 + 40,
+      y2: 194,
+      delay: 1350,
     },
   ];
 
-  const edges = [
-    { id: "e1", from: "user", to: "fe", delay: 600 + 100 },
-    { id: "e2", from: "fe", to: "gw", delay: 900 + 100 },
-    { id: "e3", from: "gw", to: "svc", delay: 1200 + 100 },
-    { id: "e4", from: "svc", to: "db", delay: 1500 + 100 },
-  ];
-
-  const pos = (id) => {
-    const n = nodes.find((x) => x.id === id);
-    return {
-      x: n.x + 40,
-      y: n.y + 18,
-    };
-  };
-
   return (
-    <div key={mountKey} className="h-full">
-      <div className="rounded-2xl bg-black/40 ring-1 ring-white/10 p-3">
+    <div key={mountKey} className="h-full min-h-0">
+      <div className="h-full min-h-0 rounded-2xl bg-black/40 ring-1 ring-white/10 p-3 flex flex-col">
         <div className="flex items-center justify-between px-2 py-1">
           <p className="text-[10px] font-semibold text-white/70">
             Container diagram (simplificado)
@@ -666,61 +818,40 @@ function ScreenC4({ active }) {
           <span className="text-[10px] text-white/40">v2.3</span>
         </div>
 
-        <div className="mt-2 flex justify-center">
-          <svg viewBox="0 0 340 260" className="w-full max-w-[340px]">
-            <defs>
-              <marker
-                id="arrow"
-                viewBox="0 0 10 10"
-                refX="9"
-                refY="5"
-                markerWidth="6"
-                markerHeight="6"
-                orient="auto-start-reverse"
-              >
-                <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--af-line)" />
-              </marker>
-            </defs>
-
-            {edges.map((e, i) => {
-              const a = pos(e.from);
-              const b = pos(e.to);
-              const vertical = e.from === "gw" && e.to === "svc";
-
-              const x1 = a.x;
-              const y1 = a.y;
-              const x2 = b.x;
-              const y2 = b.y;
-
-              const path = vertical
-                ? `M ${x1} ${y1} L ${x1} ${y2}`
-                : `M ${x1} ${y1} L ${x2} ${y2}`;
-
-              return (
-                <path
-                  key={e.id}
-                  d={path}
-                  fill="none"
-                  stroke="var(--af-line)"
-                  strokeWidth="1.2"
-                  markerEnd="url(#arrow)"
-                  opacity="0.9"
-                  strokeDasharray="140"
-                  strokeDashoffset="140"
-                  style={{
-                    animation: active ? `c4Draw 600ms ease forwards` : "none",
-                    animationDelay: active ? `${e.delay}ms` : "0ms",
-                  }}
-                />
-              );
-            })}
+        {/* ✅ área central fixa */}
+        <div className="mt-2 flex-1 min-h-0 flex items-center justify-center">
+          <svg
+            viewBox="0 0 340 260"
+            className="w-full max-w-[360px]"
+            preserveAspectRatio="xMidYMid meet"
+          >
+            {/* lines (no arrows) */}
+            {edges.map((e) => (
+              <line
+                key={e.id}
+                x1={e.x1}
+                y1={e.y1}
+                x2={e.x2}
+                y2={e.y2}
+                stroke="var(--af-line)"
+                strokeWidth="1.2"
+                strokeLinecap="round"
+                opacity="0.85"
+                strokeDasharray="120"
+                strokeDashoffset="120"
+                style={{
+                  animation: active ? `c4Draw 600ms ease forwards` : "none",
+                  animationDelay: active ? `${e.delay}ms` : "0ms",
+                }}
+              />
+            ))}
 
             {nodes.map((n) => (
               <g
                 key={n.id}
                 style={{
                   opacity: 0,
-                  transform: "scale(0.85)",
+                  transform: "scale(0.88)",
                   transformOrigin: `${n.x + 40}px ${n.y + 18}px`,
                   animation: active ? "c4In 500ms ease forwards" : "none",
                   animationDelay: active ? `${n.delay}ms` : "0ms",
@@ -759,6 +890,7 @@ function ScreenC4({ active }) {
           </svg>
         </div>
 
+        {/* footer info fixo */}
         <div className="mt-3 grid grid-cols-2 gap-3 px-2 pb-2">
           <div className="rounded-xl bg-white/5 ring-1 ring-white/10 p-3">
             <p className="text-[10px] font-semibold text-white/70">Fluxo</p>
@@ -777,12 +909,12 @@ function ScreenC4({ active }) {
 
       <style>{`
         @keyframes c4In {
-          from { opacity: 0; transform: scale(0.85); }
+          from { opacity: 0; transform: scale(0.88); }
           to { opacity: 1; transform: scale(1); }
         }
         @keyframes c4Draw {
-          from { stroke-dashoffset: 140; opacity: 0.2; }
-          to { stroke-dashoffset: 0; opacity: 0.9; }
+          from { stroke-dashoffset: 120; opacity: 0.15; }
+          to { stroke-dashoffset: 0; opacity: 0.85; }
         }
       `}</style>
     </div>
@@ -796,7 +928,7 @@ function ScreenERD({ active }) {
     {
       id: "users",
       x: 22,
-      y: 34,
+      y: 30,
       name: "users",
       delay: 0,
       fields: ["id (PK)", "name", "email"],
@@ -804,39 +936,48 @@ function ScreenERD({ active }) {
     {
       id: "orders",
       x: 190,
-      y: 34,
+      y: 30,
       name: "orders",
       delay: 500,
       fields: ["id (PK)", "user_id (FK)", "status"],
     },
+
+    // ↓ antes estava muito baixo (y: 150). Subimos e centralizamos melhor:
     {
       id: "items",
       x: 190,
-      y: 150,
+      y: 128,
       name: "order_items",
       delay: 1000,
       fields: ["id (PK)", "order_id(FK)", "product_id"],
     },
   ];
-
   const [visibleFields, setVisibleFields] = useState({
     users: 0,
     orders: 0,
     items: 0,
   });
 
-  useEffect(() => {
-    if (!active) {
-      setVisibleFields({ users: 0, orders: 0, items: 0 });
-      return;
-    }
+  const runIdRef = useRef(0);
 
-    let timers = [];
-    // reveal users fields
+  useEffect(() => {
+    // incrementa "run" sempre que ativar/desativar
+    runIdRef.current += 1;
+    const runId = runIdRef.current;
+
+    // reset sempre
+    setVisibleFields({ users: 0, orders: 0, items: 0 });
+
+    if (!active) return;
+
+    const timers = [];
+
+    // agenda revelação 1x, ignorando runs antigos
     tables.forEach((t) => {
       t.fields.forEach((_, i) => {
         const tid = setTimeout(
           () => {
+            if (runIdRef.current !== runId) return; // ignora disparos velhos
             setVisibleFields((prev) => ({
               ...prev,
               [t.id]: Math.max(prev[t.id], i + 1),
@@ -844,16 +985,19 @@ function ScreenERD({ active }) {
           },
           t.delay + 250 + i * 80,
         );
+
         timers.push(tid);
       });
     });
 
-    return () => timers.forEach(clearTimeout);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    return () => {
+      timers.forEach(clearTimeout);
+    };
   }, [active]);
 
   const Table = ({ t }) => {
     const count = visibleFields[t.id] ?? 0;
+
     return (
       <g
         style={{
@@ -893,7 +1037,6 @@ function ScreenERD({ active }) {
           {t.name}
         </text>
 
-        {/* separator line */}
         <line
           x1={t.x}
           y1={t.y + 26}
@@ -902,7 +1045,6 @@ function ScreenERD({ active }) {
           stroke="rgba(255,255,255,0.10)"
         />
 
-        {/* fields */}
         {t.fields.map((f, i) => {
           const visible = i < count;
           const isPK = f.includes("(PK)");
@@ -916,8 +1058,8 @@ function ScreenERD({ active }) {
               fontFamily="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace"
               fill={visible ? "rgba(255,255,255,0.70)" : "rgba(255,255,255,0)"}
               style={{
-                transition: "opacity 200ms ease",
                 opacity: visible ? 1 : 0,
+                transition: "opacity 200ms ease",
               }}
             >
               {(isPK || isFK) && (
@@ -933,73 +1075,30 @@ function ScreenERD({ active }) {
     );
   };
 
-  const RelLine = ({
-    x1,
-    y1,
-    x2,
-    y2,
-    delay,
-    forkAtEnd = true,
-    forkSize = 7,
-  }) => {
-    // crow's foot simplified: small fork at end
-    const fx = x2;
-    const fy = y2;
-    const fork1 = forkAtEnd
-      ? `M ${fx} ${fy} L ${fx - forkSize} ${fy - forkSize}`
-      : "";
-    const fork2 = forkAtEnd
-      ? `M ${fx} ${fy} L ${fx - forkSize} ${fy + forkSize}`
-      : "";
-
+  // Crow's foot relationship (no arrow)
+  const Relationship = ({ x1, y1, x2, y2, delay }) => {
+    const dash = 220;
     return (
-      <g>
-        <path
-          d={`M ${x1} ${y1} L ${x2} ${y2}`}
-          fill="none"
-          stroke="var(--af-line)"
-          strokeWidth="1.2"
-          opacity="0.9"
-          strokeDasharray="220"
-          strokeDashoffset="220"
-          style={{
-            animation: active ? "erdDraw 600ms ease forwards" : "none",
-            animationDelay: active ? `${delay}ms` : "0ms",
-          }}
-        />
-        <path
-          d={fork1}
-          fill="none"
-          stroke="var(--af-line)"
-          strokeWidth="1.2"
-          opacity="0.9"
-          strokeDasharray="30"
-          strokeDashoffset="30"
-          style={{
-            animation: active ? "erdDraw 400ms ease forwards" : "none",
-            animationDelay: active ? `${delay + 250}ms` : "0ms",
-          }}
-        />
-        <path
-          d={fork2}
-          fill="none"
-          stroke="var(--af-line)"
-          strokeWidth="1.2"
-          opacity="0.9"
-          strokeDasharray="30"
-          strokeDashoffset="30"
-          style={{
-            animation: active ? "erdDraw 400ms ease forwards" : "none",
-            animationDelay: active ? `${delay + 250}ms` : "0ms",
-          }}
-        />
-      </g>
+      <path
+        d={`M ${x1} ${y1} L ${x2} ${y2}`}
+        fill="none"
+        stroke="var(--af-line)"
+        strokeWidth="1.2"
+        strokeLinecap="round"
+        opacity="0.85"
+        strokeDasharray={dash}
+        strokeDashoffset={dash}
+        style={{
+          animation: active ? "erdDraw 600ms ease forwards" : "none",
+          animationDelay: active ? `${delay}ms` : "0ms",
+        }}
+      />
     );
   };
 
   return (
-    <div className="h-full">
-      <div className="rounded-2xl bg-black/40 ring-1 ring-white/10 p-3">
+    <div className="h-full min-h-0">
+      <div className="h-full min-h-0 rounded-2xl bg-black/40 ring-1 ring-white/10 p-3 flex flex-col">
         <div className="flex items-center justify-between px-2 py-1">
           <p className="text-[10px] font-semibold text-white/70">
             ERD (exemplo)
@@ -1007,24 +1106,28 @@ function ScreenERD({ active }) {
           <span className="text-[10px] text-white/40">schema v1</span>
         </div>
 
-        <div className="mt-2 flex justify-center">
-          <svg viewBox="0 0 340 230" className="w-full max-w-[340px]">
-            {/* relations (draw after both tables appear) */}
-            <RelLine
+        <div className="mt-2 flex-1 min-h-0 flex items-center justify-center">
+          <svg
+            viewBox="0 0 340 250"
+            className="w-full max-w-[360px]"
+            preserveAspectRatio="xMidYMid meet"
+          >
+            {/* relationships after appear */}
+            <Relationship
               x1={22 + 140}
               y1={34 + 52}
               x2={190}
               y2={34 + 52}
-              delay={800}
-              forkAtEnd={true}
+              delay={850}
+              manyAtEnd={true} // users 1—N orders (many at orders)
             />
-            <RelLine
+            <Relationship
               x1={190 + 70}
-              y1={34 + 92}
+              y1={30 + 92} // base da tabela orders (y + height)
               x2={190 + 70}
-              y2={150}
-              delay={1450}
-              forkAtEnd={true}
+              y2={128} // topo da tabela items (novo y)
+              delay={1500}
+              manyAtEnd={true}
             />
 
             {tables.map((t) => (
@@ -1055,8 +1158,20 @@ function ScreenERD({ active }) {
           to { opacity: 1; transform: translateY(0px); }
         }
         @keyframes erdDraw {
-          from { stroke-dashoffset: 220; opacity: 0.2; }
-          to { stroke-dashoffset: 0; opacity: 0.9; }
+          from { stroke-dashoffset: 220; opacity: 0.15; }
+          to { stroke-dashoffset: 0; opacity: 0.85; }
+        }
+          @keyframes erdIn {
+          from { opacity: 0; transform: translateY(12px); }
+          to { opacity: 1; transform: translateY(0px); }
+        }
+        @keyframes erdDraw {
+          from { stroke-dashoffset: 220; opacity: 0.15; }
+          to { stroke-dashoffset: 0; opacity: 0.85; }
+        }
+        @keyframes erdDotIn {
+          from { opacity: 0; transform: scale(0.6); }
+          to { opacity: 0.95; transform: scale(1); }
         }
       `}</style>
     </div>
@@ -1069,40 +1184,43 @@ function ScreenKanban({ active }) {
   const columns = [
     {
       name: "To Do",
-      count: 2,
+      count: 4,
       cards: [
         { t: "Implement CQRS Handler", tag: "ADR" },
         { t: "Update Container Diagram", tag: "C4" },
+        { t: "Add idempotency keys", tag: "ADR" },
+        { t: "Define retry policy", tag: "ADR" },
       ],
     },
     {
       name: "In Progress",
-      count: 1,
-      cards: [{ t: "Create orders_events table", tag: "ERD", focus: true }],
+      count: 2,
+      cards: [
+        { t: "Create orders_events table", tag: "ERD", focus: true },
+        { t: "Wire gateway routes", tag: "C4" },
+      ],
+    },
+    {
+      name: "Review",
+      count: 2,
+      cards: [
+        { t: "Validate projections lag", tag: "ERD" },
+        { t: "ADR impact sign-off", tag: "ADR" },
+      ],
     },
     {
       name: "Done",
-      count: 2,
+      count: 4,
       cards: [
         { t: "Define Auth boundaries", tag: "ADR" },
         { t: "Schema v1 migration", tag: "ERD" },
+        { t: "Add health checks", tag: "C4" },
+        { t: "Baseline dashboard", tag: "ERD" },
       ],
     },
   ];
 
-  const flatCards = useMemo(() => {
-    const arr = [];
-    columns.forEach((col, ci) => {
-      col.cards.forEach((c, i) => {
-        arr.push({ ...c, ci, i, key: `${ci}-${i}` });
-      });
-    });
-    return arr;
-  }, []);
-
   const cardDelay = (ci, i) => {
-    // drop sequentially across all cards (150ms between)
-    // order: ToDo(0..), InProg, Done
     let idx = 0;
     for (let c = 0; c < ci; c++) idx += columns[c].cards.length;
     idx += i;
@@ -1110,8 +1228,8 @@ function ScreenKanban({ active }) {
   };
 
   return (
-    <div className="h-full">
-      <div className="rounded-2xl bg-black/40 ring-1 ring-white/10 p-3 h-full">
+    <div className="h-full min-h-0">
+      <div className="h-full min-h-0 rounded-2xl bg-black/40 ring-1 ring-white/10 p-3 flex flex-col">
         <div className="flex items-center justify-between px-2 py-1">
           <p className="text-[10px] font-semibold text-white/70">
             Board (scrumban)
@@ -1121,13 +1239,13 @@ function ScreenKanban({ active }) {
 
         <div
           className={cx(
-            "mt-3 flex gap-3",
+            "mt-3 flex-1 min-h-0 flex gap-2.5",
             "transition-opacity duration-500",
             active ? "opacity-100" : "opacity-0",
           )}
         >
           {columns.map((col, ci) => (
-            <div key={col.name} className="w-[96px]">
+            <div key={col.name} className="w-[84px] flex flex-col min-h-0">
               <div className="flex items-center justify-between">
                 <span className="text-[10px] font-semibold text-white/60">
                   {col.name}
@@ -1137,22 +1255,23 @@ function ScreenKanban({ active }) {
                 </span>
               </div>
 
-              <div className="mt-2 space-y-2">
+              <div className="mt-2 space-y-2 min-h-0 overflow-hidden">
                 {col.cards.map((c, i) => {
                   const isFocus = !!c.focus;
                   const d = cardDelay(ci, i);
+
                   return (
                     <div
                       key={`${col.name}-${i}`}
                       className={cx(
-                        "rounded-lg bg-white/5 ring-1 ring-white/10 p-2.5 text-[9px] text-white/75",
+                        "relative rounded-lg bg-white/5 ring-1 ring-white/10 p-2.5 text-[9px] text-white/75",
                         isFocus && "border-l-2 border-[var(--af-line)] pl-2",
                       )}
                       style={{
                         opacity: 0,
                         transform: "translateY(-10px)",
                         animation: active
-                          ? `kbCardIn 450ms ease forwards`
+                          ? "kbCardIn 450ms ease forwards"
                           : "none",
                         animationDelay: active ? `${d}ms` : "0ms",
                       }}
@@ -1164,12 +1283,13 @@ function ScreenKanban({ active }) {
                         </span>
                       </div>
 
-                      {isFocus && active && (
+                      {isFocus && (
                         <div
-                          className="pointer-events-none absolute"
+                          className="pointer-events-none absolute inset-0"
                           style={{
-                            opacity: 1,
-                            animation: "afPulse 2s ease-in-out infinite",
+                            animation: active
+                              ? "afPulse 2s ease-in-out infinite"
+                              : "none",
                           }}
                         />
                       )}
@@ -1263,23 +1383,6 @@ function Navbar() {
             </a>
           ))}
         </nav>
-
-        <div className="flex items-center gap-2">
-          <a
-            href="#cta"
-            className="group hidden sm:inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium text-white/80 hover:text-white ring-1 ring-white/10 hover:ring-[var(--af-line)]/70 bg-white/5 hover:bg-white/8 transition"
-          >
-            <Icon as={ArrowRight} className="h-4 w-4" />
-            Ver demo
-          </a>
-          <a
-            href="#cta"
-            className="group inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white bg-white/5 hover:bg-white/8 ring-1 ring-white/15 hover:ring-[var(--af-line)]/80 hover:text-[var(--af-primary)] transition"
-          >
-            <Icon as={ArrowRight} className="h-4 w-4" />
-            Começar
-          </a>
-        </div>
       </div>
     </header>
   );
@@ -1291,37 +1394,6 @@ function Hero() {
   const [typed, setTyped] = useState("");
   const [showCursor, setShowCursor] = useState(true);
   const [blinkCursor, setBlinkCursor] = useState(false);
-
-  useEffect(() => {
-    let i = 0;
-    let intervalId = null;
-    let timeoutId = null;
-
-    setTyped("");
-    setShowCursor(true);
-    setBlinkCursor(false);
-
-    intervalId = setInterval(() => {
-      i += 1;
-      setTyped(fullWord.slice(0, i));
-
-      if (i >= fullWord.length) {
-        clearInterval(intervalId);
-        intervalId = null;
-
-        setBlinkCursor(true);
-        timeoutId = setTimeout(() => {
-          setShowCursor(false);
-          setBlinkCursor(false);
-        }, 2000);
-      }
-    }, 60);
-
-    return () => {
-      if (intervalId) clearInterval(intervalId);
-      if (timeoutId) clearTimeout(timeoutId);
-    };
-  }, []);
 
   return (
     <section className="relative">
@@ -1347,19 +1419,7 @@ function Hero() {
               A ferramenta ágil que entende{" "}
               <span className="text-white">
                 <span>{typed}</span>
-                {showCursor && (
-                  <span
-                    style={{
-                      color: "var(--af-primary)",
-                      animation: blinkCursor
-                        ? "afCursorBlink 700ms linear infinite"
-                        : "none",
-                    }}
-                  >
-                    |
-                  </span>
-                )}
-              </span>{" "}
+              </span>
               Não só tasks.
             </h1>
 
@@ -1773,7 +1833,7 @@ function ArchTaskGraph() {
                     x={n.x}
                     y={74}
                     textAnchor="middle"
-                    fontSize="10"
+                    fontSize="8"
                     fill="rgba(255,255,255,0.75)"
                     style={{ userSelect: "none" }}
                   >
@@ -2217,6 +2277,30 @@ function CTA() {
 }
 
 export default function ArchFlowLanding() {
+  useEffect(() => {
+    const handler = (e) => {
+      const a = e.target.closest('a[href^="#"]');
+      if (!a) return;
+
+      const href = a.getAttribute("href");
+      if (!href || href === "#") return;
+
+      const id = href.slice(1);
+      const el = document.getElementById(id);
+      if (!el) return;
+
+      e.preventDefault();
+
+      const headerOffset = 72; // altura aproximada do navbar
+      const y = el.getBoundingClientRect().top + window.scrollY - headerOffset;
+
+      window.scrollTo({ top: y, behavior: "smooth" });
+    };
+
+    document.addEventListener("click", handler);
+    return () => document.removeEventListener("click", handler);
+  }, []);
+
   return (
     <div
       className="min-h-screen w-full overflow-x-hidden bg-black text-white"
@@ -2229,32 +2313,104 @@ export default function ArchFlowLanding() {
       }}
     >
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        html, body { height: 100%; overflow-x: hidden; }
-        body { margin: 0; }
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-        @keyframes afCursorBlink {
-          0%, 49% { opacity: 1; }
-          50%, 100% { opacity: 0; }
-        }
+  :root { color-scheme: dark; } /* ✅ força scrollbar do sistema em dark quando o browser ignora custom */
 
-        @keyframes afPulse {
-          0% { opacity: 1; }
-          50% { opacity: 0.7; }
-          100% { opacity: 1; }
-        }
+  html, body { height: 100%; overflow-x: hidden; }
+  body { margin: 0; background: #000; }
 
-        @keyframes drawLine {
-          from { stroke-dashoffset: 120; }
-          to { stroke-dashoffset: 0; }
-        }
+  /* ✅ Smooth scroll (âncoras) */
+  html { scroll-behavior: smooth; }
 
-        @keyframes nodePulse {
-          0% { transform: scale(1); }
-          50% { transform: scale(1.06); }
-          100% { transform: scale(1); }
-        }
-      `}</style>
+  /* ✅ Scrollbar bem sutil (preto) — quando suportado */
+  :root{
+    --sb-track: rgba(255,255,255,0.03);
+    --sb-thumb-a: rgba(0,0,0,0.22);
+    --sb-thumb-b: rgba(0,0,0,0.48);
+    --sb-thumb-hover-a: rgba(0,0,0,0.38);
+    --sb-thumb-hover-b: rgba(0,0,0,0.68);
+    --sb-border: rgba(0,0,0,0.85);
+  }
+
+  /* Firefox */
+  html, body {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0,0,0,0.60) rgba(255,255,255,0.03);
+  }
+
+  /* WebKit (Chrome/Edge/Safari) — html/body + qualquer container com overflow */
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar,
+  *::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  html::-webkit-scrollbar-track,
+  body::-webkit-scrollbar-track,
+  *::-webkit-scrollbar-track {
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.04));
+    border-radius: 999px;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04);
+  }
+
+  html::-webkit-scrollbar-thumb,
+  body::-webkit-scrollbar-thumb,
+  *::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    border: 2px solid var(--sb-border);
+    background:
+      radial-gradient(80% 120% at 50% 0%,
+        rgba(255,255,255,0.08) 0%,
+        rgba(255,255,255,0.00) 55%),
+      linear-gradient(180deg, var(--sb-thumb-a), var(--sb-thumb-b));
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06);
+  }
+
+  html::-webkit-scrollbar-thumb:hover,
+  body::-webkit-scrollbar-thumb:hover,
+  *::-webkit-scrollbar-thumb:hover {
+    background:
+      radial-gradient(80% 120% at 50% 0%,
+        rgba(255,255,255,0.10) 0%,
+        rgba(255,255,255,0.00) 55%),
+      linear-gradient(180deg, var(--sb-thumb-hover-a), var(--sb-thumb-hover-b));
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.06),
+      0 10px 26px rgba(0,0,0,0.22),
+      inset 0 0 0 1px rgba(255,255,255,0.08);
+  }
+
+  /* remove “setas/botões” */
+  html::-webkit-scrollbar-button,
+  body::-webkit-scrollbar-button,
+  *::-webkit-scrollbar-button { width: 0; height: 0; display: none; }
+
+  html::-webkit-scrollbar-corner,
+  body::-webkit-scrollbar-corner,
+  *::-webkit-scrollbar-corner { background: transparent; }
+
+  /* (mantém suas animações existentes) */
+  @keyframes afCursorBlink {
+    0%, 49% { opacity: 1; }
+    50%, 100% { opacity: 0; }
+  }
+  @keyframes afPulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
+  }
+  @keyframes drawLine {
+    from { stroke-dashoffset: 120; }
+    to { stroke-dashoffset: 0; }
+  }
+  @keyframes nodePulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.06); }
+    100% { transform: scale(1); }
+  }
+`}</style>
 
       <Navbar />
       <main>
