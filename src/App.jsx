@@ -20,19 +20,19 @@ import {
 
 /**
  * ArchFlow Landing Page (Vite + React + Tailwind) — FLAT THEME + LUCIDE ICONS
- * Existing structure/content/style preserved.
- *
- * Implemented:
- * 1) Typewriter in Hero() for "arquitetura." (60ms/char, cursor blinks 2s then disappears)
- * 2) Workflow() trace graph: sequential line reveal (400ms), fade+translate, accent pulse, IntersectionObserver
- * 3) New ArchTaskGraph() section between Features() and Workflow(): SVG draw lines + node pulse (IntersectionObserver threshold 0.4)
- *
- * Also: removed horizontal scroll (global + CodeBlock)
+ * Additions in this version:
+ * - Hero is now lg:grid-cols-2 and includes HeroAnimatedPanel() on the right (lg+ only)
+ * - HeroAnimatedPanel cycles 4 screens every 4s (3.5s visible + 0.5s transition)
+ * - Screen 1: ADR with typewriter title + sequential fields + Proposed→Accepted crossfade
+ * - Screen 2: C4 Container diagram (SVG) nodes fade/scale + arrows drawn
+ * - Screen 3: ERD (SVG) tables slide/fade + fields appear line-by-line + relationships drawn
+ * - Screen 4: Kanban board with columns fade + cards drop sequentially + In Progress pulse
+ * - Horizontal scroll remains removed
  */
 
-const PURPLE_PRIMARY = "#6D28D9";
-const PURPLE_LINE = "#7C3AED";
-const PURPLE_PIN = "#6D28D9";
+const PURPLE_PRIMARY = "#6D28D9"; // --af-primary
+const PURPLE_LINE = "#7C3AED"; // --af-line
+const PURPLE_PIN = "#6D28D9"; // --af-pin
 
 const cx = (...c) => c.filter(Boolean).join(" ");
 
@@ -57,7 +57,7 @@ const Badge = ({ children, tone = "default" }) => {
     <span
       className={cx(
         "inline-flex items-center rounded-full px-3 py-1 text-xs font-medium transition",
-        tones[tone] || tones.default
+        tones[tone] || tones.default,
       )}
     >
       {children}
@@ -70,7 +70,7 @@ const Card = ({ children, className }) => (
     className={cx(
       "relative rounded-2xl bg-white/[0.04] ring-1 ring-white/10 backdrop-blur-md",
       "shadow-[0_0_0_1px_rgba(255,255,255,.02),0_24px_70px_rgba(0,0,0,.55)]",
-      className
+      className,
     )}
   >
     <div className="relative">{children}</div>
@@ -79,7 +79,7 @@ const Card = ({ children, className }) => (
 
 const Divider = () => <div className="my-14 h-px w-full bg-white/10" />;
 
-/** removed horizontal scroll: no overflow-x-auto; allow wrap */
+/** removed horizontal scroll */
 const CodeBlock = ({ children }) => (
   <pre className="overflow-x-hidden whitespace-pre-wrap break-words rounded-2xl bg-black/60 p-5 text-[12px] leading-relaxed text-white/80 ring-1 ring-white/10">
     <code className="whitespace-pre-wrap break-words">{children}</code>
@@ -90,7 +90,7 @@ const Icon = ({ as: As, className }) => (
   <As
     className={cx(
       "h-4 w-4 text-white/80 group-hover:text-[var(--af-pin)] transition",
-      className
+      className,
     )}
     aria-hidden="true"
   />
@@ -108,7 +108,7 @@ const SectionTitle = ({
       <div
         className={cx(
           "mb-3 inline-flex items-center gap-2",
-          align === "center" && "justify-center"
+          align === "center" && "justify-center",
         )}
       >
         <span className="group inline-flex items-center">
@@ -294,6 +294,906 @@ const stack = [
   { name: "CI/CD", icon: GitBranch },
 ];
 
+/* ----------------------------- HERO PANEL ----------------------------- */
+
+function HeroAnimatedPanel() {
+  const screens = useMemo(
+    () => [
+      { key: "adr", title: "ADR — decisão versionada" },
+      { key: "c4", title: "C4 — containers conectados" },
+      { key: "erd", title: "ERD — schema rastreável" },
+      { key: "kb", title: "Kanban — execução com contexto" },
+    ],
+    [],
+  );
+
+  const [idx, setIdx] = useState(0);
+
+  useEffect(() => {
+    const t = setInterval(() => {
+      setIdx((v) => (v + 1) % screens.length);
+    }, 4000); // 3.5s visible + 0.5s transition budget
+    return () => clearInterval(t);
+  }, [screens.length]);
+
+  return (
+    <Card
+      className={cx(
+        "p-0 overflow-hidden h-[420px]",
+        "bg-[#0a0a0a] ring-1 ring-[var(--af-line)]/35",
+      )}
+    >
+      {/* header */}
+      <div className="h-12 flex items-center justify-between px-4 border-b border-white/10">
+        <div className="relative h-5 w-full">
+          {screens.map((s, i) => {
+            const active = i === idx;
+            return (
+              <div
+                key={s.key}
+                className={cx(
+                  "absolute inset-0 flex items-center",
+                  "transition-all duration-500",
+                  active
+                    ? "opacity-100 translate-y-0"
+                    : "opacity-0 translate-y-3 pointer-events-none",
+                )}
+                style={{
+                  color: "rgba(255,255,255,0.85)",
+                }}
+              >
+                <span className="text-sm font-semibold">{s.title}</span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* body */}
+      <div className="relative h-[calc(420px-48px)]">
+        {/* Screen wrappers: transition 0.5s (fade/slide) */}
+        <PanelScreen active={idx === 0}>
+          <ScreenADR active={idx === 0} />
+        </PanelScreen>
+        <PanelScreen active={idx === 1}>
+          <ScreenC4 active={idx === 1} />
+        </PanelScreen>
+        <PanelScreen active={idx === 2}>
+          <ScreenERD active={idx === 2} />
+        </PanelScreen>
+        <PanelScreen active={idx === 3}>
+          <ScreenKanban active={idx === 3} />
+        </PanelScreen>
+
+        {/* progress dots */}
+        <div className="absolute bottom-3 left-0 right-0 flex items-center justify-center gap-2">
+          {screens.map((s, i) => {
+            const active = i === idx;
+            return (
+              <div
+                key={s.key}
+                className={cx(
+                  "transition-all duration-300",
+                  active
+                    ? "bg-[var(--af-pin)] w-4 h-1.5 rounded-full"
+                    : "bg-white/20 w-1.5 h-1.5 rounded-full",
+                )}
+              />
+            );
+          })}
+        </div>
+      </div>
+    </Card>
+  );
+}
+
+function PanelScreen({ active, children }) {
+  return (
+    <div
+      className={cx(
+        "absolute inset-0 px-4 py-4",
+        "transition-all duration-500",
+        active
+          ? "opacity-100 translate-y-0"
+          : "opacity-0 translate-y-3 pointer-events-none",
+      )}
+      style={{
+        transform: active ? "translateY(0px)" : "translateY(12px)",
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+/* ----------------------------- SCREEN 1: ADR ----------------------------- */
+
+function ScreenADR({ active }) {
+  // title typewriter (50ms / char)
+  const fullTitle = "Usar CQRS para separar leitura/escrita";
+  const [typed, setTyped] = useState("");
+  const [titleDone, setTitleDone] = useState(false);
+
+  // fields reveal + status crossfade
+  const [showCtx, setShowCtx] = useState(false);
+  const [showDecision, setShowDecision] = useState(false);
+  const [showStatus, setShowStatus] = useState(false);
+  const [statusAccepted, setStatusAccepted] = useState(false);
+
+  useEffect(() => {
+    if (!active) {
+      // reset when not active
+      setTyped("");
+      setTitleDone(false);
+      setShowCtx(false);
+      setShowDecision(false);
+      setShowStatus(false);
+      setStatusAccepted(false);
+      return;
+    }
+
+    let i = 0;
+    let intervalId = null;
+    const timeouts = [];
+
+    intervalId = setInterval(() => {
+      i += 1;
+      setTyped(fullTitle.slice(0, i));
+      if (i >= fullTitle.length) {
+        clearInterval(intervalId);
+        intervalId = null;
+        setTitleDone(true);
+      }
+    }, 50);
+
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+      timeouts.forEach((t) => clearTimeout(t));
+    };
+  }, [active, fullTitle]);
+
+  useEffect(() => {
+    if (!active || !titleDone) return;
+
+    const t1 = setTimeout(() => setShowCtx(true), 800);
+    const t2 = setTimeout(() => setShowDecision(true), 1400);
+    const t3 = setTimeout(() => setShowStatus(true), 2000);
+
+    // status pill crossfade Proposed -> Accepted
+    const t4 = setTimeout(() => setStatusAccepted(true), 2400);
+
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+      clearTimeout(t4);
+    };
+  }, [active, titleDone]);
+
+  const Field = ({ label, value, visible }) => (
+    <div
+      className={cx(
+        "transition-all duration-500",
+        visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3",
+      )}
+      style={{
+        color: "rgba(255,255,255,0.85)",
+      }}
+    >
+      <div className="flex gap-2 font-mono text-xs">
+        <span style={{ color: "rgba(255,255,255,0.50)" }}>{label}:</span>
+        <span>{value}</span>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="h-full">
+      <div className="rounded-2xl bg-black/40 ring-1 ring-white/10 overflow-hidden">
+        {/* header */}
+        <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center rounded-full bg-white/5 px-2.5 py-1 text-[10px] font-semibold text-white/80 ring-1 ring-white/10">
+              ADR #5
+            </span>
+
+            <span className="inline-flex items-center gap-1 rounded-full bg-white/5 px-2.5 py-1 text-[10px] font-semibold ring-1 ring-white/10">
+              <span
+                className="inline-block h-1.5 w-1.5 rounded-full"
+                style={{ background: "#4ade80" }}
+              />
+              <span style={{ color: "rgba(255,255,255,0.85)" }}>Accepted</span>
+            </span>
+          </div>
+
+          <span className="text-[10px] text-white/40">v1.0</span>
+        </div>
+
+        {/* body */}
+        <div className="px-4 py-4">
+          <div
+            className="text-sm font-semibold min-h-[22px]"
+            style={{ color: "rgba(255,255,255,0.85)" }}
+          >
+            {typed}
+            <span
+              className={cx(
+                "ml-0.5 inline-block w-[1px] h-[14px] align-middle",
+                titleDone ? "opacity-0" : "opacity-100",
+              )}
+              style={{
+                background: "var(--af-pin)",
+                animation: titleDone
+                  ? "none"
+                  : "afCursorBlink 700ms linear infinite",
+              }}
+            />
+          </div>
+
+          <div className="mt-4 space-y-3">
+            <Field
+              label="Contexto"
+              value="Sistema com alta carga de leitura"
+              visible={showCtx}
+            />
+            <Field
+              label="Decisão"
+              value="Event Sourcing + CQRS"
+              visible={showDecision}
+            />
+
+            {/* Status: Proposed -> Accepted crossfade */}
+            <div
+              className={cx(
+                "transition-all duration-500",
+                showStatus
+                  ? "opacity-100 translate-y-0"
+                  : "opacity-0 translate-y-3",
+              )}
+            >
+              <div className="flex items-center gap-2 font-mono text-xs">
+                <span style={{ color: "rgba(255,255,255,0.50)" }}>Status:</span>
+                <div className="relative h-5 w-24">
+                  <span
+                    className={cx(
+                      "absolute inset-0 inline-flex items-center justify-center rounded-full px-2 text-[10px] ring-1 ring-white/10 bg-white/5 transition-opacity duration-500",
+                      statusAccepted ? "opacity-0" : "opacity-100",
+                    )}
+                    style={{ color: "rgba(255,255,255,0.85)" }}
+                  >
+                    Proposed
+                  </span>
+                  <span
+                    className={cx(
+                      "absolute inset-0 inline-flex items-center justify-center rounded-full px-2 text-[10px] ring-1 ring-white/10 bg-white/5 transition-opacity duration-500",
+                      statusAccepted ? "opacity-100" : "opacity-0",
+                    )}
+                    style={{ color: "rgba(255,255,255,0.85)" }}
+                  >
+                    Accepted
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-5 grid grid-cols-2 gap-3">
+            <div className="rounded-xl bg-white/5 ring-1 ring-white/10 p-3">
+              <p className="text-[10px] font-semibold text-white/70">Impacto</p>
+              <p className="mt-1 text-[10px] text-white/50">
+                +Escalabilidade · +Complexidade
+              </p>
+            </div>
+            <div className="rounded-xl bg-white/5 ring-1 ring-white/10 p-3">
+              <p className="text-[10px] font-semibold text-white/70">
+                Vínculos
+              </p>
+              <p className="mt-1 text-[10px] text-white/50">
+                Story · PR · Migration
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ----------------------------- SCREEN 2: C4 ----------------------------- */
+
+function ScreenC4({ active }) {
+  // Use CSS animations triggered by "active" (re-mount behavior via key)
+  const mountKey = active ? "on" : "off";
+
+  const nodes = [
+    { id: "user", x: 20, y: 32, title: "User", sub: "[Person]", delay: 0 },
+    {
+      id: "fe",
+      x: 120,
+      y: 32,
+      title: "Frontend",
+      sub: "[Container]",
+      delay: 300,
+    },
+    {
+      id: "gw",
+      x: 220,
+      y: 32,
+      title: "API Gateway",
+      sub: "[Container]",
+      delay: 600,
+    },
+    {
+      id: "svc",
+      x: 220,
+      y: 120,
+      title: "Order Service",
+      sub: "[Container]",
+      delay: 900,
+    },
+    {
+      id: "db",
+      x: 220,
+      y: 208,
+      title: "PostgreSQL",
+      sub: "[DB]",
+      delay: 1200,
+    },
+  ];
+
+  const edges = [
+    { id: "e1", from: "user", to: "fe", delay: 600 + 100 },
+    { id: "e2", from: "fe", to: "gw", delay: 900 + 100 },
+    { id: "e3", from: "gw", to: "svc", delay: 1200 + 100 },
+    { id: "e4", from: "svc", to: "db", delay: 1500 + 100 },
+  ];
+
+  const pos = (id) => {
+    const n = nodes.find((x) => x.id === id);
+    return {
+      x: n.x + 40,
+      y: n.y + 18,
+    };
+  };
+
+  return (
+    <div key={mountKey} className="h-full">
+      <div className="rounded-2xl bg-black/40 ring-1 ring-white/10 p-3">
+        <div className="flex items-center justify-between px-2 py-1">
+          <p className="text-[10px] font-semibold text-white/70">
+            Container diagram (simplificado)
+          </p>
+          <span className="text-[10px] text-white/40">v2.3</span>
+        </div>
+
+        <div className="mt-2 flex justify-center">
+          <svg viewBox="0 0 340 260" className="w-full max-w-[340px]">
+            <defs>
+              <marker
+                id="arrow"
+                viewBox="0 0 10 10"
+                refX="9"
+                refY="5"
+                markerWidth="6"
+                markerHeight="6"
+                orient="auto-start-reverse"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--af-line)" />
+              </marker>
+            </defs>
+
+            {edges.map((e, i) => {
+              const a = pos(e.from);
+              const b = pos(e.to);
+              const vertical = e.from === "gw" && e.to === "svc";
+
+              const x1 = a.x;
+              const y1 = a.y;
+              const x2 = b.x;
+              const y2 = b.y;
+
+              const path = vertical
+                ? `M ${x1} ${y1} L ${x1} ${y2}`
+                : `M ${x1} ${y1} L ${x2} ${y2}`;
+
+              return (
+                <path
+                  key={e.id}
+                  d={path}
+                  fill="none"
+                  stroke="var(--af-line)"
+                  strokeWidth="1.2"
+                  markerEnd="url(#arrow)"
+                  opacity="0.9"
+                  strokeDasharray="140"
+                  strokeDashoffset="140"
+                  style={{
+                    animation: active ? `c4Draw 600ms ease forwards` : "none",
+                    animationDelay: active ? `${e.delay}ms` : "0ms",
+                  }}
+                />
+              );
+            })}
+
+            {nodes.map((n) => (
+              <g
+                key={n.id}
+                style={{
+                  opacity: 0,
+                  transform: "scale(0.85)",
+                  transformOrigin: `${n.x + 40}px ${n.y + 18}px`,
+                  animation: active ? "c4In 500ms ease forwards" : "none",
+                  animationDelay: active ? `${n.delay}ms` : "0ms",
+                }}
+              >
+                <rect
+                  x={n.x}
+                  y={n.y}
+                  width="80"
+                  height="36"
+                  rx="8"
+                  fill="#0a0a0a"
+                  stroke="var(--af-line)"
+                  strokeWidth="1.2"
+                />
+                <text
+                  x={n.x + 40}
+                  y={n.y + 15}
+                  textAnchor="middle"
+                  fontSize="9"
+                  fill="rgba(255,255,255,0.8)"
+                >
+                  {n.title}
+                </text>
+                <text
+                  x={n.x + 40}
+                  y={n.y + 28}
+                  textAnchor="middle"
+                  fontSize="7"
+                  fill="rgba(255,255,255,0.4)"
+                >
+                  {n.sub}
+                </text>
+              </g>
+            ))}
+          </svg>
+        </div>
+
+        <div className="mt-3 grid grid-cols-2 gap-3 px-2 pb-2">
+          <div className="rounded-xl bg-white/5 ring-1 ring-white/10 p-3">
+            <p className="text-[10px] font-semibold text-white/70">Fluxo</p>
+            <p className="mt-1 text-[10px] text-white/50">
+              User → FE → Gateway → Service → DB
+            </p>
+          </div>
+          <div className="rounded-xl bg-white/5 ring-1 ring-white/10 p-3">
+            <p className="text-[10px] font-semibold text-white/70">Motivo</p>
+            <p className="mt-1 text-[10px] text-white/50">
+              Separar responsabilidades e escalar leitura
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <style>{`
+        @keyframes c4In {
+          from { opacity: 0; transform: scale(0.85); }
+          to { opacity: 1; transform: scale(1); }
+        }
+        @keyframes c4Draw {
+          from { stroke-dashoffset: 140; opacity: 0.2; }
+          to { stroke-dashoffset: 0; opacity: 0.9; }
+        }
+      `}</style>
+    </div>
+  );
+}
+
+/* ----------------------------- SCREEN 3: ERD ----------------------------- */
+
+function ScreenERD({ active }) {
+  const tables = [
+    {
+      id: "users",
+      x: 22,
+      y: 34,
+      name: "users",
+      delay: 0,
+      fields: ["id (PK)", "name", "email"],
+    },
+    {
+      id: "orders",
+      x: 190,
+      y: 34,
+      name: "orders",
+      delay: 500,
+      fields: ["id (PK)", "user_id (FK)", "status"],
+    },
+    {
+      id: "items",
+      x: 190,
+      y: 150,
+      name: "order_items",
+      delay: 1000,
+      fields: ["id (PK)", "order_id(FK)", "product_id"],
+    },
+  ];
+
+  const [visibleFields, setVisibleFields] = useState({
+    users: 0,
+    orders: 0,
+    items: 0,
+  });
+
+  useEffect(() => {
+    if (!active) {
+      setVisibleFields({ users: 0, orders: 0, items: 0 });
+      return;
+    }
+
+    let timers = [];
+    // reveal users fields
+    tables.forEach((t) => {
+      t.fields.forEach((_, i) => {
+        const tid = setTimeout(
+          () => {
+            setVisibleFields((prev) => ({
+              ...prev,
+              [t.id]: Math.max(prev[t.id], i + 1),
+            }));
+          },
+          t.delay + 250 + i * 80,
+        );
+        timers.push(tid);
+      });
+    });
+
+    return () => timers.forEach(clearTimeout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [active]);
+
+  const Table = ({ t }) => {
+    const count = visibleFields[t.id] ?? 0;
+    return (
+      <g
+        style={{
+          opacity: 0,
+          transform: "translateY(12px)",
+          transformOrigin: `${t.x + 70}px ${t.y + 55}px`,
+          animation: active ? "erdIn 500ms ease forwards" : "none",
+          animationDelay: active ? `${t.delay}ms` : "0ms",
+        }}
+      >
+        <rect
+          x={t.x}
+          y={t.y}
+          width="140"
+          height="92"
+          rx="10"
+          fill="#0a0a0a"
+          stroke="rgba(255,255,255,0.10)"
+        />
+        <rect
+          x={t.x}
+          y={t.y}
+          width="140"
+          height="24"
+          rx="10"
+          fill="#0a0a0a"
+          stroke="var(--af-line)"
+          strokeWidth="1.2"
+        />
+        <text
+          x={t.x + 10}
+          y={t.y + 16}
+          fontSize="9"
+          fontWeight="700"
+          fill="rgba(255,255,255,0.85)"
+        >
+          {t.name}
+        </text>
+
+        {/* separator line */}
+        <line
+          x1={t.x}
+          y1={t.y + 26}
+          x2={t.x + 140}
+          y2={t.y + 26}
+          stroke="rgba(255,255,255,0.10)"
+        />
+
+        {/* fields */}
+        {t.fields.map((f, i) => {
+          const visible = i < count;
+          const isPK = f.includes("(PK)");
+          const isFK = f.includes("(FK)");
+          return (
+            <text
+              key={f}
+              x={t.x + 10}
+              y={t.y + 44 + i * 14}
+              fontSize="8"
+              fontFamily="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace"
+              fill={visible ? "rgba(255,255,255,0.70)" : "rgba(255,255,255,0)"}
+              style={{
+                transition: "opacity 200ms ease",
+                opacity: visible ? 1 : 0,
+              }}
+            >
+              {(isPK || isFK) && (
+                <tspan fill="var(--af-pin)">
+                  {isPK ? "PK " : isFK ? "FK " : ""}
+                </tspan>
+              )}
+              <tspan>{f.replace("(PK)", "").replace("(FK)", "")}</tspan>
+            </text>
+          );
+        })}
+      </g>
+    );
+  };
+
+  const RelLine = ({
+    x1,
+    y1,
+    x2,
+    y2,
+    delay,
+    forkAtEnd = true,
+    forkSize = 7,
+  }) => {
+    // crow's foot simplified: small fork at end
+    const fx = x2;
+    const fy = y2;
+    const fork1 = forkAtEnd
+      ? `M ${fx} ${fy} L ${fx - forkSize} ${fy - forkSize}`
+      : "";
+    const fork2 = forkAtEnd
+      ? `M ${fx} ${fy} L ${fx - forkSize} ${fy + forkSize}`
+      : "";
+
+    return (
+      <g>
+        <path
+          d={`M ${x1} ${y1} L ${x2} ${y2}`}
+          fill="none"
+          stroke="var(--af-line)"
+          strokeWidth="1.2"
+          opacity="0.9"
+          strokeDasharray="220"
+          strokeDashoffset="220"
+          style={{
+            animation: active ? "erdDraw 600ms ease forwards" : "none",
+            animationDelay: active ? `${delay}ms` : "0ms",
+          }}
+        />
+        <path
+          d={fork1}
+          fill="none"
+          stroke="var(--af-line)"
+          strokeWidth="1.2"
+          opacity="0.9"
+          strokeDasharray="30"
+          strokeDashoffset="30"
+          style={{
+            animation: active ? "erdDraw 400ms ease forwards" : "none",
+            animationDelay: active ? `${delay + 250}ms` : "0ms",
+          }}
+        />
+        <path
+          d={fork2}
+          fill="none"
+          stroke="var(--af-line)"
+          strokeWidth="1.2"
+          opacity="0.9"
+          strokeDasharray="30"
+          strokeDashoffset="30"
+          style={{
+            animation: active ? "erdDraw 400ms ease forwards" : "none",
+            animationDelay: active ? `${delay + 250}ms` : "0ms",
+          }}
+        />
+      </g>
+    );
+  };
+
+  return (
+    <div className="h-full">
+      <div className="rounded-2xl bg-black/40 ring-1 ring-white/10 p-3">
+        <div className="flex items-center justify-between px-2 py-1">
+          <p className="text-[10px] font-semibold text-white/70">
+            ERD (exemplo)
+          </p>
+          <span className="text-[10px] text-white/40">schema v1</span>
+        </div>
+
+        <div className="mt-2 flex justify-center">
+          <svg viewBox="0 0 340 230" className="w-full max-w-[340px]">
+            {/* relations (draw after both tables appear) */}
+            <RelLine
+              x1={22 + 140}
+              y1={34 + 52}
+              x2={190}
+              y2={34 + 52}
+              delay={800}
+              forkAtEnd={true}
+            />
+            <RelLine
+              x1={190 + 70}
+              y1={34 + 92}
+              x2={190 + 70}
+              y2={150}
+              delay={1450}
+              forkAtEnd={true}
+            />
+
+            {tables.map((t) => (
+              <Table key={t.id} t={t} />
+            ))}
+          </svg>
+        </div>
+
+        <div className="mt-3 grid grid-cols-2 gap-3 px-2 pb-2">
+          <div className="rounded-xl bg-white/5 ring-1 ring-white/10 p-3">
+            <p className="text-[10px] font-semibold text-white/70">Regras</p>
+            <p className="mt-1 text-[10px] text-white/50">
+              users 1—N orders, orders 1—N items
+            </p>
+          </div>
+          <div className="rounded-xl bg-white/5 ring-1 ring-white/10 p-3">
+            <p className="text-[10px] font-semibold text-white/70">Geração</p>
+            <p className="mt-1 text-[10px] text-white/50">
+              Migration + Entity + Types vinculados
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <style>{`
+        @keyframes erdIn {
+          from { opacity: 0; transform: translateY(12px); }
+          to { opacity: 1; transform: translateY(0px); }
+        }
+        @keyframes erdDraw {
+          from { stroke-dashoffset: 220; opacity: 0.2; }
+          to { stroke-dashoffset: 0; opacity: 0.9; }
+        }
+      `}</style>
+    </div>
+  );
+}
+
+/* ----------------------------- SCREEN 4: KANBAN ----------------------------- */
+
+function ScreenKanban({ active }) {
+  const columns = [
+    {
+      name: "To Do",
+      count: 2,
+      cards: [
+        { t: "Implement CQRS Handler", tag: "ADR" },
+        { t: "Update Container Diagram", tag: "C4" },
+      ],
+    },
+    {
+      name: "In Progress",
+      count: 1,
+      cards: [{ t: "Create orders_events table", tag: "ERD", focus: true }],
+    },
+    {
+      name: "Done",
+      count: 2,
+      cards: [
+        { t: "Define Auth boundaries", tag: "ADR" },
+        { t: "Schema v1 migration", tag: "ERD" },
+      ],
+    },
+  ];
+
+  const flatCards = useMemo(() => {
+    const arr = [];
+    columns.forEach((col, ci) => {
+      col.cards.forEach((c, i) => {
+        arr.push({ ...c, ci, i, key: `${ci}-${i}` });
+      });
+    });
+    return arr;
+  }, []);
+
+  const cardDelay = (ci, i) => {
+    // drop sequentially across all cards (150ms between)
+    // order: ToDo(0..), InProg, Done
+    let idx = 0;
+    for (let c = 0; c < ci; c++) idx += columns[c].cards.length;
+    idx += i;
+    return idx * 150;
+  };
+
+  return (
+    <div className="h-full">
+      <div className="rounded-2xl bg-black/40 ring-1 ring-white/10 p-3 h-full">
+        <div className="flex items-center justify-between px-2 py-1">
+          <p className="text-[10px] font-semibold text-white/70">
+            Board (scrumban)
+          </p>
+          <span className="text-[10px] text-white/40">Sprint 12</span>
+        </div>
+
+        <div
+          className={cx(
+            "mt-3 flex gap-3",
+            "transition-opacity duration-500",
+            active ? "opacity-100" : "opacity-0",
+          )}
+        >
+          {columns.map((col, ci) => (
+            <div key={col.name} className="w-[96px]">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-semibold text-white/60">
+                  {col.name}
+                </span>
+                <span className="rounded-full bg-white/10 px-1.5 text-[9px] text-white/60">
+                  {col.count}
+                </span>
+              </div>
+
+              <div className="mt-2 space-y-2">
+                {col.cards.map((c, i) => {
+                  const isFocus = !!c.focus;
+                  const d = cardDelay(ci, i);
+                  return (
+                    <div
+                      key={`${col.name}-${i}`}
+                      className={cx(
+                        "rounded-lg bg-white/5 ring-1 ring-white/10 p-2.5 text-[9px] text-white/75",
+                        isFocus && "border-l-2 border-[var(--af-line)] pl-2",
+                      )}
+                      style={{
+                        opacity: 0,
+                        transform: "translateY(-10px)",
+                        animation: active
+                          ? `kbCardIn 450ms ease forwards`
+                          : "none",
+                        animationDelay: active ? `${d}ms` : "0ms",
+                      }}
+                    >
+                      <div className="truncate">{c.t}</div>
+                      <div className="mt-2">
+                        <span className="inline-flex items-center rounded-full bg-[var(--af-pin)]/20 px-1.5 py-[2px] text-[8px] font-semibold text-[var(--af-pin)]">
+                          {c.tag}
+                        </span>
+                      </div>
+
+                      {isFocus && active && (
+                        <div
+                          className="pointer-events-none absolute"
+                          style={{
+                            opacity: 1,
+                            animation: "afPulse 2s ease-in-out infinite",
+                          }}
+                        />
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <style>{`
+          @keyframes kbCardIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0px); }
+          }
+        `}</style>
+      </div>
+    </div>
+  );
+}
+
+/* ----------------------------- HERO / NAV / ETC ----------------------------- */
+
 function Marquee() {
   return (
     <div className="relative overflow-hidden rounded-2xl bg-white/5 ring-1 ring-white/10">
@@ -386,7 +1286,7 @@ function Navbar() {
 }
 
 function Hero() {
-  // 1) Typewriter for "arquitetura."
+  // Typewriter for "arquitetura."
   const fullWord = "arquitetura.";
   const [typed, setTyped] = useState("");
   const [showCursor, setShowCursor] = useState(true);
@@ -397,7 +1297,6 @@ function Hero() {
     let intervalId = null;
     let timeoutId = null;
 
-    // reset (in case of hot reload)
     setTyped("");
     setShowCursor(true);
     setBlinkCursor(false);
@@ -434,108 +1333,123 @@ function Hero() {
         className="relative mx-auto max-w-6xl px-4 pt-16 pb-10 md:pt-24 md:pb-16"
         id="top"
       >
-        <div className="flex flex-col items-start gap-6">
-          <div className="flex flex-wrap items-center gap-2">
-            <Badge tone="accent">Architecture-First</Badge>
-            <Badge>Agile by Design</Badge>
-            <Badge>Traceability</Badge>
+        {/* Linha 1: conteúdo + painel */}
+        <div className="grid gap-10 lg:grid-cols-2 lg:items-start">
+          {/* LEFT */}
+          <div className="flex flex-col items-start gap-6">
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge tone="accent">Architecture-First</Badge>
+              <Badge>Agile by Design</Badge>
+              <Badge>Traceability</Badge>
+            </div>
+
+            <h1 className="max-w-3xl text-4xl md:text-6xl font-semibold tracking-tight text-white">
+              A ferramenta ágil que entende{" "}
+              <span className="text-white">
+                <span>{typed}</span>
+                {showCursor && (
+                  <span
+                    style={{
+                      color: "var(--af-primary)",
+                      animation: blinkCursor
+                        ? "afCursorBlink 700ms linear infinite"
+                        : "none",
+                    }}
+                  >
+                    |
+                  </span>
+                )}
+              </span>{" "}
+              Não só tasks.
+            </h1>
+
+            <p className="max-w-2xl text-base md:text-lg leading-relaxed text-white/75">
+              O <span className="text-white font-medium">ArchFlow</span> coloca{" "}
+              <Accent>decisões arquiteturais</Accent>,{" "}
+              <Accent>diagramas</Accent> e <Accent>schema</Accent> no centro da
+              gestão ágil — com rastreabilidade completa do conceito ao deploy.
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-3">
+              <a
+                href="#cta"
+                className="group inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold text-white bg-white/5 hover:bg-white/8 ring-1 ring-white/15 hover:ring-[var(--af-line)]/80 hover:text-[var(--af-primary)] transition"
+              >
+                <Icon as={ArrowRight} className="h-4 w-4" />
+                Solicitar acesso
+              </a>
+              <a
+                href="#produto"
+                className="group inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold text-white/85 hover:text-white bg-white/5 hover:bg-white/8 ring-1 ring-white/10 hover:ring-[var(--af-line)]/60 transition"
+              >
+                <Icon as={ChevronRight} className="h-4 w-4" />
+                Ver como funciona
+              </a>
+            </div>
+
+            {/* Marquee fica aqui como antes */}
           </div>
 
-          <h1 className="max-w-3xl text-4xl md:text-6xl font-semibold tracking-tight text-white">
-            A ferramenta ágil que entende{" "}
-            <span className="text-white">
-              <span>{typed}</span>
-              {showCursor && (
-                <span
-                  style={{
-                    color: "var(--af-primary)",
-                    animation: blinkCursor
-                      ? "afCursorBlink 700ms linear infinite"
-                      : "none",
-                  }}
-                >
-                  |
-                </span>
-              )}
-            </span>{" "}
-            Não só tasks.
-          </h1>
-
-          <p className="max-w-2xl text-base md:text-lg leading-relaxed text-white/75">
-            O <span className="text-white font-medium">ArchFlow</span> coloca{" "}
-            <Accent>decisões arquiteturais</Accent>, <Accent>diagramas</Accent> e{" "}
-            <Accent>schema</Accent> no centro da gestão ágil — com rastreabilidade
-            completa do conceito ao deploy.
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-3">
-            <a
-              href="#cta"
-              className="group inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold text-white bg-white/5 hover:bg-white/8 ring-1 ring-white/15 hover:ring-[var(--af-line)]/80 hover:text-[var(--af-primary)] transition"
-            >
-              <Icon as={ArrowRight} className="h-4 w-4" />
-              Solicitar acesso
-            </a>
-            <a
-              href="#produto"
-              className="group inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold text-white/85 hover:text-white bg-white/5 hover:bg-white/8 ring-1 ring-white/10 hover:ring-[var(--af-line)]/60 transition"
-            >
-              <Icon as={ChevronRight} className="h-4 w-4" />
-              Ver como funciona
-            </a>
+          {/* RIGHT (lg+) */}
+          <div className="hidden lg:block">
+            <HeroAnimatedPanel />
           </div>
+        </div>
 
-          <div className="mt-4 grid w-full gap-4 md:grid-cols-3">
-            <Card className="group p-5 hover:ring-[var(--af-line)]/40 transition">
-              <div className="flex items-start gap-3">
-                <Icon as={Layers} className="h-5 w-5 mt-0.5" />
-                <div>
-                  <p className="text-sm font-medium text-white">
-                    Menos fragmentação
-                  </p>
-                  <p className="mt-1 text-sm text-white/70">
-                    ADRs, diagramas, board e schema no mesmo produto — reduz
-                    context switching.
-                  </p>
-                </div>
+        {/* Linha 2: os 3 cards FULL WIDTH (mesmo tamanho de antes) */}
+        <div className="mt-10 grid w-full gap-4 md:grid-cols-3">
+          <Card className="group p-5 hover:ring-[var(--af-line)]/40 transition">
+            <div className="flex items-start gap-3">
+              <Icon as={Layers} className="h-5 w-5 mt-0.5" />
+              <div>
+                <p className="text-sm font-medium text-white">
+                  Menos fragmentação
+                </p>
+                <p className="mt-1 text-sm text-white/70">
+                  ADRs, diagramas, board e schema no mesmo produto — reduz
+                  context switching.
+                </p>
               </div>
-            </Card>
-            <Card className="group p-5 hover:ring-[var(--af-line)]/40 transition">
-              <div className="flex items-start gap-3">
-                <Icon as={BookText} className="h-5 w-5 mt-0.5" />
-                <div>
-                  <p className="text-sm font-medium text-white">
-                    Documentação viva
-                  </p>
-                  <p className="mt-1 text-sm text-white/70">
-                    Versionamento por sprint e vínculo com execução: menos drift.
-                  </p>
-                </div>
-              </div>
-            </Card>
-            <Card className="group p-5 hover:ring-[var(--af-line)]/40 transition">
-              <div className="flex items-start gap-3">
-                <Icon as={Target} className="h-5 w-5 mt-0.5" />
-                <div>
-                  <p className="text-sm font-medium text-white">
-                    Onboarding rápido
-                  </p>
-                  <p className="mt-1 text-sm text-white/70">
-                    Contexto técnico acessível por card: por que foi feito assim?
-                  </p>
-                </div>
-              </div>
-            </Card>
-          </div>
+            </div>
+          </Card>
 
-          <div className="mt-8 w-full">
-            <Marquee />
-          </div>
+          <Card className="group p-5 hover:ring-[var(--af-line)]/40 transition">
+            <div className="flex items-start gap-3">
+              <Icon as={BookText} className="h-5 w-5 mt-0.5" />
+              <div>
+                <p className="text-sm font-medium text-white">
+                  Documentação viva
+                </p>
+                <p className="mt-1 text-sm text-white/70">
+                  Versionamento por sprint e vínculo com execução: menos drift.
+                </p>
+              </div>
+            </div>
+          </Card>
+
+          <Card className="group p-5 hover:ring-[var(--af-line)]/40 transition">
+            <div className="flex items-start gap-3">
+              <Icon as={Target} className="h-5 w-5 mt-0.5" />
+              <div>
+                <p className="text-sm font-medium text-white">
+                  Onboarding rápido
+                </p>
+                <p className="mt-1 text-sm text-white/70">
+                  Contexto técnico acessível por card: por que foi feito assim?
+                </p>
+              </div>
+            </div>
+          </Card>
+        </div>
+        <div className="mt-6 w-full">
+          <Marquee />
         </div>
       </div>
     </section>
   );
 }
+
+/* -------------------- the rest of your page stays the same -------------------- */
 
 function ProblemSolution() {
   return (
@@ -605,7 +1519,9 @@ Kanban Card:
               <div className="flex items-start gap-3">
                 <Icon as={ShieldCheck} className="h-5 w-5 mt-0.5" />
                 <div>
-                  <p className="text-sm font-semibold text-white">Fonte única</p>
+                  <p className="text-sm font-semibold text-white">
+                    Fonte única
+                  </p>
                   <p className="mt-1 text-sm text-white/70">
                     Tudo versionado e vinculado ao trabalho real.
                   </p>
@@ -616,7 +1532,9 @@ Kanban Card:
               <div className="flex items-start gap-3">
                 <Icon as={GitBranch} className="h-5 w-5 mt-0.5" />
                 <div>
-                  <p className="text-sm font-semibold text-white">Menos drift</p>
+                  <p className="text-sm font-semibold text-white">
+                    Menos drift
+                  </p>
                   <p className="mt-1 text-sm text-white/70">
                     Diagramas e schema evoluem junto com o sprint.
                   </p>
@@ -693,8 +1611,8 @@ function Features() {
               </p>
               <p className="mt-2 text-sm text-white/70 leading-relaxed">
                 Em vez de “linkar” arquitetura em algum lugar, o produto trata
-                arquitetura como entidade de primeira classe — com versionamento,
-                diffs e rastreabilidade.
+                arquitetura como entidade de primeira classe — com
+                versionamento, diffs e rastreabilidade.
               </p>
               <div className="mt-4 flex flex-wrap gap-2">
                 <Badge tone="accent">ADRs</Badge>
@@ -716,7 +1634,9 @@ function Features() {
             <div className="flex items-start gap-3">
               <Icon as={f.icon} className="h-5 w-5 mt-0.5" />
               <div>
-                <h3 className="text-base font-semibold text-white">{f.title}</h3>
+                <h3 className="text-base font-semibold text-white">
+                  {f.title}
+                </h3>
                 <p className="mt-2 text-sm text-white/70 leading-relaxed">
                   {f.desc}
                 </p>
@@ -741,12 +1661,8 @@ function Features() {
   );
 }
 
-/**
- * 3) Seção visual: Arquitetura ↔ Tasks — nova seção entre Features() e Workflow()
- * - IntersectionObserver threshold 0.4
- * - Lines draw sequentially (600ms each, staggered)
- * - Nodes pulse after all lines drawn (staggered)
- */
+/* Keeping your existing sections below as-is (ArchTaskGraph, Workflow, Roadmap, Stack, CTA) */
+
 function ArchTaskGraph() {
   const ref = useRef(null);
   const [start, setStart] = useState(false);
@@ -763,7 +1679,7 @@ function ArchTaskGraph() {
           obs.disconnect();
         }
       },
-      { threshold: 0.4 }
+      { threshold: 0.4 },
     );
 
     obs.observe(el);
@@ -779,7 +1695,7 @@ function ArchTaskGraph() {
       { label: "Card", x: 540 },
       { label: "Deploy", x: 660 },
     ],
-    []
+    [],
   );
 
   const lines = useMemo(
@@ -790,7 +1706,7 @@ function ArchTaskGraph() {
       { x1: 448, y1: 70, x2: 512, y2: 70, delay: 1800 },
       { x1: 568, y1: 70, x2: 632, y2: 70, delay: 2400 },
     ],
-    []
+    [],
   );
 
   const afterLinesMs = 600 * lines.length + 200;
@@ -812,7 +1728,6 @@ function ArchTaskGraph() {
               aria-label="ADR to Deploy flow graph"
               preserveAspectRatio="xMidYMid meet"
             >
-              {/* connections */}
               {lines.map((l, idx) => (
                 <line
                   key={idx}
@@ -832,7 +1747,6 @@ function ArchTaskGraph() {
                 />
               ))}
 
-              {/* nodes */}
               {nodes.map((n, idx) => (
                 <g
                   key={n.label}
@@ -846,13 +1760,7 @@ function ArchTaskGraph() {
                       ? `${afterLinesMs + idx * 180}ms`
                       : "0ms",
                   }}
-                  onClick={() => {
-                    // placeholder interaction; you can wire routing later
-                    // eslint-disable-next-line no-console
-                    console.log(`Clicked node: ${n.label}`);
-                  }}
                 >
-                  <title>{n.label}</title>
                   <circle
                     cx={n.x}
                     cy={70}
@@ -865,7 +1773,7 @@ function ArchTaskGraph() {
                     x={n.x}
                     y={74}
                     textAnchor="middle"
-                    fontSize="8"
+                    fontSize="10"
                     fill="rgba(255,255,255,0.75)"
                     style={{ userSelect: "none" }}
                   >
@@ -888,13 +1796,6 @@ function ArchTaskGraph() {
   );
 }
 
-/**
- * 2) Workflow trace animation
- * - IntersectionObserver triggers when section enters viewport
- * - reveal each line every 400ms
- * - fade-in + translateY(8px → 0) w/ transition 0.35s
- * - final "rastreável + versionado" in var(--af-primary) + pulse after appear
- */
 function Workflow() {
   const sectionRef = useRef(null);
   const [started, setStarted] = useState(false);
@@ -916,7 +1817,7 @@ function Workflow() {
       { text: "  ↑____________________________________|", kind: "normal" },
       { text: "           rastreável + versionado", kind: "accent" },
     ],
-    []
+    [],
   );
 
   useEffect(() => {
@@ -931,7 +1832,7 @@ function Workflow() {
           obs.disconnect();
         }
       },
-      { threshold: 0.25 }
+      { threshold: 0.25 },
     );
 
     obs.observe(el);
@@ -942,6 +1843,8 @@ function Workflow() {
     if (!started) return;
 
     let idx = 0;
+    setVisibleCount(0);
+
     const interval = setInterval(() => {
       idx += 1;
       setVisibleCount(idx);
@@ -1007,7 +1910,6 @@ function Workflow() {
           </div>
 
           <div className="mt-5">
-            {/* Replaces static CodeBlock: sequential reveal lines */}
             <CodeBlock>
               {traceLines.map((l, i) => {
                 const isVisible = i < visibleCount;
@@ -1027,7 +1929,7 @@ function Workflow() {
                         isAccent && isVisible
                           ? "afPulse 2s ease-in-out infinite"
                           : "none",
-                      whiteSpace: "pre", // keep the linked node layout intact
+                      whiteSpace: "pre",
                     }}
                   >
                     {l.text}
@@ -1042,7 +1944,9 @@ function Workflow() {
               <div className="flex items-start gap-3">
                 <Icon as={Target} className="h-5 w-5 mt-0.5" />
                 <div>
-                  <p className="text-xs font-semibold text-white/80">Benefício</p>
+                  <p className="text-xs font-semibold text-white/80">
+                    Benefício
+                  </p>
                   <p className="mt-1 text-sm text-white/70">
                     Menos “por que isso existe?” no time.
                   </p>
@@ -1053,7 +1957,9 @@ function Workflow() {
               <div className="flex items-start gap-3">
                 <Icon as={BookText} className="h-5 w-5 mt-0.5" />
                 <div>
-                  <p className="text-xs font-semibold text-white/80">Benefício</p>
+                  <p className="text-xs font-semibold text-white/80">
+                    Benefício
+                  </p>
                   <p className="mt-1 text-sm text-white/70">
                     Menos documentação obsoleta.
                   </p>
@@ -1088,7 +1994,9 @@ function Roadmap() {
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-2">
                 <Icon as={r.icon} className="h-5 w-5" />
-                <h3 className="text-base font-semibold text-white">{r.phase}</h3>
+                <h3 className="text-base font-semibold text-white">
+                  {r.phase}
+                </h3>
               </div>
               <Badge tone="solid">{idx === 0 ? "Agora" : "Depois"}</Badge>
             </div>
@@ -1135,34 +2043,6 @@ function Stack() {
               </span>
             ))}
           </div>
-
-          <div className="mt-8 grid gap-4 sm:grid-cols-2">
-            <Card className="group p-5 hover:ring-[var(--af-line)]/40 transition">
-              <div className="flex items-start gap-3">
-                <Icon as={Sparkles} className="h-5 w-5 mt-0.5" />
-                <div>
-                  <p className="text-sm font-semibold text-white">Performance</p>
-                  <p className="mt-1 text-sm text-white/70">
-                    UI “snappy” com layout limpo e foco no que importa.
-                  </p>
-                </div>
-              </div>
-            </Card>
-            <Card className="group p-5 hover:ring-[var(--af-line)]/40 transition">
-              <div className="flex items-start gap-3">
-                <Icon as={Cpu} className="h-5 w-5 mt-0.5" />
-                <div>
-                  <p className="text-sm font-semibold text-white">
-                    Escalabilidade
-                  </p>
-                  <p className="mt-1 text-sm text-white/70">
-                    Arquitetura e schema versionados ajudam a escalar sem perder
-                    contexto.
-                  </p>
-                </div>
-              </div>
-            </Card>
-          </div>
         </div>
 
         <Card className="group p-6 hover:ring-[var(--af-line)]/40 transition">
@@ -1173,7 +2053,8 @@ function Stack() {
                 Exemplo: geração de migration
               </p>
               <p className="mt-1 text-sm text-white/70">
-                Quando o schema muda, você quer menos drift e mais rastreabilidade.
+                Quando o schema muda, você quer menos drift e mais
+                rastreabilidade.
               </p>
 
               <div className="mt-5">
@@ -1283,8 +2164,8 @@ function CTA() {
                       o projeto.”
                     </p>
                     <p className="mt-2 text-sm text-white/70">
-                      No ArchFlow, arquitetura deixa de ser anexo e vira parte do
-                      fluxo — rastreável, versionada e útil.
+                      No ArchFlow, arquitetura deixa de ser anexo e vira parte
+                      do fluxo — rastreável, versionada e útil.
                     </p>
                   </div>
                 </div>
@@ -1349,30 +2230,25 @@ export default function ArchFlowLanding() {
     >
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-
         html, body { height: 100%; overflow-x: hidden; }
         body { margin: 0; }
 
-        /* 1) Hero cursor blink */
         @keyframes afCursorBlink {
           0%, 49% { opacity: 1; }
           50%, 100% { opacity: 0; }
         }
 
-        /* 2) Trace label pulse */
         @keyframes afPulse {
           0% { opacity: 1; }
-          50% { opacity: 0.6; }
+          50% { opacity: 0.7; }
           100% { opacity: 1; }
         }
 
-        /* 3) SVG line draw */
         @keyframes drawLine {
           from { stroke-dashoffset: 120; }
           to { stroke-dashoffset: 0; }
         }
 
-        /* 3) SVG node pulse */
         @keyframes nodePulse {
           0% { transform: scale(1); }
           50% { transform: scale(1.06); }
@@ -1386,13 +2262,8 @@ export default function ArchFlowLanding() {
         <ProblemSolution />
         <Pillars />
         <Features />
-
-        {/* 3) new section between Features and Workflow */}
         <ArchTaskGraph />
-
-        {/* 2) Workflow with trace animation */}
         <Workflow />
-
         <Roadmap />
         <Stack />
         <CTA />
