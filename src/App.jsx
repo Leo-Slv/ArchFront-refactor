@@ -17,6 +17,7 @@ import {
   Workflow as WorkflowIcon,
   Target,
 } from "lucide-react";
+import "./App.css";
 
 /**
  * ArchFlow Landing Page (Vite + React + Tailwind) — FLAT THEME + LUCIDE ICONS
@@ -38,17 +39,16 @@ const Accent = ({ children }) => (
 
 const Badge = ({ children, tone = "default" }) => {
   const tones = {
-    default: "bg-white/5 text-white/80 ring-1 ring-white/10 hover:bg-white/8",
-    accent:
-      "bg-white/5 text-white/80 ring-1 ring-white/10 hover:ring-[var(--af-line)]/60 hover:text-[var(--af-primary)]",
+    default: "bg-white/5 text-white/80 hover:bg-white/8",
+    accent: "bg-white/5 text-white/80 hover:text-[var(--af-primary)]",
     solid:
-      "bg-white/5 text-white ring-1 ring-white/15 hover:ring-[var(--af-line)]/70 hover:text-[var(--af-primary)] hover:bg-white/7",
-    subtle: "bg-white/4 text-white/70 ring-1 ring-white/8 hover:bg-white/6",
+      "bg-white/5 text-white hover:text-[var(--af-primary)] hover:bg-white/7",
+    subtle: "bg-white/4 text-white/70 hover:bg-white/6",
   };
   return (
     <span
       className={cx(
-        "inline-flex items-center rounded-full px-3 py-1 text-xs font-medium transition",
+        "af-surface-sm af-surface-hover inline-flex items-center px-3 py-1 text-xs font-medium transition",
         tones[tone] || tones.default,
       )}
     >
@@ -60,20 +60,20 @@ const Badge = ({ children, tone = "default" }) => {
 const Card = ({ children, className }) => (
   <div
     className={cx(
-      "relative rounded-2xl bg-[#14121a] ring-1 ring-white/10 backdrop-blur-md",
-      "shadow-[0_0_0_1px_rgba(255,255,255,.02),0_24px_70px_rgba(0,0,0,.55)]",
+      "relative af-surface-lg bg-[#14121a] backdrop-blur-md",
       className,
     )}
+    style={{ "--af-surface-shadow": "0 24px 70px rgba(0,0,0,.55)" }}
   >
     <div className="relative">{children}</div>
   </div>
 );
 
-const Divider = () => <div className="my-14 h-px w-full bg-white/10" />;
+const Divider = () => <div className="af-divider-line my-14 w-full" />;
 
 /** removed horizontal scroll */
 const CodeBlock = ({ children }) => (
-  <pre className="overflow-x-hidden whitespace-pre-wrap break-words rounded-2xl bg-black/60 p-5 text-[12px] leading-relaxed text-white/80 ring-1 ring-white/10">
+  <pre className="af-surface-lg overflow-x-hidden whitespace-pre-wrap break-words bg-black/40 p-5 text-[12px] leading-relaxed text-white/80">
     <code className="whitespace-pre-wrap break-words">{children}</code>
   </pre>
 );
@@ -84,7 +84,10 @@ const CodeBlock = ({ children }) => (
  * - Agora o hover é LOCAL: você aplica hover:* no elemento específico ou group-hover:* em um group específico.
  */
 const Icon = ({ as: As, className }) => (
-  <As className={cx("h-4 w-4 text-white/80 transition", className)} aria-hidden="true" />
+  <As
+    className={cx("h-4 w-4 text-white/80 transition", className)}
+    aria-hidden="true"
+  />
 );
 
 const SectionTitle = ({
@@ -103,20 +106,27 @@ const SectionTitle = ({
         )}
       >
         <span className="group inline-flex items-center">
-          <Icon as={IconComp} className="h-4 w-4 group-hover:text-[var(--af-pin)]" />
+          <Icon
+            as={IconComp}
+            className="h-4 w-4 group-hover:text-[var(--af-pin)]"
+          />
         </span>
-        <p className="text-sm font-medium tracking-wide text-white/70">{eyebrow}</p>
+        <p className="text-sm font-medium tracking-wide text-white/70">
+          {eyebrow}
+        </p>
       </div>
     )}
     <h2 className="text-2xl md:text-3xl font-semibold tracking-tight text-white">
       {title}
     </h2>
-    {desc && <p className="mt-3 text-base leading-relaxed text-white/70">{desc}</p>}
+    {desc && (
+      <p className="mt-3 text-base leading-relaxed text-white/70">{desc}</p>
+    )}
   </div>
 );
 
 const LogoPill = ({ children, icon: IconComp = Sparkles }) => (
-  <div className="group inline-flex items-center gap-2 rounded-full bg-white/5 px-4 py-2 text-sm text-white/70 ring-1 ring-white/10 hover:ring-[var(--af-line)]/60 hover:text-white transition">
+  <div className="group af-surface-sm af-surface-hover inline-flex items-center gap-2 bg-white/5 px-4 py-2 text-sm text-white/70 hover:text-white transition">
     <Icon as={IconComp} className="h-4 w-4 group-hover:text-[var(--af-pin)]" />
     {children}
   </div>
@@ -331,13 +341,8 @@ function HeroAnimatedPanel() {
   };
 
   return (
-    <Card
-      className={cx(
-        "p-0 overflow-hidden h-[420px]",
-        "bg-[#0a0a0a] ring-1 ring-[var(--af-line)]/35",
-      )}
-    >
-      <div className="h-12 flex items-center justify-between px-4 border-b border-white/10">
+    <Card className={cx("p-0 overflow-hidden h-[420px]", "bg-[#0a0a0a]")}>
+      <div className="af-separator-b h-12 flex items-center justify-between px-4">
         <div className="relative h-5 w-full">
           {screens.map((s, i) => {
             const isActive = i === idx;
@@ -389,8 +394,7 @@ function HeroAnimatedPanel() {
                 onClick={() => goTo(i)}
                 aria-label={`Go to ${s.key}`}
                 className={cx(
-                  "transition-all duration-300 rounded-full",
-                  "focus:outline-none focus:ring-2 focus:ring-[var(--af-line)]/50",
+                  "af-focus-ring transition-all duration-300 rounded-full",
                   isActive
                     ? "bg-[var(--af-pin)] w-4 h-1.5"
                     : "bg-white/20 w-1.5 h-1.5",
@@ -409,7 +413,9 @@ function PanelScreen({ active, children }) {
     <div
       className={cx(
         "absolute inset-0 p-4 flex flex-col transition-all duration-500",
-        active ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none",
+        active
+          ? "opacity-100 pointer-events-auto"
+          : "opacity-0 pointer-events-none",
       )}
       style={{ transform: active ? "translateY(0px)" : "translateY(12px)" }}
     >
@@ -511,7 +517,7 @@ function ScreenADR({ active }) {
   );
 
   const TinyList = ({ title, items }) => (
-    <div className="rounded-xl bg-white/5 ring-1 ring-white/10 p-3">
+    <div className="af-surface-md bg-white/5 p-3">
       <p className="text-[10px] font-semibold text-white/70">{title}</p>
       <ul className="mt-1 space-y-1">
         {items.map((it) => (
@@ -525,14 +531,14 @@ function ScreenADR({ active }) {
 
   return (
     <div className="h-full min-h-0">
-      <div className="h-full min-h-0 rounded-2xl bg-black/40 ring-1 ring-white/10 overflow-hidden flex flex-col">
-        <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
+      <div className="af-surface-lg h-full min-h-0 bg-black/40 overflow-hidden flex flex-col">
+        <div className="af-separator-b flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center rounded-full bg-white/5 px-2.5 py-1 text-[10px] font-semibold text-white/80 ring-1 ring-white/10">
+            <span className="af-surface-sm inline-flex items-center bg-white/5 px-2.5 py-1 text-[10px] font-semibold text-white/80">
               ADR #5
             </span>
 
-            <span className="inline-flex items-center gap-1 rounded-full bg-white/5 px-2.5 py-1 text-[10px] font-semibold ring-1 ring-white/10">
+            <span className="af-surface-sm inline-flex items-center gap-1 bg-white/5 px-2.5 py-1 text-[10px] font-semibold">
               <span
                 className="inline-block h-1.5 w-1.5 rounded-full"
                 style={{ background: "#4ade80" }}
@@ -540,7 +546,7 @@ function ScreenADR({ active }) {
               <span style={{ color: "rgba(255,255,255,0.85)" }}>Accepted</span>
             </span>
 
-            <span className="hidden sm:inline-flex items-center rounded-full bg-white/5 px-2.5 py-1 text-[10px] text-white/60 ring-1 ring-white/10">
+            <span className="af-surface-sm hidden sm:inline-flex items-center bg-white/5 px-2.5 py-1 text-[10px] text-white/60">
               Impact: Medium
             </span>
           </div>
@@ -561,7 +567,9 @@ function ScreenADR({ active }) {
               )}
               style={{
                 background: "var(--af-pin)",
-                animation: titleDone ? "none" : "afCursorBlink 700ms linear infinite",
+                animation: titleDone
+                  ? "none"
+                  : "afCursorBlink 700ms linear infinite",
               }}
             />
           </div>
@@ -586,7 +594,9 @@ function ScreenADR({ active }) {
             <div
               className={cx(
                 "transition-all duration-500",
-                showStatus ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3",
+                showStatus
+                  ? "opacity-100 translate-y-0"
+                  : "opacity-0 translate-y-3",
               )}
             >
               <div className="flex items-center gap-2 font-mono text-xs">
@@ -594,7 +604,7 @@ function ScreenADR({ active }) {
                 <div className="relative h-5 w-24">
                   <span
                     className={cx(
-                      "absolute inset-0 inline-flex items-center justify-center rounded-full px-2 text-[10px] ring-1 ring-white/10 bg-white/5 transition-opacity duration-500",
+                      "af-surface-sm absolute inset-0 inline-flex items-center justify-center px-2 text-[10px] bg-white/5 transition-opacity duration-500",
                       statusAccepted ? "opacity-0" : "opacity-100",
                     )}
                     style={{ color: "rgba(255,255,255,0.85)" }}
@@ -603,7 +613,7 @@ function ScreenADR({ active }) {
                   </span>
                   <span
                     className={cx(
-                      "absolute inset-0 inline-flex items-center justify-center rounded-full px-2 text-[10px] ring-1 ring-white/10 bg-white/5 transition-opacity duration-500",
+                      "af-surface-sm absolute inset-0 inline-flex items-center justify-center px-2 text-[10px] bg-white/5 transition-opacity duration-500",
                       statusAccepted ? "opacity-100" : "opacity-0",
                     )}
                     style={{ color: "rgba(255,255,255,0.85)" }}
@@ -653,26 +663,36 @@ function ScreenADR({ active }) {
 
             <RevealBlock show={showDeep}>
               <div className="mt-3 grid grid-cols-2 gap-3">
-                <div className="rounded-xl bg-white/5 ring-1 ring-white/10 p-3">
-                  <p className="text-[10px] font-semibold text-white/70">Plano de rollout</p>
+                <div className="af-surface-md bg-white/5 p-3">
+                  <p className="text-[10px] font-semibold text-white/70">
+                    Plano de rollout
+                  </p>
                   <p className="mt-1 text-[10px] text-white/50 leading-snug">
-                    1) Read model em paralelo · 2) Shadow traffic · 3) Cutover por feature flag
+                    1) Read model em paralelo · 2) Shadow traffic · 3) Cutover
+                    por feature flag
                   </p>
                 </div>
-                <div className="rounded-xl bg-white/5 ring-1 ring-white/10 p-3">
-                  <p className="text-[10px] font-semibold text-white/70">Critérios de aceite</p>
+                <div className="af-surface-md bg-white/5 p-3">
+                  <p className="text-[10px] font-semibold text-white/70">
+                    Critérios de aceite
+                  </p>
                   <p className="mt-1 text-[10px] text-white/50 leading-snug">
                     p95 read &lt; 120ms · erro &lt; 0.5% · lag &lt; 5s
                   </p>
                 </div>
-                <div className="rounded-xl bg-white/5 ring-1 ring-white/10 p-3">
-                  <p className="text-[10px] font-semibold text-white/70">Riscos</p>
+                <div className="af-surface-md bg-white/5 p-3">
+                  <p className="text-[10px] font-semibold text-white/70">
+                    Riscos
+                  </p>
                   <p className="mt-1 text-[10px] text-white/50 leading-snug">
-                    Projeção inconsistente · reprocessamento · duplicidade de eventos
+                    Projeção inconsistente · reprocessamento · duplicidade de
+                    eventos
                   </p>
                 </div>
-                <div className="rounded-xl bg-white/5 ring-1 ring-white/10 p-3">
-                  <p className="text-[10px] font-semibold text-white/70">Links</p>
+                <div className="af-surface-md bg-white/5 p-3">
+                  <p className="text-[10px] font-semibold text-white/70">
+                    Links
+                  </p>
                   <p className="mt-1 text-[10px] text-white/50 leading-snug">
                     Story • PR • Migration • Runbook
                   </p>
@@ -683,7 +703,7 @@ function ScreenADR({ active }) {
                 {["CQRS", "Event Sourcing", "Orders", "Read Model"].map((t) => (
                   <span
                     key={t}
-                    className="inline-flex items-center rounded-full bg-[var(--af-pin)]/20 px-2 py-0.5 text-[9px] font-semibold text-[var(--af-pin)]"
+                    className="af-surface-sm inline-flex items-center bg-[var(--af-pin)]/20 px-2 py-0.5 text-[9px] font-semibold text-[var(--af-pin)]"
                   >
                     {t}
                   </span>
@@ -706,9 +726,30 @@ function ScreenC4({ active }) {
 
   const nodes = [
     { id: "user", x: 22, y: 50, title: "User", sub: "[Person]", delay: 0 },
-    { id: "fe", x: 138, y: 50, title: "Frontend", sub: "[Container]", delay: 300 },
-    { id: "gw", x: 254, y: 50, title: "API Gateway", sub: "[Container]", delay: 600 },
-    { id: "svc", x: 254, y: 124, title: "Order Service", sub: "[Container]", delay: 900 },
+    {
+      id: "fe",
+      x: 138,
+      y: 50,
+      title: "Frontend",
+      sub: "[Container]",
+      delay: 300,
+    },
+    {
+      id: "gw",
+      x: 254,
+      y: 50,
+      title: "API Gateway",
+      sub: "[Container]",
+      delay: 600,
+    },
+    {
+      id: "svc",
+      x: 254,
+      y: 124,
+      title: "Order Service",
+      sub: "[Container]",
+      delay: 900,
+    },
     { id: "db", x: 254, y: 194, title: "PostgreSQL", sub: "[DB]", delay: 1200 },
   ];
 
@@ -716,12 +757,19 @@ function ScreenC4({ active }) {
     { id: "e1", x1: 22 + 80, y1: 50 + 18, x2: 138, y2: 50 + 18, delay: 450 },
     { id: "e2", x1: 138 + 80, y1: 50 + 18, x2: 254, y2: 50 + 18, delay: 750 },
     { id: "e3", x1: 254 + 40, y1: 50 + 36, x2: 254 + 40, y2: 124, delay: 1050 },
-    { id: "e4", x1: 254 + 40, y1: 124 + 36, x2: 254 + 40, y2: 194, delay: 1350 },
+    {
+      id: "e4",
+      x1: 254 + 40,
+      y1: 124 + 36,
+      x2: 254 + 40,
+      y2: 194,
+      delay: 1350,
+    },
   ];
 
   return (
     <div key={mountKey} className="h-full min-h-0">
-      <div className="h-full min-h-0 rounded-2xl bg-black/40 ring-1 ring-white/10 p-3 flex flex-col">
+      <div className="af-surface-lg h-full min-h-0 bg-black/40 p-3 flex flex-col">
         <div className="flex items-center justify-between px-2 py-1">
           <p className="text-[10px] font-semibold text-white/70">
             Container diagram (simplificado)
@@ -730,7 +778,11 @@ function ScreenC4({ active }) {
         </div>
 
         <div className="mt-2 flex-1 min-h-0 flex items-center justify-center">
-          <svg viewBox="0 0 340 260" className="w-full max-w-[360px]" preserveAspectRatio="xMidYMid meet">
+          <svg
+            viewBox="0 0 340 260"
+            className="w-full max-w-[360px]"
+            preserveAspectRatio="xMidYMid meet"
+          >
             {edges.map((e) => (
               <line
                 key={e.id}
@@ -772,10 +824,22 @@ function ScreenC4({ active }) {
                   stroke="var(--af-line)"
                   strokeWidth="1.2"
                 />
-                <text x={n.x + 40} y={n.y + 15} textAnchor="middle" fontSize="9" fill="rgba(255,255,255,0.8)">
+                <text
+                  x={n.x + 40}
+                  y={n.y + 15}
+                  textAnchor="middle"
+                  fontSize="9"
+                  fill="rgba(255,255,255,0.8)"
+                >
                   {n.title}
                 </text>
-                <text x={n.x + 40} y={n.y + 28} textAnchor="middle" fontSize="7" fill="rgba(255,255,255,0.4)">
+                <text
+                  x={n.x + 40}
+                  y={n.y + 28}
+                  textAnchor="middle"
+                  fontSize="7"
+                  fill="rgba(255,255,255,0.4)"
+                >
                   {n.sub}
                 </text>
               </g>
@@ -784,13 +848,13 @@ function ScreenC4({ active }) {
         </div>
 
         <div className="mt-3 grid grid-cols-2 gap-3 px-2 pb-2">
-          <div className="rounded-xl bg-white/5 ring-1 ring-white/10 p-3">
+          <div className="af-surface-md bg-white/5 p-3">
             <p className="text-[10px] font-semibold text-white/70">Fluxo</p>
             <p className="mt-1 text-[10px] text-white/50">
               User → FE → Gateway → Service → DB
             </p>
           </div>
-          <div className="rounded-xl bg-white/5 ring-1 ring-white/10 p-3">
+          <div className="af-surface-md bg-white/5 p-3">
             <p className="text-[10px] font-semibold text-white/70">Motivo</p>
             <p className="mt-1 text-[10px] text-white/50">
               Separar responsabilidades e escalar leitura
@@ -811,12 +875,37 @@ function ScreenC4({ active }) {
 
 function ScreenERD({ active }) {
   const tables = [
-    { id: "users", x: 22, y: 30, name: "users", delay: 0, fields: ["id (PK)", "name", "email"] },
-    { id: "orders", x: 190, y: 30, name: "orders", delay: 500, fields: ["id (PK)", "user_id (FK)", "status"] },
-    { id: "items", x: 190, y: 128, name: "order_items", delay: 1000, fields: ["id (PK)", "order_id(FK)", "product_id"] },
+    {
+      id: "users",
+      x: 22,
+      y: 30,
+      name: "users",
+      delay: 0,
+      fields: ["id (PK)", "name", "email"],
+    },
+    {
+      id: "orders",
+      x: 190,
+      y: 30,
+      name: "orders",
+      delay: 500,
+      fields: ["id (PK)", "user_id (FK)", "status"],
+    },
+    {
+      id: "items",
+      x: 190,
+      y: 128,
+      name: "order_items",
+      delay: 1000,
+      fields: ["id (PK)", "order_id(FK)", "product_id"],
+    },
   ];
 
-  const [visibleFields, setVisibleFields] = useState({ users: 0, orders: 0, items: 0 });
+  const [visibleFields, setVisibleFields] = useState({
+    users: 0,
+    orders: 0,
+    items: 0,
+  });
   const runIdRef = useRef(0);
 
   useEffect(() => {
@@ -829,10 +918,16 @@ function ScreenERD({ active }) {
     const timers = [];
     tables.forEach((t) => {
       t.fields.forEach((_, i) => {
-        const tid = setTimeout(() => {
-          if (runIdRef.current !== runId) return;
-          setVisibleFields((prev) => ({ ...prev, [t.id]: Math.max(prev[t.id], i + 1) }));
-        }, t.delay + 250 + i * 80);
+        const tid = setTimeout(
+          () => {
+            if (runIdRef.current !== runId) return;
+            setVisibleFields((prev) => ({
+              ...prev,
+              [t.id]: Math.max(prev[t.id], i + 1),
+            }));
+          },
+          t.delay + 250 + i * 80,
+        );
         timers.push(tid);
       });
     });
@@ -852,12 +947,41 @@ function ScreenERD({ active }) {
           animationDelay: active ? `${t.delay}ms` : "0ms",
         }}
       >
-        <rect x={t.x} y={t.y} width="140" height="92" rx="10" fill="#0a0a0a" stroke="rgba(255,255,255,0.10)" />
-        <rect x={t.x} y={t.y} width="140" height="24" rx="10" fill="#0a0a0a" stroke="var(--af-line)" strokeWidth="1.2" />
-        <text x={t.x + 10} y={t.y + 16} fontSize="9" fontWeight="700" fill="rgba(255,255,255,0.85)">
+        <rect
+          x={t.x}
+          y={t.y}
+          width="140"
+          height="92"
+          rx="10"
+          fill="#0a0a0a"
+          stroke="rgba(255,255,255,0.10)"
+        />
+        <rect
+          x={t.x}
+          y={t.y}
+          width="140"
+          height="24"
+          rx="10"
+          fill="#0a0a0a"
+          stroke="var(--af-line)"
+          strokeWidth="1.2"
+        />
+        <text
+          x={t.x + 10}
+          y={t.y + 16}
+          fontSize="9"
+          fontWeight="700"
+          fill="rgba(255,255,255,0.85)"
+        >
           {t.name}
         </text>
-        <line x1={t.x} y1={t.y + 26} x2={t.x + 140} y2={t.y + 26} stroke="rgba(255,255,255,0.10)" />
+        <line
+          x1={t.x}
+          y1={t.y + 26}
+          x2={t.x + 140}
+          y2={t.y + 26}
+          stroke="rgba(255,255,255,0.10)"
+        />
 
         {t.fields.map((f, i) => {
           const visible = i < count;
@@ -871,10 +995,15 @@ function ScreenERD({ active }) {
               fontSize="8"
               fontFamily="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace"
               fill={visible ? "rgba(255,255,255,0.70)" : "rgba(255,255,255,0)"}
-              style={{ opacity: visible ? 1 : 0, transition: "opacity 200ms ease" }}
+              style={{
+                opacity: visible ? 1 : 0,
+                transition: "opacity 200ms ease",
+              }}
             >
               {(isPK || isFK) && (
-                <tspan fill="var(--af-pin)">{isPK ? "PK " : isFK ? "FK " : ""}</tspan>
+                <tspan fill="var(--af-pin)">
+                  {isPK ? "PK " : isFK ? "FK " : ""}
+                </tspan>
               )}
               <tspan>{f.replace("(PK)", "").replace("(FK)", "")}</tspan>
             </text>
@@ -906,16 +1035,34 @@ function ScreenERD({ active }) {
 
   return (
     <div className="h-full min-h-0">
-      <div className="h-full min-h-0 rounded-2xl bg-black/40 ring-1 ring-white/10 p-3 flex flex-col">
+      <div className="af-surface-lg h-full min-h-0 bg-black/40 p-3 flex flex-col">
         <div className="flex items-center justify-between px-2 py-1">
-          <p className="text-[10px] font-semibold text-white/70">ERD (exemplo)</p>
+          <p className="text-[10px] font-semibold text-white/70">
+            ERD (exemplo)
+          </p>
           <span className="text-[10px] text-white/40">schema v1</span>
         </div>
 
         <div className="mt-2 flex-1 min-h-0 flex items-center justify-center">
-          <svg viewBox="0 0 340 250" className="w-full max-w-[360px]" preserveAspectRatio="xMidYMid meet">
-            <Relationship x1={22 + 140} y1={34 + 52} x2={190} y2={34 + 52} delay={850} />
-            <Relationship x1={190 + 70} y1={30 + 92} x2={190 + 70} y2={128} delay={1500} />
+          <svg
+            viewBox="0 0 340 250"
+            className="w-full max-w-[360px]"
+            preserveAspectRatio="xMidYMid meet"
+          >
+            <Relationship
+              x1={22 + 140}
+              y1={34 + 52}
+              x2={190}
+              y2={34 + 52}
+              delay={850}
+            />
+            <Relationship
+              x1={190 + 70}
+              y1={30 + 92}
+              x2={190 + 70}
+              y2={128}
+              delay={1500}
+            />
             {tables.map((t) => (
               <Table key={t.id} t={t} />
             ))}
@@ -923,13 +1070,13 @@ function ScreenERD({ active }) {
         </div>
 
         <div className="mt-3 grid grid-cols-2 gap-3 px-2 pb-2">
-          <div className="rounded-xl bg-white/5 ring-1 ring-white/10 p-3">
+          <div className="af-surface-md bg-white/5 p-3">
             <p className="text-[10px] font-semibold text-white/70">Regras</p>
             <p className="mt-1 text-[10px] text-white/50">
               users 1—N orders, orders 1—N items
             </p>
           </div>
-          <div className="rounded-xl bg-white/5 ring-1 ring-white/10 p-3">
+          <div className="af-surface-md bg-white/5 p-3">
             <p className="text-[10px] font-semibold text-white/70">Geração</p>
             <p className="mt-1 text-[10px] text-white/50">
               Migration + Entity + Types vinculados
@@ -997,9 +1144,11 @@ function ScreenKanban({ active }) {
 
   return (
     <div className="h-full min-h-0">
-      <div className="h-full min-h-0 rounded-2xl bg-black/40 ring-1 ring-white/10 p-3 flex flex-col">
+      <div className="af-surface-lg h-full min-h-0 bg-black/40 p-3 flex flex-col">
         <div className="flex items-center justify-between px-2 py-1">
-          <p className="text-[10px] font-semibold text-white/70">Board (scrumban)</p>
+          <p className="text-[10px] font-semibold text-white/70">
+            Board (scrumban)
+          </p>
           <span className="text-[10px] text-white/40">Sprint 12</span>
         </div>
 
@@ -1012,8 +1161,12 @@ function ScreenKanban({ active }) {
           {columns.map((col, ci) => (
             <div key={col.name} className="w-[84px] flex flex-col min-h-0">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-semibold text-white/60">{col.name}</span>
-                <span className="rounded-full bg-white/10 px-1.5 text-[9px] text-white/60">{col.count}</span>
+                <span className="text-[10px] font-semibold text-white/60">
+                  {col.name}
+                </span>
+                <span className="af-surface-sm inline-flex items-center bg-white/10 px-1.5 text-[9px] text-white/60">
+                  {col.count}
+                </span>
               </div>
 
               <div className="mt-2 space-y-2 min-h-0 overflow-hidden">
@@ -1025,19 +1178,24 @@ function ScreenKanban({ active }) {
                     <div
                       key={`${col.name}-${i}`}
                       className={cx(
-                        "relative rounded-lg bg-white/5 ring-1 ring-white/10 p-2.5 text-[9px] text-white/75",
-                        isFocus && "border-l-2 border-[var(--af-line)] pl-2",
+                        "af-surface-sm relative bg-white/5 p-2.5 text-[9px] text-white/75",
+                        isFocus && "pl-[11px]",
                       )}
                       style={{
                         opacity: 0,
                         transform: "translateY(-10px)",
-                        animation: active ? "kbCardIn 450ms ease forwards" : "none",
+                        animation: active
+                          ? "kbCardIn 450ms ease forwards"
+                          : "none",
                         animationDelay: active ? `${d}ms` : "0ms",
+                        boxShadow: isFocus
+                          ? "inset 1px 0 0 rgba(255,255,255,0.14), inset 0 1px 0 rgba(255,255,255,0.08), inset 0 -1px 0 rgba(0,0,0,0.22)"
+                          : undefined,
                       }}
                     >
                       <div className="truncate">{c.t}</div>
                       <div className="mt-2">
-                        <span className="inline-flex items-center rounded-full bg-[var(--af-pin)]/20 px-1.5 py-[2px] text-[8px] font-semibold text-[var(--af-pin)]">
+                        <span className="af-surface-sm inline-flex items-center bg-[var(--af-pin)]/20 px-1.5 py-[2px] text-[8px] font-semibold text-[var(--af-pin)]">
                           {c.tag}
                         </span>
                       </div>
@@ -1046,7 +1204,9 @@ function ScreenKanban({ active }) {
                         <div
                           className="pointer-events-none absolute inset-0"
                           style={{
-                            animation: active ? "afPulse 2s ease-in-out infinite" : "none",
+                            animation: active
+                              ? "afPulse 2s ease-in-out infinite"
+                              : "none",
                           }}
                         />
                       )}
@@ -1070,7 +1230,7 @@ function ScreenKanban({ active }) {
 
 function Marquee() {
   return (
-    <div className="relative overflow-hidden rounded-2xl bg-white/5 ring-1 ring-white/10">
+    <div className=" relative overflow-hidden">
       <div className="flex whitespace-nowrap">
         <div className="animate-[marquee_22s_linear_infinite] flex items-center gap-3 py-4 pr-6">
           <LogoPill icon={Layers}>Architecture-First</LogoPill>
@@ -1082,7 +1242,10 @@ function Marquee() {
           <LogoPill icon={ShieldCheck}>Traceability</LogoPill>
           <LogoPill icon={Search}>Single Source of Truth</LogoPill>
         </div>
-        <div className="animate-[marquee_22s_linear_infinite] flex items-center gap-3 py-4 pr-6" aria-hidden="true">
+        <div
+          className="animate-[marquee_22s_linear_infinite] flex items-center gap-3 py-4 pr-6"
+          aria-hidden="true"
+        >
           <LogoPill icon={Layers}>Architecture-First</LogoPill>
           <LogoPill icon={BookText}>ADRs</LogoPill>
           <LogoPill icon={Boxes}>C4 Model</LogoPill>
@@ -1130,7 +1293,7 @@ function Navbar() {
   return (
     <header
       ref={headerRef}
-      className="sticky top-0 z-50 border-b border-white/10 bg-transparent backdrop-blur-xl"
+      className="af-separator-b sticky top-0 z-50 bg-transparent backdrop-blur-xl"
     >
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
         <a
@@ -1141,7 +1304,11 @@ function Navbar() {
             scrollToId("top");
           }}
         >
-          <img src="/archflow-logo.png" alt="ArchFlow" className="h-12 w-12  object-contain" />
+          <img
+            src="/archflow-logo.png"
+            alt="ArchFlow"
+            className="h-12 w-12  object-contain"
+          />
           <span className="text-sm font-semibold tracking-tight text-white">
             ArchFlow<span className="text-white/60">.io</span>
           </span>
@@ -1200,7 +1367,10 @@ function Hero() {
         <div className="pointer-events-none absolute inset-0 opacity-[0.14] [background-image:linear-gradient(to_right,rgba(255,255,255,.08)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,.08)_1px,transparent_1px)] [background-size:72px_72px]" />
       </div>
 
-      <div className="relative mx-auto max-w-6xl px-4 pt-16 pb-10 md:pt-24 md:pb-16" id="top">
+      <div
+        className="relative mx-auto max-w-6xl px-4 pt-16 pb-10 md:pt-20 md:pb-16"
+        id="top"
+      >
         <div className="grid gap-10 lg:grid-cols-2 lg:items-start">
           <div className="flex flex-col items-start gap-6">
             <div className="flex flex-wrap items-center gap-2">
@@ -1209,15 +1379,20 @@ function Hero() {
               <Badge>Traceability</Badge>
             </div>
 
-            <h1 className="max-w-3xl text-4xl md:text-6xl font-semibold tracking-tight text-white">
-              A ferramenta ágil que entende{" "}
+            <h1 className="max-w-3xl text-4xl md:text-6xl tracking-tight text-white">
+              A ferramenta que entende{" "}
               <span className="text-white">
                 <span>{typed}</span>
                 <span
-                  className={cx("ml-1 inline-block w-[1px] h-[1em] align-middle", titleDone && "opacity-0")}
+                  className={cx(
+                    "ml-1 inline-block w-[1px] h-[1em] align-middle",
+                    titleDone && "opacity-0",
+                  )}
                   style={{
                     background: "var(--af-pin)",
-                    animation: titleDone ? "none" : "afCursorBlink 700ms linear infinite",
+                    animation: titleDone
+                      ? "none"
+                      : "afCursorBlink 700ms linear infinite",
                   }}
                 />
               </span>{" "}
@@ -1226,23 +1401,30 @@ function Hero() {
 
             <p className="max-w-2xl text-base md:text-lg leading-relaxed text-white/75">
               O <span className="text-white font-medium">ArchFlow</span> coloca{" "}
-              <Accent>decisões arquiteturais</Accent>, <Accent>diagramas</Accent> e{" "}
-              <Accent>schema</Accent> no centro da gestão ágil — com rastreabilidade completa do conceito ao deploy.
+              <Accent>decisões arquiteturais</Accent>,{" "}
+              <Accent>diagramas</Accent> e <Accent>schema</Accent> no centro da
+              gestão ágil — com rastreabilidade completa do conceito ao deploy.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3">
               <a
                 href="#cta"
-                className="group inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold text-white bg-white/5 hover:bg-white/8 ring-1 ring-white/15 hover:ring-[var(--af-line)]/80 hover:text-[var(--af-primary)] transition"
+                className="group af-surface-sm af-surface-hover af-focus-ring inline-flex items-center justify-center gap-2 bg-white/5 px-5 py-3 text-sm font-semibold text-white hover:bg-white/8 hover:text-[var(--af-primary)] transition"
               >
-                <Icon as={ArrowRight} className="h-4 w-4 group-hover:text-[var(--af-pin)]" />
+                <Icon
+                  as={ArrowRight}
+                  className="h-4 w-4 group-hover:text-[var(--af-pin)]"
+                />
                 Solicitar acesso
               </a>
               <a
                 href="#produto"
-                className="group inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold text-white/85 hover:text-white bg-white/5 hover:bg-white/8 ring-1 ring-white/10 hover:ring-[var(--af-line)]/60 transition"
+                className="group af-surface-sm af-surface-hover af-focus-ring inline-flex items-center justify-center gap-2 bg-white/5 px-5 py-3 text-sm font-semibold text-white/85 hover:text-white hover:bg-white/8 transition"
               >
-                <Icon as={ChevronRight} className="h-4 w-4 group-hover:text-[var(--af-pin)]" />
+                <Icon
+                  as={ChevronRight}
+                  className="h-4 w-4 group-hover:text-[var(--af-pin)]"
+                />
                 Ver como funciona
               </a>
             </div>
@@ -1254,23 +1436,34 @@ function Hero() {
         </div>
 
         <div className="mt-10 grid w-full gap-4 md:grid-cols-3">
-          <Card className="p-5 hover:ring-[var(--af-line)]/40 transition">
+          <Card className="af-surface-hover p-5">
             <div className="flex items-start gap-3">
-              <Icon as={Layers} className="h-5 w-5 mt-0.5 hover:text-[var(--af-pin)]" />
+              <Icon
+                as={Layers}
+                className="h-5 w-5 mt-0.5 hover:text-[var(--af-pin)]"
+              />
               <div>
-                <p className="text-sm font-medium text-white">Menos fragmentação</p>
+                <p className="text-sm font-medium text-white">
+                  Menos fragmentação
+                </p>
                 <p className="mt-1 text-sm text-white/70">
-                  ADRs, diagramas, board e schema no mesmo produto — reduz context switching.
+                  ADRs, diagramas, board e schema no mesmo produto — reduz
+                  context switching.
                 </p>
               </div>
             </div>
           </Card>
 
-          <Card className="p-5 hover:ring-[var(--af-line)]/40 transition">
+          <Card className="af-surface-hover p-5">
             <div className="flex items-start gap-3">
-              <Icon as={BookText} className="h-5 w-5 mt-0.5 hover:text-[var(--af-pin)]" />
+              <Icon
+                as={BookText}
+                className="h-5 w-5 mt-0.5 hover:text-[var(--af-pin)]"
+              />
               <div>
-                <p className="text-sm font-medium text-white">Documentação viva</p>
+                <p className="text-sm font-medium text-white">
+                  Documentação viva
+                </p>
                 <p className="mt-1 text-sm text-white/70">
                   Versionamento por sprint e vínculo com execução: menos drift.
                 </p>
@@ -1278,11 +1471,16 @@ function Hero() {
             </div>
           </Card>
 
-          <Card className="p-5 hover:ring-[var(--af-line)]/40 transition">
+          <Card className="af-surface-hover p-5">
             <div className="flex items-start gap-3">
-              <Icon as={Target} className="h-5 w-5 mt-0.5 hover:text-[var(--af-pin)]" />
+              <Icon
+                as={Target}
+                className="h-5 w-5 mt-0.5 hover:text-[var(--af-pin)]"
+              />
               <div>
-                <p className="text-sm font-medium text-white">Onboarding rápido</p>
+                <p className="text-sm font-medium text-white">
+                  Onboarding rápido
+                </p>
                 <p className="mt-1 text-sm text-white/70">
                   Contexto técnico acessível por card: por que foi feito assim?
                 </p>
@@ -1321,13 +1519,19 @@ function ProblemSolution() {
           </div>
 
           <div className="mt-8">
-            <Card className="p-6 hover:ring-[var(--af-line)]/40 transition">
+            <Card className="af-surface-hover p-6">
               <div className="flex items-start gap-3">
-                <Icon as={Target} className="h-5 w-5 mt-0.5 hover:text-[var(--af-pin)]" />
+                <Icon
+                  as={Target}
+                  className="h-5 w-5 mt-0.5 hover:text-[var(--af-pin)]"
+                />
                 <div>
-                  <p className="text-sm font-semibold text-white">A questão central</p>
+                  <p className="text-sm font-semibold text-white">
+                    A questão central
+                  </p>
                   <p className="mt-2 text-sm leading-relaxed text-white/70">
-                    Como construir software de qualidade se as suas ferramentas não entendem arquitetura?
+                    Como construir software de qualidade se as suas ferramentas
+                    não entendem arquitetura?
                   </p>
                 </div>
               </div>
@@ -1362,22 +1566,32 @@ Kanban Card:
           </div>
 
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
-            <Card className="p-5 hover:ring-[var(--af-line)]/40 transition">
+            <Card className="af-surface-hover p-5">
               <div className="flex items-start gap-3">
-                <Icon as={ShieldCheck} className="h-5 w-5 mt-0.5 hover:text-[var(--af-pin)]" />
+                <Icon
+                  as={ShieldCheck}
+                  className="h-5 w-5 mt-0.5 hover:text-[var(--af-pin)]"
+                />
                 <div>
-                  <p className="text-sm font-semibold text-white">Fonte única</p>
+                  <p className="text-sm font-semibold text-white">
+                    Fonte única
+                  </p>
                   <p className="mt-1 text-sm text-white/70">
                     Tudo versionado e vinculado ao trabalho real.
                   </p>
                 </div>
               </div>
             </Card>
-            <Card className="p-5 hover:ring-[var(--af-line)]/40 transition">
+            <Card className="af-surface-hover p-5">
               <div className="flex items-start gap-3">
-                <Icon as={GitBranch} className="h-5 w-5 mt-0.5 hover:text-[var(--af-pin)]" />
+                <Icon
+                  as={GitBranch}
+                  className="h-5 w-5 mt-0.5 hover:text-[var(--af-pin)]"
+                />
                 <div>
-                  <p className="text-sm font-semibold text-white">Menos drift</p>
+                  <p className="text-sm font-semibold text-white">
+                    Menos drift
+                  </p>
                   <p className="mt-1 text-sm text-white/70">
                     Diagramas e schema evoluem junto com o sprint.
                   </p>
@@ -1406,17 +1620,23 @@ function Pillars() {
 
       <div className="mt-10 grid gap-5 md:grid-cols-2">
         {pillars.map((p) => (
-          <Card key={p.title} className="p-6 hover:ring-[var(--af-line)]/40 transition">
+          <Card key={p.title} className="af-surface-hover p-6">
             <div className="flex items-start justify-between gap-4">
               <h3 className="text-lg font-semibold text-white">{p.title}</h3>
-              <Icon as={p.icon} className="h-5 w-5 mt-0.5 hover:text-[var(--af-pin)]" />
+              <Icon
+                as={p.icon}
+                className="h-5 w-5 mt-0.5 hover:text-[var(--af-pin)]"
+              />
             </div>
 
             <div className="mt-4 space-y-3">
               {p.bullets.map((b) => (
                 <div key={b} className="flex items-start gap-3">
                   <span className="mt-0.5 inline-flex h-4 w-4 items-center justify-center">
-                    <Icon as={ChevronRight} className="h-4 w-4 hover:text-[var(--af-pin)]" />
+                    <Icon
+                      as={ChevronRight}
+                      className="h-4 w-4 hover:text-[var(--af-pin)]"
+                    />
                   </span>
                   <p className="text-sm text-white/70 leading-relaxed">{b}</p>
                 </div>
@@ -1442,13 +1662,19 @@ function Features() {
           desc="O ArchFlow conecta gestão ágil com arquitetura e banco — do jeito que dev trabalha."
         />
 
-        <Card className="p-6 lg:w-[420px] hover:ring-[var(--af-line)]/40 transition">
+        <Card className="af-surface-hover p-6 lg:w-[420px]">
           <div className="flex items-start gap-3">
-            <Icon as={Layers} className="h-5 w-5 mt-0.5 hover:text-[var(--af-pin)]" />
+            <Icon
+              as={Layers}
+              className="h-5 w-5 mt-0.5 hover:text-[var(--af-pin)]"
+            />
             <div>
-              <p className="text-sm font-semibold text-white">Por que isso é diferente?</p>
+              <p className="text-sm font-semibold text-white">
+                Por que isso é diferente?
+              </p>
               <p className="mt-2 text-sm text-white/70 leading-relaxed">
-                Em vez de “linkar” arquitetura em algum lugar, o produto trata arquitetura como entidade de primeira classe — com
+                Em vez de “linkar” arquitetura em algum lugar, o produto trata
+                arquitetura como entidade de primeira classe — com
                 versionamento, diffs e rastreabilidade.
               </p>
               <div className="mt-4 flex flex-wrap gap-2">
@@ -1464,12 +1690,19 @@ function Features() {
 
       <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {mvpFeatures.map((f) => (
-          <Card key={f.title} className="p-6 hover:ring-[var(--af-line)]/40 transition">
+          <Card key={f.title} className="af-surface-hover p-6">
             <div className="flex items-start gap-3">
-              <Icon as={f.icon} className="h-5 w-5 mt-0.5 hover:text-[var(--af-pin)]" />
+              <Icon
+                as={f.icon}
+                className="h-5 w-5 mt-0.5 hover:text-[var(--af-pin)]"
+              />
               <div>
-                <h3 className="text-base font-semibold text-white">{f.title}</h3>
-                <p className="mt-2 text-sm text-white/70 leading-relaxed">{f.desc}</p>
+                <h3 className="text-base font-semibold text-white">
+                  {f.title}
+                </h3>
+                <p className="mt-2 text-sm text-white/70 leading-relaxed">
+                  {f.desc}
+                </p>
 
                 <div className="mt-5">
                   {/* ✅ group só aqui (link), não no card */}
@@ -1546,12 +1779,21 @@ function ArchTaskGraph() {
 
   return (
     <section ref={ref} className="mx-auto max-w-6xl px-4 py-4">
-      <SectionTitle eyebrow="Fluxo visual" title="De uma decisão ao deploy — conectados." />
+      <SectionTitle
+        eyebrow="Fluxo visual"
+        title="De uma decisão ao deploy — conectados."
+      />
 
       <div className="mt-8">
         <Card className="p-6">
           <div className="flex justify-center">
-            <svg viewBox="0 0 720 140" className="w-full max-w-4xl" role="img" aria-label="ADR to Deploy flow graph" preserveAspectRatio="xMidYMid meet">
+            <svg
+              viewBox="0 0 720 140"
+              className="w-full max-w-4xl"
+              role="img"
+              aria-label="ADR to Deploy flow graph"
+              preserveAspectRatio="xMidYMid meet"
+            >
               {lines.map((l, idx) => (
                 <line
                   key={idx}
@@ -1577,12 +1819,30 @@ function ArchTaskGraph() {
                   className="cursor-pointer"
                   style={{
                     transformOrigin: `${n.x}px 70px`,
-                    animation: start ? `nodePulse 2000ms ease-in-out infinite` : "none",
-                    animationDelay: start ? `${afterLinesMs + idx * 180}ms` : "0ms",
+                    animation: start
+                      ? `nodePulse 2000ms ease-in-out infinite`
+                      : "none",
+                    animationDelay: start
+                      ? `${afterLinesMs + idx * 180}ms`
+                      : "0ms",
                   }}
                 >
-                  <circle cx={n.x} cy={70} r={28} fill="#0a0a0a" stroke="var(--af-line)" strokeWidth="1.5" />
-                  <text x={n.x} y={74} textAnchor="middle" fontSize="8" fill="rgba(255,255,255,0.75)" style={{ userSelect: "none" }}>
+                  <circle
+                    cx={n.x}
+                    cy={70}
+                    r={28}
+                    fill="#0a0a0a"
+                    stroke="var(--af-line)"
+                    strokeWidth="1.5"
+                  />
+                  <text
+                    x={n.x}
+                    y={74}
+                    textAnchor="middle"
+                    fontSize="8"
+                    fill="rgba(255,255,255,0.75)"
+                    style={{ userSelect: "none" }}
+                  >
                     {n.label}
                   </text>
                 </g>
@@ -1591,7 +1851,8 @@ function ArchTaskGraph() {
           </div>
 
           <p className="text-xs text-white/50 text-center mt-4">
-            Cada nó é rastreável: clique para ver ADR, diagrama, migration e PR vinculados.
+            Cada nó é rastreável: clique para ver ADR, diagrama, migration e PR
+            vinculados.
           </p>
         </Card>
       </div>
@@ -1671,33 +1932,42 @@ function Workflow() {
       <div className="mt-10 grid gap-5 lg:grid-cols-2">
         <div className="space-y-5">
           {steps.map((s) => (
-            <Card key={s.k} className="p-6 hover:ring-[var(--af-line)]/40 transition">
+            <Card key={s.k} className="af-surface-hover p-6">
               <div className="flex items-start gap-4">
                 <div className="shrink-0">
-                  <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-white/5 ring-1 ring-white/10 text-sm font-semibold text-white/80 hover:ring-[var(--af-line)]/70 hover:text-[var(--af-primary)] transition">
+                  <span className="af-surface-sm af-surface-hover inline-flex h-10 w-10 items-center justify-center bg-white/5 text-sm font-semibold text-white/80 hover:text-[var(--af-primary)] transition">
                     {s.k}
                   </span>
                 </div>
 
                 <div className="flex-1">
                   <div className="flex items-start justify-between gap-3">
-                    <h3 className="text-base font-semibold text-white">{s.title}</h3>
+                    <h3 className="text-base font-semibold text-white">
+                      {s.title}
+                    </h3>
                     <span className="inline-flex items-center">
-                      <Icon as={s.icon} className="h-5 w-5 hover:text-[var(--af-pin)]" />
+                      <Icon
+                        as={s.icon}
+                        className="h-5 w-5 hover:text-[var(--af-pin)]"
+                      />
                     </span>
                   </div>
 
-                  <p className="mt-1 text-sm text-white/70 leading-relaxed">{s.desc}</p>
+                  <p className="mt-1 text-sm text-white/70 leading-relaxed">
+                    {s.desc}
+                  </p>
                 </div>
               </div>
             </Card>
           ))}
         </div>
 
-        <Card className="p-6 hover:ring-[var(--af-line)]/40 transition">
+        <Card className="af-surface-hover p-6">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <p className="text-sm font-semibold text-white">Traceability graph (exemplo)</p>
+              <p className="text-sm font-semibold text-white">
+                Traceability graph (exemplo)
+              </p>
               <p className="mt-1 text-sm text-white/70">
                 Um “mapa” simples do fluxo que o ArchFlow torna navegável.
               </p>
@@ -1716,10 +1986,15 @@ function Workflow() {
                     key={i}
                     style={{
                       opacity: isVisible ? 1 : 0,
-                      transform: isVisible ? "translateY(0px)" : "translateY(8px)",
+                      transform: isVisible
+                        ? "translateY(0px)"
+                        : "translateY(8px)",
                       transition: "opacity 0.35s ease, transform 0.35s ease",
                       color: isAccent ? "var(--af-primary)" : undefined,
-                      animation: isAccent && isVisible ? "afPulse 2s ease-in-out infinite" : "none",
+                      animation:
+                        isAccent && isVisible
+                          ? "afPulse 2s ease-in-out infinite"
+                          : "none",
                       whiteSpace: "pre",
                     }}
                   >
@@ -1731,21 +2006,35 @@ function Workflow() {
           </div>
 
           <div className="mt-6 grid gap-4 sm:grid-cols-2">
-            <div className="rounded-xl bg-white/4 p-4 ring-1 ring-white/10 hover:ring-[var(--af-line)]/40 transition">
+            <div className="af-surface-md af-surface-hover bg-white/4 p-4 transition">
               <div className="flex items-start gap-3">
-                <Icon as={Target} className="h-5 w-5 mt-0.5 hover:text-[var(--af-pin)]" />
+                <Icon
+                  as={Target}
+                  className="h-5 w-5 mt-0.5 hover:text-[var(--af-pin)]"
+                />
                 <div>
-                  <p className="text-xs font-semibold text-white/80">Benefício</p>
-                  <p className="mt-1 text-sm text-white/70">Menos “por que isso existe?” no time.</p>
+                  <p className="text-xs font-semibold text-white/80">
+                    Benefício
+                  </p>
+                  <p className="mt-1 text-sm text-white/70">
+                    Menos “por que isso existe?” no time.
+                  </p>
                 </div>
               </div>
             </div>
-            <div className="rounded-xl bg-white/4 p-4 ring-1 ring-white/10 hover:ring-[var(--af-line)]/40 transition">
+            <div className="af-surface-md af-surface-hover bg-white/4 p-4 transition">
               <div className="flex items-start gap-3">
-                <Icon as={BookText} className="h-5 w-5 mt-0.5 hover:text-[var(--af-pin)]" />
+                <Icon
+                  as={BookText}
+                  className="h-5 w-5 mt-0.5 hover:text-[var(--af-pin)]"
+                />
                 <div>
-                  <p className="text-xs font-semibold text-white/80">Benefício</p>
-                  <p className="mt-1 text-sm text-white/70">Menos documentação obsoleta.</p>
+                  <p className="text-xs font-semibold text-white/80">
+                    Benefício
+                  </p>
+                  <p className="mt-1 text-sm text-white/70">
+                    Menos documentação obsoleta.
+                  </p>
                 </div>
               </div>
             </div>
@@ -1770,11 +2059,16 @@ function Roadmap() {
 
       <div className="mt-10 grid gap-5 lg:grid-cols-3">
         {roadmap.map((r, idx) => (
-          <Card key={r.phase} className="p-6 hover:ring-[var(--af-line)]/40 transition">
+          <Card key={r.phase} className="af-surface-hover p-6">
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-2">
-                <Icon as={r.icon} className="h-5 w-5 hover:text-[var(--af-pin)]" />
-                <h3 className="text-base font-semibold text-white">{r.phase}</h3>
+                <Icon
+                  as={r.icon}
+                  className="h-5 w-5 hover:text-[var(--af-pin)]"
+                />
+                <h3 className="text-base font-semibold text-white">
+                  {r.phase}
+                </h3>
               </div>
               <Badge tone="solid">{idx === 0 ? "Agora" : "Depois"}</Badge>
             </div>
@@ -1783,7 +2077,10 @@ function Roadmap() {
               {r.items.map((it) => (
                 <div key={it} className="flex items-start gap-3">
                   <span className="mt-0.5 inline-flex h-4 w-4 items-center justify-center">
-                    <Icon as={ChevronRight} className="h-4 w-4 hover:text-[var(--af-pin)]" />
+                    <Icon
+                      as={ChevronRight}
+                      className="h-4 w-4 hover:text-[var(--af-pin)]"
+                    />
                   </span>
                   <p className="text-sm text-white/70 leading-relaxed">{it}</p>
                 </div>
@@ -1814,22 +2111,31 @@ function Stack() {
             {stack.map((s) => (
               <span
                 key={s.name}
-                className="group inline-flex items-center gap-2 rounded-full bg-white/5 px-3 py-1 text-xs text-white/75 ring-1 ring-white/10 hover:ring-[var(--af-line)]/60 transition"
+                className="group af-surface-sm af-surface-hover inline-flex items-center gap-2 bg-white/5 px-3 py-1 text-xs text-white/75 transition"
               >
-                <Icon as={s.icon} className="h-4 w-4 group-hover:text-[var(--af-pin)]" />
+                <Icon
+                  as={s.icon}
+                  className="h-4 w-4 group-hover:text-[var(--af-pin)]"
+                />
                 {s.name}
               </span>
             ))}
           </div>
         </div>
 
-        <Card className="p-6 hover:ring-[var(--af-line)]/40 transition">
+        <Card className="af-surface-hover p-6">
           <div className="flex items-start gap-3">
-            <Icon as={Database} className="h-5 w-5 mt-0.5 hover:text-[var(--af-pin)]" />
+            <Icon
+              as={Database}
+              className="h-5 w-5 mt-0.5 hover:text-[var(--af-pin)]"
+            />
             <div>
-              <p className="text-sm font-semibold text-white">Exemplo: geração de migration</p>
+              <p className="text-sm font-semibold text-white">
+                Exemplo: geração de migration
+              </p>
               <p className="mt-1 text-sm text-white/70">
-                Quando o schema muda, você quer menos drift e mais rastreabilidade.
+                Quando o schema muda, você quer menos drift e mais
+                rastreabilidade.
               </p>
 
               <div className="mt-5">
@@ -1862,7 +2168,7 @@ Gera automaticamente:
 function CTA() {
   return (
     <section className="relative mx-auto max-w-6xl px-4 pb-20" id="cta">
-      <Card className="overflow-hidden hover:ring-[var(--af-line)]/40 transition">
+      <Card className="af-surface-hover overflow-hidden">
         <div className="relative p-8 md:p-10">
           <div className="relative grid gap-8 lg:grid-cols-2 lg:items-center">
             <div>
@@ -1879,22 +2185,29 @@ function CTA() {
                 .
               </h3>
               <p className="mt-3 text-sm md:text-base text-white/70 leading-relaxed">
-                Se você quer uma ferramenta ágil que realmente entende software (decisões, diagramas e schema), o ArchFlow foi feito pra isso.
+                Se você quer uma ferramenta ágil que realmente entende software
+                (decisões, diagramas e schema), o ArchFlow foi feito pra isso.
               </p>
 
               <div className="mt-6 flex flex-col sm:flex-row gap-3">
                 <a
                   href="#"
-                  className="group inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold text-white bg-white/5 hover:bg-white/8 ring-1 ring-white/15 hover:ring-[var(--af-line)]/80 hover:text-[var(--af-primary)] transition"
+                  className="group af-surface-sm af-surface-hover af-focus-ring inline-flex items-center justify-center gap-2 bg-white/5 px-5 py-3 text-sm font-semibold text-white hover:bg-white/8 hover:text-[var(--af-primary)] transition"
                 >
-                  <Icon as={ArrowRight} className="h-4 w-4 group-hover:text-[var(--af-pin)]" />
+                  <Icon
+                    as={ArrowRight}
+                    className="h-4 w-4 group-hover:text-[var(--af-pin)]"
+                  />
                   Solicitar acesso
                 </a>
                 <a
                   href="#"
-                  className="group inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold text-white/85 hover:text-white bg-white/5 hover:bg-white/8 ring-1 ring-white/10 hover:ring-[var(--af-line)]/60 transition"
+                  className="group af-surface-sm af-surface-hover af-focus-ring inline-flex items-center justify-center gap-2 bg-white/5 px-5 py-3 text-sm font-semibold text-white/85 hover:text-white hover:bg-white/8 transition"
                 >
-                  <Icon as={ChevronRight} className="h-4 w-4 group-hover:text-[var(--af-pin)]" />
+                  <Icon
+                    as={ChevronRight}
+                    className="h-4 w-4 group-hover:text-[var(--af-pin)]"
+                  />
                   Falar com o time
                 </a>
               </div>
@@ -1905,32 +2218,47 @@ function CTA() {
             </div>
 
             <div className="grid gap-4">
-              <div className="rounded-2xl bg-black/50 p-6 ring-1 ring-white/10 hover:ring-[var(--af-line)]/40 transition">
+              <div className="af-surface-lg af-surface-hover bg-black/50 p-6 transition">
                 <div className="flex items-start gap-3">
-                  <Icon as={ShieldCheck} className="h-5 w-5 mt-0.5 hover:text-[var(--af-pin)]" />
+                  <Icon
+                    as={ShieldCheck}
+                    className="h-5 w-5 mt-0.5 hover:text-[var(--af-pin)]"
+                  />
                   <div className="flex-1">
-                    <p className="text-xs font-semibold text-white/70">O que você ganha</p>
+                    <p className="text-xs font-semibold text-white/70">
+                      O que você ganha
+                    </p>
                     <div className="mt-4 space-y-3">
                       <CheckRow>Rastreabilidade real do ADR ao deploy</CheckRow>
-                      <CheckRow>Documentação viva e versionada por sprint</CheckRow>
+                      <CheckRow>
+                        Documentação viva e versionada por sprint
+                      </CheckRow>
                       <CheckRow>Menos drift em diagramas e schema</CheckRow>
-                      <CheckRow>Menos contexto perdido — mais velocidade com qualidade</CheckRow>
+                      <CheckRow>
+                        Menos contexto perdido — mais velocidade com qualidade
+                      </CheckRow>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div className="rounded-2xl bg-white/4 p-6 ring-1 ring-white/10 hover:ring-[var(--af-line)]/40 transition">
+              <div className="af-surface-lg af-surface-hover bg-white/4 p-6 transition">
                 <div className="flex items-start gap-3">
-                  <Icon as={Target} className="h-5 w-5 mt-0.5 hover:text-[var(--af-pin)]" />
+                  <Icon
+                    as={Target}
+                    className="h-5 w-5 mt-0.5 hover:text-[var(--af-pin)]"
+                  />
                   <div>
                     <p className="text-sm font-semibold text-white">
                       “Arquitetura{" "}
-                      <span className="text-white/90 hover:text-[var(--af-primary)] transition">É</span>{" "}
+                      <span className="text-white/90 hover:text-[var(--af-primary)] transition">
+                        É
+                      </span>{" "}
                       o projeto.”
                     </p>
                     <p className="mt-2 text-sm text-white/70">
-                      No ArchFlow, arquitetura deixa de ser anexo e vira parte do fluxo — rastreável, versionada e útil.
+                      No ArchFlow, arquitetura deixa de ser anexo e vira parte
+                      do fluxo — rastreável, versionada e útil.
                     </p>
                   </div>
                 </div>
@@ -1940,13 +2268,19 @@ function CTA() {
         </div>
       </Card>
 
-      <footer className="mt-10 border-t border-white/10 pt-8">
+      <footer className="af-separator-t mt-10 pt-8">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-2">
-            <img src="/archflow-logo.png" alt="ArchFlow" className="h-10 w-10 object-contain" />
+            <img
+              src="/archflow-logo.png"
+              alt="ArchFlow"
+              className="h-10 w-10 object-contain"
+            />
             <div>
               <p className="text-sm font-semibold text-white">ArchFlow</p>
-              <p className="text-xs text-white/55">Architecture-First Project Management</p>
+              <p className="text-xs text-white/55">
+                Architecture-First Project Management
+              </p>
             </div>
           </div>
 
@@ -1985,14 +2319,15 @@ export default function ArchFlowLanding() {
       className="min-h-screen w-full bg-[#16171d] text-white"
       style={{
         fontFamily:
-          "Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial",
+          'Satoshi, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, monospace',
         ["--af-primary"]: PURPLE_PRIMARY,
         ["--af-line"]: PURPLE_LINE,
         ["--af-pin"]: PURPLE_PIN,
       }}
     >
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+      
+        @import url("https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,600,700&display=swap");
 
         :root { color-scheme: dark; }
 
@@ -2009,7 +2344,6 @@ export default function ArchFlowLanding() {
           --sb-thumb-b: rgba(0,0,0,0.48);
           --sb-thumb-hover-a: rgba(0,0,0,0.38);
           --sb-thumb-hover-b: rgba(0,0,0,0.68);
-          --sb-border: rgba(0,0,0,0.85);
         }
 
         html, body {
@@ -2033,7 +2367,7 @@ export default function ArchFlowLanding() {
         body::-webkit-scrollbar-thumb,
         *::-webkit-scrollbar-thumb {
           border-radius: 999px;
-          border: 2px solid var(--sb-border);
+          border: var(--border-hairline) solid rgba(255,255,255,0.08);
           background:
             radial-gradient(80% 120% at 50% 0%, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.00) 55%),
             linear-gradient(180deg, var(--sb-thumb-a), var(--sb-thumb-b));
