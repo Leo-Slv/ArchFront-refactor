@@ -1943,7 +1943,7 @@ function CTA() {
       <footer className="mt-10 border-t border-white/10 pt-8">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-2">
-            <Icon as={Sparkles} className="h-5 w-5 hover:text-[var(--af-pin)]" />
+            <img src="/archflow-logo.png" alt="ArchFlow" className="h-10 w-10 object-contain" />
             <div>
               <p className="text-sm font-semibold text-white">ArchFlow</p>
               <p className="text-xs text-white/55">Architecture-First Project Management</p>
