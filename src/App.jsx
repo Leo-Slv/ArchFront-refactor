@@ -60,7 +60,7 @@ const Badge = ({ children, tone = "default" }) => {
 const Card = ({ children, className }) => (
   <div
     className={cx(
-      "relative rounded-2xl bg-white/[0.04] ring-1 ring-white/10 backdrop-blur-md",
+      "relative rounded-2xl bg-[#14121a] ring-1 ring-white/10 backdrop-blur-md",
       "shadow-[0_0_0_1px_rgba(255,255,255,.02),0_24px_70px_rgba(0,0,0,.55)]",
       className,
     )}
@@ -1130,7 +1130,7 @@ function Navbar() {
   return (
     <header
       ref={headerRef}
-      className="sticky top-0 z-50 border-b border-white/10 bg-black/80 backdrop-blur-xl"
+      className="sticky top-0 z-50 border-b border-white/10 bg-transparent backdrop-blur-xl"
     >
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
         <a
@@ -1141,7 +1141,7 @@ function Navbar() {
             scrollToId("top");
           }}
         >
-          <img src="/archflow-logo.png" alt="ArchFlow" className="h-10 w-10 object-contain" />
+          <img src="/archflow-logo.png" alt="ArchFlow" className="h-12 w-12  object-contain" />
           <span className="text-sm font-semibold tracking-tight text-white">
             ArchFlow<span className="text-white/60">.io</span>
           </span>
@@ -1982,7 +1982,7 @@ function CTA() {
 export default function ArchFlowLanding() {
   return (
     <div
-      className="min-h-screen w-full bg-black text-white"
+      className="min-h-screen w-full bg-[#16171d] text-white"
       style={{
         fontFamily:
           "Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial",
