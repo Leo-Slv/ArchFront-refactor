@@ -46,7 +46,6 @@ function Table({ table, active, visibleFields }: TableProps) {
         y={table.y}
         width="140"
         height="92"
-        rx="10"
         fill="#0a0a0a"
         stroke="rgba(255,255,255,0.10)"
       />
@@ -55,7 +54,6 @@ function Table({ table, active, visibleFields }: TableProps) {
         y={table.y}
         width="140"
         height="24"
-        rx="10"
         fill="#0a0a0a"
         stroke="var(--af-line)"
         strokeWidth="1.2"
