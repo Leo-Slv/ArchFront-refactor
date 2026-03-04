@@ -10,6 +10,7 @@ const footerLinks: FooterLink[] = [
   { label: "Produto", href: "#produto" },
   { label: "Pilares", href: "#pilares" },
   { label: "Features", href: "#features" },
+  { label: "Workflow", href: "#workflow" },
 ];
 
 export default function CTA() {
@@ -39,7 +40,7 @@ export default function CTA() {
               <div className="mt-6 flex flex-col sm:flex-row gap-3">
                 <a
                   href="#"
-                  className="group af-surface-sm af-surface-hover af-focus-ring inline-flex items-center justify-center gap-2 bg-white/5 px-5 py-3 text-sm font-semibold text-white hover:bg-white/8 hover:text-[var(--af-primary)] transition"
+                  className="group af-surface-sm af-surface-hover af-focus-ring inline-flex items-center justify-center gap-2 bg-white/5 px-5 py-3 text-sm font-semibold text-white/85 hover:text-white hover:bg-white/8 transition"
                 >
                   <Icon
                     as={ArrowRight}

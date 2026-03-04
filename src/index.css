@@ -17,24 +17,7 @@
   --sb-thumb-b: rgba(0, 0, 0, 0.48);
   --sb-thumb-hover-a: rgba(0, 0, 0, 0.38);
   --sb-thumb-hover-b: rgba(0, 0, 0, 0.68);
-}
 
-html,
-body {
-  height: 100%;
-  overflow-x: hidden;
-  scroll-behavior: smooth;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(0, 0, 0, 0.6) rgba(255, 255, 255, 0.03);
-}
-
-body {
-  margin: 0;
-  background: #000;
-}
-
-section[id] {
-  scroll-margin-top: 96px;
 }
 
 html::-webkit-scrollbar,
@@ -47,44 +30,43 @@ body::-webkit-scrollbar,
 html::-webkit-scrollbar-track,
 body::-webkit-scrollbar-track,
 *::-webkit-scrollbar-track {
-  background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.02),
-    rgba(255, 255, 255, 0.04)
-  );
-  border-radius: 999px;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+  background: var(--site-bg, #16171d);
+  
+
+  /* ✅ borda só no lado esquerdo + shade igual .af-separator-b */
+  box-shadow:
+    inset 1px 0 0 rgba(255, 255, 255, 0.08),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.18);
 }
 
+/* ✅ Thumb menor */
 html::-webkit-scrollbar-thumb,
 body::-webkit-scrollbar-thumb,
 *::-webkit-scrollbar-thumb {
-  border-radius: 999px;
-  border: var(--border-hairline) solid rgba(255, 255, 255, 0.08);
-  background:
-    radial-gradient(
-      80% 120% at 50% 0%,
-      rgba(255, 255, 255, 0.08) 0%,
-      rgba(255, 255, 255, 0) 55%
-    ),
-    linear-gradient(180deg, var(--sb-thumb-a), var(--sb-thumb-b));
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+  
+  background: #14121a;
+
+  /* ✅ sem borda */
+  border: 0;
+  outline: 0;
+
+  /* ✅ recua pra direita e afina o thumb */
+  margin-left: 2px;
+  /* deixa a borda do track “livre” */
+  width: 8px;
+  /* reduz a largura do thumb (vertical) */
+  height: 8px;
+  /* reduz a altura do thumb (horizontal) */
+
+  /* opcional: depth sutil */
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.22);
 }
 
 html::-webkit-scrollbar-thumb:hover,
 body::-webkit-scrollbar-thumb:hover,
 *::-webkit-scrollbar-thumb:hover {
-  background:
-    radial-gradient(
-      80% 120% at 50% 0%,
-      rgba(255, 255, 255, 0.1) 0%,
-      rgba(255, 255, 255, 0) 55%
-    ),
-    linear-gradient(180deg, var(--sb-thumb-hover-a), var(--sb-thumb-hover-b));
-  box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.06),
-    0 10px 26px rgba(0, 0, 0, 0.22),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+  background: #1a1722;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.28);
 }
 
 html::-webkit-scrollbar-button,
@@ -102,6 +84,7 @@ body::-webkit-scrollbar-corner,
 }
 
 @keyframes afCursorBlink {
+
   0%,
   49% {
     opacity: 1;
@@ -220,4 +203,3 @@ body::-webkit-scrollbar-corner,
     transform: translateX(-50%);
   }
 }
-

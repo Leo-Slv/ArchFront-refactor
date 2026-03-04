@@ -3,9 +3,10 @@ import { useRef } from "react";
 import type { NavbarLink } from "../utils/types";
 
 const links: NavbarLink[] = [
-  { label: "Produto", id: "produto" },
-  { label: "Pilares", id: "pilares" },
-  { label: "Features", id: "features" },
+  { label: "Produto", id: "#produto" },
+  { label: "Pilares", id: "#pilares" },
+  { label: "Features", id: "#features" },
+  { label: "Workflow", id: "#workflow" }
 ];
 
 export default function Navbar() {
@@ -38,7 +39,7 @@ export default function Navbar() {
           <img
             src="/archflow-logo.png"
             alt="ArchFlow"
-            className="h-12 w-12  object-contain"
+            className="h-9 w-9  object-contain"
           />
           <span className="text-sm font-semibold tracking-tight text-white">
             ArchFlow<span className="text-white/60">.io</span>
@@ -49,11 +50,7 @@ export default function Navbar() {
           {links.map((link) => (
             <a
               key={link.id}
-              href={`#${link.id}`}
-              onClick={(event) => {
-                event.preventDefault();
-                scrollToId(link.id);
-              }}
+              href={link.id}
               className="text-sm text-white/70 hover:text-white hover:underline hover:decoration-[var(--af-primary)] hover:decoration-2 hover:underline-offset-8 transition"
             >
               {link.label}

@@ -66,7 +66,7 @@ export default function ArchTaskGraph() {
   const afterLinesMs = 600 * lines.length + 200;
 
   return (
-    <section ref={ref} className="mx-auto max-w-6xl px-4 py-4">
+    <section ref={ref} className="mx-auto max-w-6xl px-4 py-4" id="workflow">
       <SectionTitle
         eyebrow="Fluxo visual"
         title="De uma decisão ao deploy — conectados."
