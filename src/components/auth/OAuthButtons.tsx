@@ -23,24 +23,6 @@ const providers: ProviderDefinition[] = [
     ),
   },
   {
-    id: "gitlab",
-    label: "GitLab",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="currentColor" className={iconClassName} aria-hidden="true">
-        <path d="m12 21.2 3.82-11.75H8.18L12 21.2ZM12 21.2 4.42 9.45h3.76L12 21.2Zm0 0 7.58-11.75h-3.76L12 21.2ZM4.42 9.45l2.1-6.47c.11-.34.59-.34.7 0l.96 2.97 1.67 5.5H4.42Zm15.16 0-2.1-6.47a.37.37 0 0 0-.7 0l-.96 2.97-1.67 5.5h5.43Z" />
-      </svg>
-    ),
-  },
-  {
-    id: "bitbucket",
-    label: "Bitbucket",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="currentColor" className={iconClassName} aria-hidden="true">
-        <path d="M3 5.25c0-.69.56-1.25 1.25-1.25h15.5c.69 0 1.25.56 1.25 1.25 0 .11-.01.21-.04.32l-2.22 13.28A1.5 1.5 0 0 1 17.26 20H6.74a1.5 1.5 0 0 1-1.48-1.15L3.04 5.57C3.01 5.46 3 5.36 3 5.25Zm5.15 6.1.66 4.27h6.38l.66-4.27H8.15Z" />
-      </svg>
-    ),
-  },
-  {
     id: "google",
     label: "Google",
     icon: (
@@ -53,13 +35,13 @@ const providers: ProviderDefinition[] = [
 
 export default function OAuthButtons({ onProviderClick }: OAuthButtonsProps) {
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+    <div className="flex gap-4">
       {providers.map((provider) => (
         <button
           key={provider.id}
           type="button"
           onClick={() => onProviderClick?.(provider.id)}
-          className="af-surface-sm af-surface-hover af-focus-ring inline-flex h-10 items-center justify-center gap-2 bg-white/[0.03] px-2.5 text-[13px] font-medium text-white/82 transition hover:bg-white/[0.06] hover:text-white sm:h-11 sm:px-3 sm:text-sm"
+          className="af-surface-sm af-surface-hover af-focus-ring inline-flex h-10 w-full items-center justify-center gap-2 bg-white/[0.03] px-2.5 text-[13px] font-medium text-white/82 transition hover:bg-white/[0.06] hover:text-white sm:h-11 sm:px-3 sm:text-sm"
         >
           {provider.icon}
           <span>{provider.label}</span>

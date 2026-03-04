@@ -75,13 +75,6 @@ export default function SignIn() {
           </form>
 
           <div className="flex flex-col items-start gap-2.5 sm:gap-3">
-            <button
-              type="button"
-              onClick={() => console.log("auth: sso")}
-              className={auxiliaryLinkClassName}
-            >
-              Sign in with SSO
-            </button>
 
             <p className="text-sm text-white/68">
               Need an account?{" "}
