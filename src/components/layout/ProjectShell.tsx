@@ -16,6 +16,8 @@ interface ProjectShellProps {
   projectOwnerName: string;
   projectOwnerLabel?: string;
   projectCode?: string;
+  /** Optional badge in project summary (e.g. member count). Shown when provided. */
+  projectBadgeLabel?: string;
   activeNavItem: ProjectSidebarNavItemId;
   pageTitle: string;
   pageSubtitle: string;
@@ -32,6 +34,7 @@ export default function ProjectShell({
   projectOwnerName,
   projectOwnerLabel,
   projectCode,
+  projectBadgeLabel,
   activeNavItem,
   pageTitle,
   pageSubtitle,
@@ -55,6 +58,7 @@ export default function ProjectShell({
           projectOwnerName={projectOwnerName}
           projectOwnerLabel={projectOwnerLabel}
           projectCode={projectCode}
+          projectBadgeLabel={projectBadgeLabel}
           activeItem={activeNavItem}
           navItems={[
             {

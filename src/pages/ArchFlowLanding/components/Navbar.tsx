@@ -69,7 +69,7 @@ export default function Navbar() {
         {/* RIGHT: auth buttons */}
         <div className="ml-auto hidden items-center gap-3 md:flex">
           <a
-            href="/signin"
+            href="/projects"
             className="text-sm text-white/70 hover:text-white transition"
           >
             Sign in

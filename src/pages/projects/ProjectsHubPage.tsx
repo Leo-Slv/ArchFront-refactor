@@ -39,6 +39,8 @@ export default function ProjectsHubPage() {
         <AppSidebar
           className="w-[17.5rem] shrink-0"
           activeItem="projects"
+          onSignOut={() => window.location.assign("/")}
+          signOutLabel="Sair"
           header={{
             title: "ArchFlow Platform",
             subtitle: "Projects Hub",

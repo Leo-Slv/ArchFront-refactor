@@ -1,5 +1,6 @@
 import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
+import { Layers2 } from "lucide-react";
 
 import { cx } from "../../pages/ArchFlowLanding/utils/cx";
 import {
@@ -28,6 +29,8 @@ export interface ProjectSidebarProps {
   projectOwnerName: string;
   projectOwnerLabel?: string;
   projectCode?: string;
+  /** Optional badge for project summary (e.g. member count). Same style as Projects hub user summary badge. */
+  projectBadgeLabel?: string;
   navItems: ProjectSidebarNavItem[];
   activeItem: ProjectSidebarNavItemId;
   className?: string;
@@ -39,11 +42,16 @@ export default function ProjectSidebar({
   projectOwnerName,
   projectOwnerLabel,
   projectCode,
+  projectBadgeLabel,
   navItems,
   activeItem,
   className,
   footer,
 }: ProjectSidebarProps) {
+  const projectAvatarText =
+    projectCode ?? projectName.charAt(0).toUpperCase();
+  const ownerLabel = `owner: ${projectOwnerName}`;
+
   return (
     <Sidebar
       collapsible="none"
@@ -53,22 +61,49 @@ export default function ProjectSidebar({
       )}
     >
       <SidebarHeader className="bg-[#14121a]">
+        {/* Brand block (same as ProjectsHub top block) */}
         <header className="af-separator-b shrink-0 p-4">
           <div className="af-surface-md flex items-center gap-3 bg-white/[0.03] px-3 py-3">
-            <div className="af-surface-sm inline-flex h-9 w-9 shrink-0 items-center justify-center bg-white/5 text-sm font-semibold text-white/80">
-              {projectCode ?? projectName.charAt(0).toUpperCase()}
-            </div>
-
+            <span className="af-surface-sm inline-flex h-8 w-8 shrink-0 items-center justify-center bg-white/5 text-white/80">
+              <Layers2 className="h-4 w-4" aria-hidden="true" />
+            </span>
             <div className="min-w-0">
               <p className="truncate text-sm font-semibold text-white">
-                {projectName}
+                ArchFlow Platform
               </p>
               <p className="truncate text-[11px] text-white/52">
-                {projectOwnerLabel ?? `Owner • ${projectOwnerName}`}
+                Workspace
               </p>
             </div>
           </div>
         </header>
+
+        {/* Project summary block (same visual style as user summary in ProjectsHub) */}
+        <div className="af-separator-b shrink-0 px-4 py-4">
+          <div className="af-surface-md bg-white/[0.02] px-3 py-3">
+            <div className="flex items-center justify-between gap-3">
+              <div className="min-w-0 flex items-center gap-3">
+                <span className="af-surface-sm inline-flex h-9 w-9 shrink-0 items-center justify-center bg-white/5 text-sm font-semibold text-white/80">
+                  {projectAvatarText}
+                </span>
+                <div className="min-w-0">
+                  <p className="truncate text-sm text-white">
+                    {projectName}
+                  </p>
+                  <p className="truncate text-[11px] text-white/52">
+                    {ownerLabel}
+                  </p>
+                </div>
+              </div>
+
+              {projectBadgeLabel ? (
+                <span className="af-surface-sm inline-flex shrink-0 items-center bg-white/5 px-2 py-1 text-[10px] uppercase tracking-[0.12em] text-white/70">
+                  {projectBadgeLabel}
+                </span>
+              ) : null}
+            </div>
+          </div>
+        </div>
       </SidebarHeader>
 
       <SidebarContent>
@@ -142,12 +177,12 @@ export default function ProjectSidebar({
 
       <SidebarFooter className="af-separator-t bg-[#14121a] px-4 py-3">
         {footer ?? (
-          <button
-            type="button"
+          <a
+            href="/projects"
             className="af-surface-md af-surface-hover af-focus-ring inline-flex w-full items-center justify-center bg-white/[0.03] px-3 py-2.5 text-sm text-white/76 transition hover:text-white"
           >
             Sair do projeto
-          </button>
+          </a>
         )}
       </SidebarFooter>
     </Sidebar>
