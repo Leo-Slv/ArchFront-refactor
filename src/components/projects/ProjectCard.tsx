@@ -17,15 +17,11 @@ const statusTone: Record<Project["status"], string> = {
 };
 
 export default function ProjectCard({ project }: ProjectCardProps) {
-  const letter = project.name.trim().charAt(0).toUpperCase();
 
   return (
-    <article className="af-surface-lg flex min-h-[10.75rem] flex-col bg-[#14121a]/70 p-4">
+    <article className="af-surface-lg af-surface-hover flex min-h-[10.75rem] flex-col bg-[#14121a]/70 p-4">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex items-start gap-2.5">
-          <span className="af-surface-sm inline-flex h-7 w-7 shrink-0 items-center justify-center bg-white/5 text-xs font-semibold text-white/80">
-            {letter}
-          </span>
           <div className="min-w-0">
             <h3 className="truncate text-sm font-medium text-white">
               {project.name}
