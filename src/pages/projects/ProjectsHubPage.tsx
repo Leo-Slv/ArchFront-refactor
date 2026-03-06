@@ -26,7 +26,7 @@ export default function ProjectsHubPage() {
   const projectsAsMember = mockProjects.filter(
     (project) =>
       project.ownerId !== currentUserId &&
-      project.members.some((member) => member.userId === currentUserId),
+      project.members.some((member) => member.user.id === currentUserId),
   );
   const totalProjects = ownerProjects.length + projectsAsMember.length;
 
@@ -39,7 +39,6 @@ export default function ProjectsHubPage() {
         <AppSidebar
           className="w-[17.5rem] shrink-0"
           activeItem="projects"
-          onSignOut={() => window.location.assign("/")}
           signOutLabel="Sair"
           header={{
             title: "ArchFlow Platform",
@@ -47,9 +46,7 @@ export default function ProjectsHubPage() {
             icon: <Layers2 className="h-4 w-4" aria-hidden="true" />,
           }}
           userSummary={{
-            avatarText: currentUserProfile.name.charAt(0).toUpperCase(),
-            name: currentUserProfile.name,
-            plan: currentUserProfile.plan,
+            user: currentUserProfile,
             badgeLabel: `${totalProjects} projetos`,
           }}
           items={[

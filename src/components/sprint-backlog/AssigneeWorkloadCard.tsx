@@ -1,4 +1,5 @@
 import type { AssigneeWorkloadView } from "../../pages/projects/sprint-backlog/_mocks/sprintBacklog.mock";
+import UserAvatar from "../ui/UserAvatar";
 
 interface AssigneeWorkloadCardProps {
   assignee: AssigneeWorkloadView;
@@ -16,13 +17,15 @@ export default function AssigneeWorkloadCard({
       <header className="space-y-3">
         <div className="flex items-start justify-between gap-3">
           <div className="flex min-w-0 items-center gap-3">
-            <span className="af-surface-sm inline-flex h-9 w-9 shrink-0 items-center justify-center bg-white/5 text-xs font-semibold text-white/80">
-              {assignee.assigneeAvatarText}
-            </span>
+            <UserAvatar
+              user={assignee.assignee}
+              className="af-surface-sm h-9 w-9 shrink-0 bg-white/5 text-xs font-semibold text-white/80"
+              fallbackClassName="text-xs font-semibold"
+            />
 
             <div className="min-w-0">
               <p className="text-sm font-semibold leading-5 text-white">
-                {assignee.assigneeName}
+                {assignee.assignee.name}
               </p>
             </div>
           </div>

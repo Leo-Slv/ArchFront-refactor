@@ -27,7 +27,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
               {project.name}
             </h3>
             <p className="truncate text-[11px] text-white/56">
-              owner: {project.ownerName}
+              owner: {project.owner.name}
             </p>
           </div>
         </div>

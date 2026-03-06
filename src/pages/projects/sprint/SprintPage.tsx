@@ -50,20 +50,13 @@ export default function SprintPage({ projectId }: SprintPageProps) {
     <ProjectShell
       projectId={effectiveProjectId}
       projectName={currentProject.name}
-      projectOwnerName={currentProject.ownerName}
-      projectOwnerLabel={`Owner • ${currentProject.ownerName}`}
-      projectCode="AP"
+      projectOwner={currentProject.owner}
       projectBadgeLabel={String(currentProject.members.length)}
       activeNavItem="sprint"
       pageTitle="Sprint"
       pageSubtitle={sprint.goal}
       pageContextLabel={`${sprint.name} • ${periodLabel}`}
-      userName={currentUserProfile.name}
-      userInitials={currentUserProfile.name
-        .split(" ")
-        .map((part) => part.charAt(0))
-        .slice(0, 2)
-        .join("")}
+      currentUser={currentUserProfile}
       mainColumn={
         <div className="space-y-4 lg:space-y-5">
           <SprintSummaryCard

@@ -4,6 +4,8 @@ import {
   type UserStory,
 } from "../../backlog/_mocks/productBacklog.mock";
 import { mockProjects } from "../../_mocks/projects.mock";
+import { getUserById } from "../../../../mocks/users.mock";
+import type { User } from "../../../../types/user";
 
 export type SprintStatus = "planned" | "active" | "completed";
 export type TaskStatus = "todo" | "in-progress" | "done";
@@ -53,7 +55,7 @@ export interface StoryTaskRowView {
   title: string;
   description: string;
   priorityLabel: PriorityLabel;
-  assigneeName: string;
+  assignee: User;
   estimatedHours: number;
   doneHours: number;
 }
@@ -64,15 +66,13 @@ export interface SprintBacklogStoryView {
   epicName: string;
   description: string;
   effort: number;
-  assigneeName: string;
-  assigneeAvatarText: string;
+  assignee: User;
   tasks: StoryTaskRowView[];
 }
 
 export interface AssigneeWorkloadView {
   assigneeId: string;
-  assigneeName: string;
-  assigneeAvatarText: string;
+  assignee: User;
   storyCount: number;
   taskCount: number;
   estimatedHours: number;
@@ -111,7 +111,7 @@ const storySourceById = new Map(
 );
 
 const projectMemberById = new Map(
-  sourceProject.members.map((member) => [member.userId, member]),
+  sourceProject.members.map((member) => [member.userId, member.user]),
 );
 
 export const mockSprintBacklogSprint: Sprint = {
@@ -202,22 +202,8 @@ function minutesToHours(value: number): number {
   return Math.round((value / 60) * 10) / 10;
 }
 
-function buildAvatarText(name: string): string {
-  const parts = name
-    .split(" ")
-    .map((part) => part.trim())
-    .filter(Boolean)
-    .slice(0, 2);
-
-  if (!parts.length) {
-    return "AF";
-  }
-
-  return parts.map((part) => part.charAt(0).toUpperCase()).join("");
-}
-
-function resolveAssigneeName(assigneeId: string, fallbackName?: string): string {
-  return projectMemberById.get(assigneeId)?.name ?? fallbackName ?? "Squad";
+function resolveAssignee(assigneeId: string): User {
+  return projectMemberById.get(assigneeId) ?? getUserById(assigneeId);
 }
 
 function priorityToLabel(priority: PriorityLevel): PriorityLabel {
@@ -248,18 +234,13 @@ export function buildSprintBacklogView(): SprintBacklogViewModel {
   const taskViewsByStoryId = new Map<string, StoryTaskRowView[]>();
 
   for (const task of sprintTasks) {
-    const storySource = storySourceById.get(task.userStoryId);
-    const assigneeName = resolveAssigneeName(
-      task.assigneeId,
-      storySource?.story.assignee,
-    );
     const taskView: StoryTaskRowView = {
       id: task.id,
       userStoryId: task.userStoryId,
       title: task.title,
       description: task.description,
       priorityLabel: priorityToLabel(task.priority),
-      assigneeName,
+      assignee: resolveAssignee(task.assigneeId),
       estimatedHours: minutesToHours(task.estimateMinutes),
       doneHours: minutesToHours(task.loggedMinutes),
     };
@@ -276,19 +257,13 @@ export function buildSprintBacklogView(): SprintBacklogViewModel {
         return null;
       }
 
-      const assigneeName = resolveAssigneeName(
-        source.story.assigneeId,
-        source.story.assignee,
-      );
-
       return {
         id: source.story.id,
         title: source.story.title,
         epicName: source.epic.name,
         description: source.story.description,
         effort: source.story.effort,
-        assigneeName,
-        assigneeAvatarText: buildAvatarText(assigneeName),
+        assignee: resolveAssignee(source.story.assigneeId),
         tasks: taskViewsByStoryId.get(source.story.id) ?? [],
       } satisfies SprintBacklogStoryView;
     })
@@ -312,7 +287,7 @@ export function buildSprintBacklogView(): SprintBacklogViewModel {
     }, new Map<string, Task[]>()),
   )
     .map(([assigneeId, tasksForAssignee]) => {
-      const assigneeName = resolveAssigneeName(assigneeId);
+      const assignee = resolveAssignee(assigneeId);
       const storyCount = new Set(tasksForAssignee.map((task) => task.userStoryId))
         .size;
       const estimatedMinutes = tasksForAssignee.reduce(
@@ -343,8 +318,7 @@ export function buildSprintBacklogView(): SprintBacklogViewModel {
 
       return {
         assigneeId,
-        assigneeName,
-        assigneeAvatarText: buildAvatarText(assigneeName),
+        assignee,
         storyCount,
         taskCount: tasksForAssignee.length,
         estimatedHours: minutesToHours(estimatedMinutes),

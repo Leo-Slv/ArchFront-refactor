@@ -1,7 +1,14 @@
+import { LogOut } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import type { ReactNode } from "react";
+import type { MouseEvent, ReactNode } from "react";
 
 import { cx } from "../../pages/ArchFlowLanding/utils/cx";
+import type { User } from "../../types/user";
+import {
+  navigateToPath,
+  shouldHandleNavigationClick,
+} from "./sidebarNavigation";
+import UserAvatar from "../ui/UserAvatar";
 import {
   Sidebar,
   SidebarContent,
@@ -25,9 +32,7 @@ export interface AppSidebarHeader {
 }
 
 export interface AppSidebarUserSummary {
-  avatarText?: string;
-  name: string;
-  plan?: string;
+  user: User;
   badgeLabel?: string;
 }
 
@@ -52,14 +57,23 @@ function SidebarItem({
 }) {
   const Icon = item.icon;
   const baseClassName =
-    "af-surface-md af-surface-hover flex w-full items-center justify-between gap-3 px-3 py-2.5 transition";
+    "af-focus-ring flex w-full items-center justify-between gap-3 px-3 py-2 text-sm transition";
   const toneClassName = active
     ? "bg-white/[0.04] text-white"
-    : "bg-transparent text-white/72 hover:text-white hover:bg-white/[0.03]";
+    : "text-white/72 hover:bg-white/[0.03] hover:text-white";
+
+  function handleLinkClick(event: MouseEvent<HTMLAnchorElement>): void {
+    if (!item.href || !shouldHandleNavigationClick(event)) {
+      return;
+    }
+
+    event.preventDefault();
+    navigateToPath(item.href);
+  }
 
   const content = (
     <>
-      <span className="inline-flex min-w-0 items-center gap-2 text-sm">
+      <span className="inline-flex min-w-0 items-center gap-2.5">
         {Icon ? (
           <Icon
             className={cx("h-4 w-4", active ? "text-white/65" : "text-white/52")}
@@ -81,6 +95,7 @@ function SidebarItem({
     return (
       <a
         href={item.href}
+        onClick={handleLinkClick}
         className={cx(baseClassName, toneClassName)}
         aria-current={active ? "page" : undefined}
       >
@@ -112,8 +127,20 @@ export default function AppSidebar({
   onSignOut,
   signOutLabel = "Sair",
 }: AppSidebarProps) {
-  const avatarText =
-    userSummary?.avatarText ?? userSummary?.name.charAt(0).toUpperCase();
+  function handleSignOut(event: MouseEvent<HTMLAnchorElement>): void {
+    if (!shouldHandleNavigationClick(event)) {
+      return;
+    }
+
+    if (onSignOut) {
+      event.preventDefault();
+      onSignOut();
+      return;
+    }
+
+    event.preventDefault();
+    navigateToPath("/");
+  }
 
   return (
     <Sidebar
@@ -152,16 +179,17 @@ export default function AppSidebar({
             <div className="af-surface-md bg-white/[0.02] px-3 py-3">
               <div className="flex items-center justify-between gap-3">
                 <div className="min-w-0 flex items-center gap-3">
-                  <span className="af-surface-sm inline-flex h-9 w-9 shrink-0 items-center justify-center bg-white/5 text-sm font-semibold text-white/80">
-                    {avatarText}
-                  </span>
+                  <UserAvatar
+                    user={userSummary.user}
+                    className="af-surface-sm h-9 w-9 shrink-0 bg-white/5 text-sm font-semibold text-white/80"
+                  />
                   <div className="min-w-0">
                     <p className="truncate text-sm text-white">
-                      {userSummary.name}
+                      {userSummary.user.name}
                     </p>
-                    {userSummary.plan ? (
+                    {userSummary.user.type ? (
                       <p className="truncate text-[11px] text-white/52">
-                        plano {userSummary.plan}
+                        plano {userSummary.user.type}
                       </p>
                     ) : null}
                   </div>
@@ -186,7 +214,7 @@ export default function AppSidebar({
         </div>
 
         <nav className="px-4 py-3">
-          <div className="space-y-2">
+          <div className="space-y-1">
             {items.map((item) => (
               <SidebarItem
                 key={item.id}
@@ -200,13 +228,16 @@ export default function AppSidebar({
 
       <SidebarFooter className="af-separator-t bg-[#14121a] px-4 py-3">
         {footer ?? (
-          <button
-            type="button"
-            onClick={onSignOut}
-            className="af-surface-md af-surface-hover af-focus-ring inline-flex w-full items-center justify-center bg-white/[0.03] px-3 py-2.5 text-sm text-white/76 transition hover:text-white"
+          <a
+            href="/"
+            onClick={handleSignOut}
+            className="af-focus-ring inline-flex w-full items-center justify-between gap-3 px-3 py-2 text-sm text-white/76 transition hover:bg-white/[0.03] hover:text-white"
           >
-            {signOutLabel}
-          </button>
+            <span className="inline-flex min-w-0 items-center gap-2.5">
+              <LogOut className="h-4 w-4 text-white/52" aria-hidden="true" />
+              <span className="truncate">{signOutLabel}</span>
+            </span>
+          </a>
         )}
       </SidebarFooter>
     </Sidebar>

@@ -1,4 +1,5 @@
 import ProjectShell from "../../../components/layout/ProjectShell";
+import { getUserById } from "../../../mocks/users.mock";
 import { currentUserProfile, mockProjects, type Project } from "../_mocks/projects.mock";
 import { mockProductBacklog } from "./_mocks/productBacklog.mock";
 
@@ -48,20 +49,13 @@ export default function ProductBacklogPage({
     <ProjectShell
       projectId={effectiveProjectId}
       projectName={currentProject.name}
-      projectOwnerName={currentProject.ownerName}
-      projectOwnerLabel={`Owner • ${currentProject.ownerName}`}
-      projectCode="AP"
+      projectOwner={currentProject.owner}
       projectBadgeLabel={String(currentProject.members.length)}
       activeNavItem="backlog"
       pageTitle="Product Backlog"
       pageSubtitle="Epics e User Stories do projeto, organizados por prioridade e prontidão."
       pageContextLabel="Backlog do produto"
-      userName={currentUserProfile.name}
-      userInitials={currentUserProfile.name
-        .split(" ")
-        .map((part) => part.charAt(0))
-        .slice(0, 2)
-        .join("")}
+      currentUser={currentUserProfile}
       mainColumn={
         <div className="space-y-4 lg:space-y-5">
           {backlog.epics.map((epic) => {
@@ -118,7 +112,7 @@ export default function ProductBacklogPage({
                         >
                           <span className="truncate">{story.title}</span>
                           <span className="truncate text-white/68">
-                            {story.assignee}
+                            {getUserById(story.assigneeId).name}
                           </span>
                           <span className="text-white/70">
                             {formatStatusLabel(story.status)}

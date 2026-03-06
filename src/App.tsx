@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+
 import "./App.css";
 
 import ArchFlowLanding from "./pages/ArchFlowLanding/ArchFlowLanding";
@@ -5,11 +7,28 @@ import SignIn from "./pages/auth/SignIn";
 import SignUp from "./pages/auth/SignUp";
 import ProjectsHubPage from "./pages/projects/ProjectsHubPage";
 import ProductBacklogPage from "./pages/projects/backlog/ProductBacklogPage";
+import KanbanPage from "./pages/projects/kanban/KanbanPage";
 import SprintBacklogPage from "./pages/projects/sprint-backlog/SprintBacklogPage";
 import SprintPage from "./pages/projects/sprint/SprintPage";
 
+function getPathname(): string {
+  return window.location.pathname.replace(/\/+$/, "") || "/";
+}
+
 export default function App() {
-  const pathname = window.location.pathname.replace(/\/+$/, "") || "/";
+  const [pathname, setPathname] = useState(getPathname);
+
+  useEffect(() => {
+    function handleLocationChange() {
+      setPathname(getPathname());
+    }
+
+    window.addEventListener("popstate", handleLocationChange);
+
+    return () => {
+      window.removeEventListener("popstate", handleLocationChange);
+    };
+  }, []);
 
   const segments = pathname.split("/").filter(Boolean);
 
@@ -17,6 +36,11 @@ export default function App() {
   if (segments[0] === "projects" && segments[2] === "sprint-backlog") {
     const projectId = segments[1];
     return <SprintBacklogPage projectId={projectId} />;
+  }
+
+  if (segments[0] === "projects" && segments[2] === "kanban") {
+    const projectId = segments[1];
+    return <KanbanPage projectId={projectId} />;
   }
 
   if (segments[0] === "projects" && segments[2] === "sprint") {

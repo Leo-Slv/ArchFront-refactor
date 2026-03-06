@@ -1,6 +1,14 @@
 import type { CSSProperties, ReactNode } from "react";
+import {
+  KanbanSquare,
+  ListChecks,
+  ListTodo,
+  Timer,
+} from "lucide-react";
 
+import UserAvatar from "../ui/UserAvatar";
 import { SidebarInset, SidebarProvider } from "../ui/sidebar";
+import type { User } from "../../types/user";
 import ProjectSidebar, {
   type ProjectSidebarNavItemId,
 } from "./ProjectSidebar";
@@ -13,39 +21,35 @@ const pageStyle: CSSProperties = {
 interface ProjectShellProps {
   projectId: string;
   projectName: string;
-  projectOwnerName: string;
-  projectOwnerLabel?: string;
-  projectCode?: string;
+  projectOwner: User;
   /** Optional badge in project summary (e.g. member count). Shown when provided. */
   projectBadgeLabel?: string;
   activeNavItem: ProjectSidebarNavItemId;
   pageTitle: string;
   pageSubtitle: string;
   pageContextLabel?: string;
-  userName: string;
-  userInitials?: string;
+  currentUser: User;
   mainColumn: ReactNode;
-  sideColumn: ReactNode;
+  sideColumn?: ReactNode;
+  headerActions?: ReactNode;
+  fullWidthMain?: boolean;
 }
 
 export default function ProjectShell({
   projectId,
   projectName,
-  projectOwnerName,
-  projectOwnerLabel,
-  projectCode,
+  projectOwner,
   projectBadgeLabel,
   activeNavItem,
   pageTitle,
   pageSubtitle,
   pageContextLabel,
-  userName,
-  userInitials,
+  currentUser,
   mainColumn,
   sideColumn,
+  headerActions,
+  fullWidthMain = false,
 }: ProjectShellProps) {
-  const avatarText = (userInitials ?? userName.charAt(0)).toUpperCase();
-
   return (
     <div
       className="h-[100dvh] min-h-[100dvh] w-full overflow-hidden bg-[var(--site-bg,#16171d)] text-white"
@@ -55,30 +59,32 @@ export default function ProjectShell({
         <ProjectSidebar
           className="w-[17.5rem] shrink-0"
           projectName={projectName}
-          projectOwnerName={projectOwnerName}
-          projectOwnerLabel={projectOwnerLabel}
-          projectCode={projectCode}
+          projectOwner={projectOwner}
           projectBadgeLabel={projectBadgeLabel}
           activeItem={activeNavItem}
           navItems={[
             {
               id: "backlog",
               label: "Backlog",
+              icon: ListTodo,
               href: `/projects/${projectId}/backlog`,
             },
             {
               id: "sprint",
               label: "Sprint",
+              icon: Timer,
               href: `/projects/${projectId}/sprint`,
             },
             {
               id: "sprint-backlog",
               label: "Sprint Backlog",
+              icon: ListChecks,
               href: `/projects/${projectId}/sprint-backlog`,
             },
             {
               id: "kanban",
               label: "Kanban",
+              icon: KanbanSquare,
               href: `/projects/${projectId}/kanban`,
             },
           ]}
@@ -104,28 +110,38 @@ export default function ProjectShell({
                   <p className="text-sm text-white/62">{pageSubtitle}</p>
                 </div>
 
-                <button
-                  type="button"
-                  aria-label={userName}
-                  className="af-surface-md af-surface-hover af-focus-ring inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/5 text-xs font-semibold text-white/80 transition hover:text-white"
-                >
-                  {avatarText}
-                </button>
+                {headerActions ?? (
+                  <button
+                    type="button"
+                    aria-label={currentUser.name}
+                    className="af-surface-md af-surface-hover af-focus-ring inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/5 text-xs font-semibold text-white/80 transition hover:text-white"
+                  >
+                    <UserAvatar
+                      user={currentUser}
+                      className="h-full w-full bg-transparent text-xs font-semibold text-white/80"
+                      fallbackClassName="text-xs font-semibold"
+                    />
+                  </button>
+                )}
               </header>
 
               <div className="flex-1 min-h-0 overflow-y-auto px-4 py-4 sm:px-5 sm:py-5">
-                <div className="grid min-h-0 gap-4 lg:gap-5 xl:gap-6 lg:grid-cols-[minmax(0,1.8fr)_minmax(0,1fr)]">
-                  <section aria-label="Product backlog epics" className="min-w-0">
-                    {mainColumn}
-                  </section>
+                {fullWidthMain ? (
+                  <section className="min-w-0">{mainColumn}</section>
+                ) : (
+                  <div className="grid min-h-0 gap-4 lg:gap-5 xl:gap-6 lg:grid-cols-[minmax(0,1.8fr)_minmax(0,1fr)]">
+                    <section aria-label="Project main content" className="min-w-0">
+                      {mainColumn}
+                    </section>
 
-                  <aside
-                    aria-label="Backlog refinement and metrics"
-                    className="min-w-0 space-y-4 lg:space-y-5"
-                  >
-                    {sideColumn}
-                  </aside>
-                </div>
+                    <aside
+                      aria-label="Project side content"
+                      className="min-w-0 space-y-4 lg:space-y-5"
+                    >
+                      {sideColumn}
+                    </aside>
+                  </div>
+                )}
               </div>
             </div>
           </main>

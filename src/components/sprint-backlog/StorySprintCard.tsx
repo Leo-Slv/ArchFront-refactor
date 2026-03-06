@@ -1,5 +1,6 @@
 import StoryTaskRow from "./StoryTaskRow";
 import type { SprintBacklogStoryView } from "../../pages/projects/sprint-backlog/_mocks/sprintBacklog.mock";
+import UserAvatar from "../ui/UserAvatar";
 
 interface StorySprintCardProps {
   story: SprintBacklogStoryView;
@@ -24,10 +25,12 @@ export default function StorySprintCard({ story }: StorySprintCardProps) {
         </div>
 
         <div className="af-surface-sm inline-flex items-center gap-2 self-start bg-white/5 px-2.5 py-1 text-[10px] text-white/72">
-          <span className="af-surface-sm inline-flex h-5 w-5 items-center justify-center bg-black/20 text-[9px] font-semibold text-white/80">
-            {story.assigneeAvatarText}
-          </span>
-          <span>{story.assigneeName}</span>
+          <UserAvatar
+            user={story.assignee}
+            className="af-surface-sm h-5 w-5 bg-black/20 text-[9px] font-semibold text-white/80"
+            fallbackClassName="text-[9px] font-semibold"
+          />
+          <span>{story.assignee.name}</span>
         </div>
       </header>
 

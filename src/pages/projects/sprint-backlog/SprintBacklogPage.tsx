@@ -54,20 +54,13 @@ export default function SprintBacklogPage({
     <ProjectShell
       projectId={effectiveProjectId}
       projectName={currentProject.name}
-      projectOwnerName={currentProject.ownerName}
-      projectOwnerLabel={`Owner • ${currentProject.ownerName}`}
-      projectCode="AP"
+      projectOwner={currentProject.owner}
       projectBadgeLabel={String(currentProject.members.length)}
       activeNavItem="sprint-backlog"
       pageTitle="Sprint Backlog"
       pageSubtitle="Stories planejadas para entrega nesta sprint, com tarefas e distribuição por responsável."
       pageContextLabel={`${sprint.name} - itens planejados`}
-      userName={currentUserProfile.name}
-      userInitials={currentUserProfile.name
-        .split(" ")
-        .map((part) => part.charAt(0))
-        .slice(0, 2)
-        .join("")}
+      currentUser={currentUserProfile}
       mainColumn={
         <section className="af-surface-lg bg-[#14121a]/70 px-4 py-4 sm:px-5 sm:py-4">
           <header className="af-separator-b pb-3">

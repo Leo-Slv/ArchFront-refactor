@@ -1,3 +1,6 @@
+import { currentUserProfile, getUserById } from "../../../../mocks/users.mock";
+import type { User } from "../../../../types/user";
+
 export type SprintStatus = "planned" | "active" | "completed";
 
 export interface Sprint {
@@ -153,7 +156,7 @@ export const mockTasks: Task[] = [
 type PriorityLabel = "P1" | "P2" | "P3";
 
 interface SprintTaskMeta {
-  assigneeName: string;
+  assigneeId: string;
   estimatedHours: number;
   doneHours: number;
   priorityLabel: PriorityLabel;
@@ -161,43 +164,43 @@ interface SprintTaskMeta {
 
 const taskMetaById: Record<number, SprintTaskMeta> = {
   1: {
-    assigneeName: "Ana Costa",
+    assigneeId: "3de5f097-4f16-4d1b-8bbf-b7830fa6ab4c",
     estimatedHours: 10,
     doneHours: 4,
     priorityLabel: "P1",
   },
   2: {
-    assigneeName: "Ana Costa",
+    assigneeId: "3de5f097-4f16-4d1b-8bbf-b7830fa6ab4c",
     estimatedHours: 6,
     doneHours: 2,
     priorityLabel: "P1",
   },
   3: {
-    assigneeName: "Ana Costa",
+    assigneeId: "3de5f097-4f16-4d1b-8bbf-b7830fa6ab4c",
     estimatedHours: 4,
     doneHours: 1,
     priorityLabel: "P2",
   },
   4: {
-    assigneeName: "Leo Irineu",
+    assigneeId: currentUserProfile.id,
     estimatedHours: 6,
     doneHours: 3,
     priorityLabel: "P2",
   },
   5: {
-    assigneeName: "Leo Irineu",
+    assigneeId: currentUserProfile.id,
     estimatedHours: 4,
     doneHours: 0,
     priorityLabel: "P3",
   },
   6: {
-    assigneeName: "Time ArchFlow",
+    assigneeId: "8e570a67-b8ed-4f88-822a-bd52ab4e693a",
     estimatedHours: 4,
     doneHours: 0,
     priorityLabel: "P2",
   },
   7: {
-    assigneeName: "Time ArchFlow",
+    assigneeId: "f1f52f5a-2ec8-41cb-a304-a2efa17f769d",
     estimatedHours: 4,
     doneHours: 0,
     priorityLabel: "P1",
@@ -209,7 +212,7 @@ export interface SprintTaskView {
   sprintId: string;
   userStoryId: number;
   title: string;
-  assigneeName: string;
+  assignee: User;
   estimatedHours: number;
   doneHours: number;
   priorityLabel: PriorityLabel;
@@ -265,7 +268,7 @@ export function buildMockSprintView(): SprintViewModel {
 
   const taskViews: SprintTaskView[] = tasks.map((task) => {
     const meta = taskMetaById[task.id] ?? {
-      assigneeName: "Squad",
+      assigneeId: currentUserProfile.id,
       estimatedHours: 2,
       doneHours: 0,
       priorityLabel: "P3" as PriorityLabel,
@@ -276,7 +279,7 @@ export function buildMockSprintView(): SprintViewModel {
       sprintId: sprint.id,
       userStoryId: task.userStoryId,
       title: task.title,
-      assigneeName: meta.assigneeName,
+      assignee: getUserById(meta.assigneeId),
       estimatedHours: meta.estimatedHours,
       doneHours: meta.doneHours,
       priorityLabel: meta.priorityLabel,

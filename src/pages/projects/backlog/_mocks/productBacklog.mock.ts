@@ -10,7 +10,6 @@ export interface UserStory {
   description: string;
   effort: number;
   assigneeId: string;
-  assignee: string;
   status: UserStoryStatus;
   value: StoryValue;
   complexity: StoryComplexity;
@@ -50,7 +49,6 @@ export const mockProductBacklog: ProductBacklog = {
             "Quero arrastar cards entre colunas para atualizar o fluxo de trabalho.",
           effort: 5,
           assigneeId: "3de5f097-4f16-4d1b-8bbf-b7830fa6ab4c",
-          assignee: "Ana Costa",
           status: "in-progress",
           value: "high",
           complexity: "medium",
@@ -62,7 +60,6 @@ export const mockProductBacklog: ProductBacklog = {
             "Quero reorganizar cards dentro da mesma coluna sem perder a ordem visual.",
           effort: 3,
           assigneeId: "3de5f097-4f16-4d1b-8bbf-b7830fa6ab4c",
-          assignee: "Ana Costa",
           status: "todo",
           value: "medium",
           complexity: "medium",
@@ -84,7 +81,6 @@ export const mockProductBacklog: ProductBacklog = {
             "Quero visualizar epics e suas stories para priorizar o backlog com mais rapidez.",
           effort: 3,
           assigneeId: "96cd4b95-acdf-4a62-9063-53292716b656",
-          assignee: "Leo Irineu",
           status: "done",
           value: "high",
           complexity: "low",
@@ -96,7 +92,6 @@ export const mockProductBacklog: ProductBacklog = {
             "Quero ver um resumo das stories por epic para acelerar o refinement.",
           effort: 2,
           assigneeId: "96cd4b95-acdf-4a62-9063-53292716b656",
-          assignee: "Leo Irineu",
           status: "in-progress",
           value: "medium",
           complexity: "low",
@@ -117,8 +112,7 @@ export const mockProductBacklog: ProductBacklog = {
           description:
             "Quero informar a capacidade da sprint para equilibrar o planejamento.",
           effort: 5,
-          assigneeId: "f1f52f5a-2ec8-41cb-a304-a2efa17f769d",
-          assignee: "Time ArchFlow",
+          assigneeId: "8e570a67-b8ed-4f88-822a-bd52ab4e693a",
           status: "todo",
           value: "medium",
           complexity: "medium",
@@ -130,7 +124,6 @@ export const mockProductBacklog: ProductBacklog = {
             "Quero receber um alerta quando o time ultrapassar a capacidade planejada.",
           effort: 3,
           assigneeId: "f1f52f5a-2ec8-41cb-a304-a2efa17f769d",
-          assignee: "Time ArchFlow",
           status: "todo",
           value: "high",
           complexity: "medium",

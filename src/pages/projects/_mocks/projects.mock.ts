@@ -1,9 +1,16 @@
+import {
+  currentUserId,
+  currentUserProfile,
+  getUserById,
+  mockUsers,
+} from "../../../mocks/users.mock";
+import type { User } from "../../../types/user";
+
 export type ProjectStatus = "active" | "paused" | "archived";
 
 export interface ProjectMember {
   userId: string;
-  name: string;
-  email: string;
+  user: User;
   role: "owner" | "editor" | "viewer";
   joinedAt: string;
 }
@@ -13,133 +20,78 @@ export interface Project {
   name: string;
   description: string;
   ownerId: string;
-  ownerName: string;
+  owner: User;
   members: ProjectMember[];
   status: ProjectStatus;
   createdAt: string;
 }
 
-export const currentUserId = "96cd4b95-acdf-4a62-9063-53292716b656";
+export { currentUserId, currentUserProfile, mockUsers };
+export type { User };
 
-export const baseProject = {
+const baseProject = {
   id: "39f134b8-30ba-43d2-837a-44b9ce9b9f1b",
   name: "Test Project",
   description: "A test request to create a Project",
-  ownerId: "96cd4b95-acdf-4a62-9063-53292716b656",
-  ownerName: "Leo",
+  ownerId: currentUserProfile.id,
+  owner: currentUserProfile,
   members: [
     {
-      userId: "96cd4b95-acdf-4a62-9063-53292716b656",
-      name: "Leo",
-      email: "leonardo1692004@gmail.com",
-      role: "owner",
-      joinedAt: "2026-02-27T20:44:42.187872",
+      userId: currentUserProfile.id,
+      user: currentUserProfile,
+      role: "owner" as const,
+      joinedAt: "2026-02-27T20:44:42.187872Z",
     },
   ],
-  status: "active",
-  createdAt: "2026-02-27T20:44:42.187409",
-} as const;
-
-interface MemberSeed {
-  userId: string;
-  name: string;
-  email: string;
-}
-
-const memberSeeds: MemberSeed[] = [
-  {
-    userId: currentUserId,
-    name: "Leo",
-    email: "leonardo1692004@gmail.com",
-  },
-  {
-    userId: "3de5f097-4f16-4d1b-8bbf-b7830fa6ab4c",
-    name: "Ana Costa",
-    email: "ana.costa@archflow.dev",
-  },
-  {
-    userId: "f1f52f5a-2ec8-41cb-a304-a2efa17f769d",
-    name: "Rafael Souza",
-    email: "rafael.souza@archflow.dev",
-  },
-  {
-    userId: "8e570a67-b8ed-4f88-822a-bd52ab4e693a",
-    name: "Marina Silva",
-    email: "marina.silva@archflow.dev",
-  },
-  {
-    userId: "7bf56d38-8970-4e47-a95d-38edbb59de6c",
-    name: "Joao Lima",
-    email: "joao.lima@archflow.dev",
-  },
-  {
-    userId: "6a7df596-6436-4ce5-8228-84344ca89f03",
-    name: "Sofia Rocha",
-    email: "sofia.rocha@archflow.dev",
-  },
-];
-
-function findSeed(userId: string): MemberSeed {
-  const seed = memberSeeds.find((candidate) => candidate.userId === userId);
-
-  if (!seed) {
-    throw new Error(`Missing member seed for userId: ${userId}`);
-  }
-
-  return seed;
-}
+  status: "active" as const,
+  createdAt: "2026-02-27T20:44:42.187409Z",
+};
 
 function buildMembers({
   ownerId,
-  ownerName,
-  ownerEmail,
   size,
-  requiredMemberIds,
+  requiredUserIds,
   seedOffset,
 }: {
   ownerId: string;
-  ownerName: string;
-  ownerEmail: string;
   size: number;
-  requiredMemberIds?: string[];
+  requiredUserIds?: string[];
   seedOffset: number;
 }): ProjectMember[] {
+  const owner = getUserById(ownerId);
   const members: ProjectMember[] = [
     {
-      userId: ownerId,
-      name: ownerName,
-      email: ownerEmail,
+      userId: owner.id,
+      user: owner,
       role: "owner",
-      joinedAt: "2026-02-27T20:44:42.187872",
+      joinedAt: owner.createdAt,
     },
   ];
 
-  for (const memberId of requiredMemberIds ?? []) {
-    if (members.some((member) => member.userId === memberId)) {
+  for (const userId of requiredUserIds ?? []) {
+    if (members.some((member) => member.userId === userId)) {
       continue;
     }
 
-    const seed = findSeed(memberId);
+    const user = getUserById(userId);
     members.push({
-      userId: seed.userId,
-      name: seed.name,
-      email: seed.email,
+      userId: user.id,
+      user,
       role: "editor",
-      joinedAt: "2026-03-01T10:11:00.000000",
+      joinedAt: "2026-03-01T10:11:00.000000Z",
     });
   }
 
   let cursor = 0;
   while (members.length < size) {
-    const seed = memberSeeds[(seedOffset + cursor) % memberSeeds.length];
+    const user = mockUsers[(seedOffset + cursor) % mockUsers.length];
 
-    if (!members.some((member) => member.userId === seed.userId)) {
+    if (!members.some((member) => member.userId === user.id)) {
       members.push({
-        userId: seed.userId,
-        name: seed.name,
-        email: seed.email,
+        userId: user.id,
+        user,
         role: members.length % 2 === 0 ? "editor" : "viewer",
-        joinedAt: "2026-03-02T09:00:00.000000",
+        joinedAt: "2026-03-02T09:00:00.000000Z",
       });
     }
 
@@ -149,22 +101,14 @@ function buildMembers({
   return members;
 }
 
-export const currentUserProfile = {
-  userId: currentUserId,
-  name: "Leo Irineu",
-  plan: "free",
-} as const;
-
-const anaSeed = findSeed("3de5f097-4f16-4d1b-8bbf-b7830fa6ab4c");
-const rafaelSeed = findSeed("f1f52f5a-2ec8-41cb-a304-a2efa17f769d");
+const anaUser = getUserById("3de5f097-4f16-4d1b-8bbf-b7830fa6ab4c");
+const rafaelUser = getUserById("f1f52f5a-2ec8-41cb-a304-a2efa17f769d");
 
 export const mockProjects: Project[] = [
   {
     ...baseProject,
     members: buildMembers({
       ownerId: currentUserId,
-      ownerName: "Leo",
-      ownerEmail: "leonardo1692004@gmail.com",
       size: 3,
       seedOffset: 1,
     }),
@@ -175,51 +119,45 @@ export const mockProjects: Project[] = [
     description:
       "Planejamento trimestral com backlog de arquitetura, sprint board e metas de entrega por squad.",
     ownerId: currentUserId,
-    ownerName: "Leo",
+    owner: currentUserProfile,
     members: buildMembers({
       ownerId: currentUserId,
-      ownerName: "Leo",
-      ownerEmail: "leonardo1692004@gmail.com",
-      size: 5,
-      seedOffset: 3,
+      size: 4,
+      seedOffset: 2,
     }),
     status: "active",
-    createdAt: "2026-03-01T13:22:10.000000",
+    createdAt: "2026-03-01T13:22:10.000000Z",
   },
   {
     id: "d339e7f4-f03f-40f0-bfe8-5f27f5b65f5b",
     name: "ABP - Plataforma",
     description:
       "Projeto colaborativo com foco em entregas por sprint e fluxo continuo de backlog para o time de produto.",
-    ownerId: anaSeed.userId,
-    ownerName: "Ana Costa",
+    ownerId: anaUser.id,
+    owner: anaUser,
     members: buildMembers({
-      ownerId: anaSeed.userId,
-      ownerName: anaSeed.name,
-      ownerEmail: anaSeed.email,
+      ownerId: anaUser.id,
       size: 4,
-      requiredMemberIds: [currentUserId],
-      seedOffset: 4,
+      requiredUserIds: [currentUserId],
+      seedOffset: 3,
     }),
     status: "active",
-    createdAt: "2026-03-02T10:15:10.000000",
+    createdAt: "2026-03-02T10:15:10.000000Z",
   },
   {
     id: "cb63837f-e9cb-4441-bdb5-39f2b9dbe77a",
     name: "InboxIQ",
     description:
       "Triagem de e-mails e automacoes de pipeline para priorizacao de tarefas com indicadores compartilhados.",
-    ownerId: rafaelSeed.userId,
-    ownerName: "Rafael Souza",
+    ownerId: rafaelUser.id,
+    owner: rafaelUser,
     members: buildMembers({
-      ownerId: rafaelSeed.userId,
-      ownerName: rafaelSeed.name,
-      ownerEmail: rafaelSeed.email,
+      ownerId: rafaelUser.id,
       size: 2,
-      requiredMemberIds: [currentUserId],
-      seedOffset: 2,
+      requiredUserIds: [currentUserId],
+      seedOffset: 1,
     }),
     status: "paused",
-    createdAt: "2026-03-03T08:05:00.000000",
+    createdAt: "2026-03-03T08:05:00.000000Z",
   },
 ];
