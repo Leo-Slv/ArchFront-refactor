@@ -64,6 +64,7 @@ export interface SprintBacklogStoryView {
   id: string;
   title: string;
   epicName: string;
+  acceptanceCriteria: string;
   description: string;
   effort: number;
   assignee: User;
@@ -261,6 +262,7 @@ export function buildSprintBacklogView(): SprintBacklogViewModel {
         id: source.story.id,
         title: source.story.title,
         epicName: source.epic.name,
+        acceptanceCriteria: source.story.acceptanceCriteria,
         description: source.story.description,
         effort: source.story.effort,
         assignee: resolveAssignee(source.story.assigneeId),

@@ -1,3 +1,6 @@
+import { Fragment, useMemo, useState } from "react";
+import { ChevronDown, ChevronRight } from "lucide-react";
+
 import ProjectShell from "../../../components/layout/ProjectShell";
 import { getUserById } from "../../../mocks/users.mock";
 import { currentUserProfile, mockProjects, type Project } from "../_mocks/projects.mock";
@@ -21,6 +24,10 @@ function formatValueLabel(value: string): string {
   return "baixo";
 }
 
+function formatPriorityLabel(priority: number): string {
+  return `P${priority}`;
+}
+
 function formatComplexityLabel(complexity: string): string {
   if (complexity === "high") return "alta";
   if (complexity === "medium") return "média";
@@ -31,6 +38,8 @@ export default function ProductBacklogPage({
   projectId,
 }: ProductBacklogPageProps) {
   const backlog = mockProductBacklog;
+  const [query, setQuery] = useState("");
+  const [expandedStoryIds, setExpandedStoryIds] = useState<Set<string>>(new Set());
 
   let projectFromParam: Project | undefined;
   if (projectId) {
@@ -40,10 +49,65 @@ export default function ProductBacklogPage({
   const currentProject: Project = projectFromParam ?? fallbackProject;
   const effectiveProjectId = projectId ?? backlog.projectId;
 
-  const totalStories = backlog.epics.reduce(
+  const normalizedQuery = query.trim().toLowerCase();
+  const filteredEpics = useMemo(
+    () =>
+      backlog.epics
+        .map((epic) => {
+          const epicMatches =
+            !normalizedQuery ||
+            [epic.name, epic.description].some((value) =>
+              value.toLowerCase().includes(normalizedQuery),
+            );
+          const userStories = epic.userStories.filter((story) => {
+            if (epicMatches) {
+              return true;
+            }
+
+            const assigneeName = getUserById(story.assigneeId).name;
+            const statusLabel = formatStatusLabel(story.status);
+            return [
+              story.title,
+              story.persona,
+              story.description,
+              story.acceptanceCriteria,
+              story.dependencies,
+              assigneeName,
+              statusLabel,
+              story.businessValue,
+            ]
+              .join(" ")
+              .toLowerCase()
+              .includes(normalizedQuery);
+          });
+
+          return {
+            ...epic,
+            userStories,
+          };
+        })
+        .filter(
+          (epic) => epic.userStories.length > 0 || !normalizedQuery,
+        ),
+    [backlog.epics, normalizedQuery],
+  );
+
+  const totalStories = filteredEpics.reduce(
     (sum, epic) => sum + epic.userStories.length,
     0,
   );
+
+  function toggleStoryExpanded(storyId: string) {
+    setExpandedStoryIds((current) => {
+      const next = new Set(current);
+      if (next.has(storyId)) {
+        next.delete(storyId);
+      } else {
+        next.add(storyId);
+      }
+      return next;
+    });
+  }
 
   return (
     <ProjectShell
@@ -56,9 +120,13 @@ export default function ProductBacklogPage({
       pageSubtitle="Epics e User Stories do projeto, organizados por prioridade e prontidão."
       pageContextLabel="Backlog do produto"
       currentUser={currentUserProfile}
+      showSearch
+      searchPlaceholder="Buscar por epic, story, responsável, status..."
+      searchValue={query}
+      onSearchChange={setQuery}
       mainColumn={
         <div className="space-y-4 lg:space-y-5">
-          {backlog.epics.map((epic) => {
+          {filteredEpics.map((epic) => {
             const storyCount = epic.userStories.length;
 
             return (
@@ -68,6 +136,9 @@ export default function ProductBacklogPage({
               >
                 <header className="flex flex-wrap items-start justify-between gap-3">
                   <div className="min-w-0 space-y-1">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/50">
+                      Epic
+                    </p>
                     <div className="flex flex-wrap items-center gap-2">
                       <h2 className="truncate text-sm font-semibold text-white">
                         {epic.name}
@@ -91,41 +162,144 @@ export default function ProductBacklogPage({
                 <div className="mt-3 space-y-2">
                   <div className="af-separator-b flex items-center justify-between gap-3 pb-1">
                     <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/50">
-                      Epics &amp; User Stories
+                      User Story
                     </p>
                   </div>
 
-                  <div className="af-surface-md bg-black/20 px-3 py-2.5">
-                    <div className="grid grid-cols-[minmax(0,2.1fr)_minmax(0,1.2fr)_minmax(0,1fr)_minmax(0,0.9fr)_minmax(0,1fr)] items-center gap-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/44">
-                      <span>Story</span>
-                      <span>Assignee</span>
-                      <span>Status</span>
-                      <span>Value</span>
-                      <span>Complexity</span>
-                    </div>
+                  <div className="af-surface-md overflow-x-auto bg-black/20 px-3 py-2.5">
+                    <table className="w-full min-w-[42rem] border-separate border-spacing-y-1.5">
+                      <thead>
+                        <tr className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/44">
+                          <th className="w-10 px-2 py-1 text-left font-semibold" />
+                          <th className="px-2 py-1 text-left font-semibold">Story</th>
+                          <th className="px-2 py-1 text-left font-semibold">Assignee</th>
+                          <th className="px-2 py-1 text-left font-semibold">Status</th>
+                          <th className="px-2 py-1 text-left font-semibold">Value</th>
+                          <th className="px-2 py-1 text-left font-semibold">Complexity</th>
+                        </tr>
+                      </thead>
 
-                    <div className="mt-2 space-y-1.5">
-                      {epic.userStories.slice(0, 3).map((story) => (
-                        <div
-                          key={story.id}
-                          className="grid grid-cols-[minmax(0,2.1fr)_minmax(0,1.2fr)_minmax(0,1fr)_minmax(0,0.9fr)_minmax(0,1fr)] items-center gap-3 rounded-none bg-white/[0.02] px-2 py-1.5 text-[11px] text-white/76"
-                        >
-                          <span className="truncate">{story.title}</span>
-                          <span className="truncate text-white/68">
-                            {getUserById(story.assigneeId).name}
-                          </span>
-                          <span className="text-white/70">
-                            {formatStatusLabel(story.status)}
-                          </span>
-                          <span className="text-white/70">
-                            {formatValueLabel(story.value)}
-                          </span>
-                          <span className="text-white/70">
-                            {formatComplexityLabel(story.complexity)}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
+                      <tbody>
+                        {epic.userStories.map((story) => {
+                          const isExpanded = expandedStoryIds.has(story.id);
+                          const assigneeName = getUserById(story.assigneeId).name;
+
+                          return (
+                            <Fragment key={story.id}>
+                              <tr className="text-[11px] text-white/76">
+                                <td className="bg-white/[0.02] px-2 py-1.5 align-middle">
+                                  <button
+                                    type="button"
+                                    aria-expanded={isExpanded}
+                                    aria-label={
+                                      isExpanded
+                                        ? `Ocultar detalhes de ${story.title}`
+                                        : `Mostrar detalhes de ${story.title}`
+                                    }
+                                    onClick={() => toggleStoryExpanded(story.id)}
+                                    className="af-focus-ring inline-flex h-7 w-7 items-center justify-center text-white/60 transition hover:bg-white/[0.03] hover:text-white"
+                                  >
+                                    {isExpanded ? (
+                                      <ChevronDown className="h-4 w-4" aria-hidden="true" />
+                                    ) : (
+                                      <ChevronRight className="h-4 w-4" aria-hidden="true" />
+                                    )}
+                                  </button>
+                                </td>
+                                <td className="bg-white/[0.02] px-2 py-1.5 align-middle">
+                                  <span className="block truncate">{story.title}</span>
+                                </td>
+                                <td className="bg-white/[0.02] px-2 py-1.5 align-middle">
+                                  <span className="block truncate text-white/68">
+                                    {assigneeName}
+                                  </span>
+                                </td>
+                                <td className="bg-white/[0.02] px-2 py-1.5 align-middle text-white/70">
+                                  {formatStatusLabel(story.status)}
+                                </td>
+                                <td className="bg-white/[0.02] px-2 py-1.5 align-middle text-white/70">
+                                  {formatValueLabel(story.businessValue)}
+                                </td>
+                                <td className="bg-white/[0.02] px-2 py-1.5 align-middle text-white/70">
+                                  {formatComplexityLabel(story.complexity)}
+                                </td>
+                              </tr>
+
+                              {isExpanded ? (
+                                <tr>
+                                  <td colSpan={6} className="px-0 pt-0.5">
+                                    <div className="af-surface-md bg-white/[0.03] px-3 py-3">
+                                      <div className="grid gap-3 lg:grid-cols-[minmax(0,1.45fr)_minmax(0,1fr)]">
+                                        <div className="space-y-3">
+                                          <div>
+                                            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/50">
+                                              Persona
+                                            </p>
+                                            <p className="mt-1 text-xs text-white/68">
+                                              {story.persona}
+                                            </p>
+                                          </div>
+
+                                          <div>
+                                            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/50">
+                                              Description
+                                            </p>
+                                            <p className="mt-1 text-xs leading-relaxed text-white/68">
+                                              {story.description}
+                                            </p>
+                                          </div>
+
+                                          <div>
+                                            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/50">
+                                              Acceptance Criteria
+                                            </p>
+                                            <p className="mt-1 text-xs leading-relaxed text-white/68">
+                                              {story.acceptanceCriteria}
+                                            </p>
+                                          </div>
+
+                                          <div>
+                                            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/50">
+                                              Dependencies
+                                            </p>
+                                            <p className="mt-1 text-xs leading-relaxed text-white/68">
+                                              {story.dependencies}
+                                            </p>
+                                          </div>
+                                        </div>
+
+                                        <div className="space-y-2">
+                                          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/50">
+                                            Story Details
+                                          </p>
+                                          <div className="flex flex-wrap gap-1.5 text-[10px] text-white/72">
+                                            <span className="af-surface-sm inline-flex h-6 items-center bg-white/5 px-2 py-0 leading-none">
+                                              Effort {story.effort}
+                                            </span>
+                                            <span className="af-surface-sm inline-flex h-6 items-center bg-white/5 px-2 py-0 leading-none">
+                                              {formatPriorityLabel(story.priority)}
+                                            </span>
+                                            <span className="af-surface-sm inline-flex h-6 items-center bg-white/5 px-2 py-0 leading-none">
+                                              BV {formatValueLabel(story.businessValue)}
+                                            </span>
+                                            <span className="af-surface-sm inline-flex h-6 items-center bg-white/5 px-2 py-0 leading-none">
+                                              {formatComplexityLabel(story.complexity)}
+                                            </span>
+                                            <span className="af-surface-sm inline-flex h-6 items-center bg-white/5 px-2 py-0 leading-none">
+                                              {formatStatusLabel(story.status)}
+                                            </span>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </td>
+                                </tr>
+                              ) : null}
+                            </Fragment>
+                          );
+                        })}
+                      </tbody>
+                    </table>
                   </div>
                 </div>
               </article>

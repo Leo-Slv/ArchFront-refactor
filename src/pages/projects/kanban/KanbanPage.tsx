@@ -1,8 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-import { Plus, Search } from "lucide-react";
+import { Plus } from "lucide-react";
 
 import ProjectShell from "../../../components/layout/ProjectShell";
-import UserAvatar from "../../../components/ui/UserAvatar";
 import KanbanColumn from "../../../components/kanban/KanbanColumn";
 import KanbanModal from "../../../components/kanban/KanbanModal";
 import {
@@ -169,33 +168,11 @@ export default function KanbanPage({ projectId }: KanbanPageProps) {
       pageSubtitle="Fluxo visual das user stories em andamento no sprint."
       pageContextLabel={`${baseBoard.sprint.name} - Kanban`}
       currentUser={currentUserProfile}
+      showSearch
+      searchPlaceholder="Buscar por epic, story, tarefa..."
+      searchValue={searchTerm}
+      onSearchChange={setSearchTerm}
       fullWidthMain
-      headerActions={
-        <div className="flex items-center gap-2">
-          <label className="af-surface-md flex h-9 min-w-[15rem] items-center gap-2 bg-white/5 px-3 text-sm text-white/68 sm:min-w-[19rem]">
-            <Search className="h-4 w-4 shrink-0 text-white/45" aria-hidden="true" />
-            <input
-              value={searchTerm}
-              onChange={(event) => setSearchTerm(event.target.value)}
-              placeholder="Buscar por epic, story, tarefa..."
-              className="w-full bg-transparent text-sm text-white outline-none placeholder:text-white/38"
-            />
-          </label>
-
-          <button
-            type="button"
-            aria-label={currentUserProfile.name}
-            className="af-surface-md af-surface-hover af-focus-ring inline-flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white/5 text-xs font-semibold text-white/80 transition hover:text-white"
-            style={{ borderRadius: "9999px" }}
-          >
-            <UserAvatar
-              user={currentUserProfile}
-              className="h-full w-full bg-transparent text-xs font-semibold text-white/80"
-              fallbackClassName="text-xs font-semibold"
-            />
-          </button>
-        </div>
-      }
       mainColumn={
         <>
           {toast ? (

@@ -6,9 +6,9 @@ import {
   Timer,
 } from "lucide-react";
 
-import UserAvatar from "../ui/UserAvatar";
 import { SidebarInset, SidebarProvider } from "../ui/sidebar";
 import type { User } from "../../types/user";
+import ProjectHeader from "./ProjectHeader";
 import ProjectSidebar, {
   type ProjectSidebarNavItemId,
 } from "./ProjectSidebar";
@@ -29,9 +29,13 @@ interface ProjectShellProps {
   pageSubtitle: string;
   pageContextLabel?: string;
   currentUser: User;
+  showSearch?: boolean;
+  searchPlaceholder?: string;
+  searchValue?: string;
+  onSearchChange?: (value: string) => void;
   mainColumn: ReactNode;
   sideColumn?: ReactNode;
-  headerActions?: ReactNode;
+  headerRightSlot?: ReactNode;
   fullWidthMain?: boolean;
 }
 
@@ -45,9 +49,13 @@ export default function ProjectShell({
   pageSubtitle,
   pageContextLabel,
   currentUser,
+  showSearch = false,
+  searchPlaceholder,
+  searchValue,
+  onSearchChange,
   mainColumn,
   sideColumn,
-  headerActions,
+  headerRightSlot,
   fullWidthMain = false,
 }: ProjectShellProps) {
   return (
@@ -93,37 +101,17 @@ export default function ProjectShell({
         <SidebarInset className="h-full min-h-0">
           <main className="h-full min-h-0 min-w-0 overflow-hidden">
             <div className="af-surface-lg flex h-full min-h-0 flex-col bg-[#14121a]/40">
-              <header className="af-separator-b flex items-center justify-between gap-4 px-4 py-4 sm:px-5">
-                <div className="min-w-0 space-y-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h1 className="text-lg font-semibold text-white sm:text-xl">
-                      {pageTitle}
-                    </h1>
-
-                    {pageContextLabel ? (
-                      <span className="af-surface-sm inline-flex items-center bg-white/5 px-2.5 py-1 text-[10px] font-semibold text-white/72">
-                        {pageContextLabel}
-                      </span>
-                    ) : null}
-                  </div>
-
-                  <p className="text-sm text-white/62">{pageSubtitle}</p>
-                </div>
-
-                {headerActions ?? (
-                  <button
-                    type="button"
-                    aria-label={currentUser.name}
-                    className="af-surface-md af-surface-hover af-focus-ring inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/5 text-xs font-semibold text-white/80 transition hover:text-white"
-                  >
-                    <UserAvatar
-                      user={currentUser}
-                      className="h-full w-full bg-transparent text-xs font-semibold text-white/80"
-                      fallbackClassName="text-xs font-semibold"
-                    />
-                  </button>
-                )}
-              </header>
+              <ProjectHeader
+                title={pageTitle}
+                subtitleChip={pageContextLabel}
+                description={pageSubtitle}
+                showSearch={showSearch}
+                searchPlaceholder={searchPlaceholder}
+                searchValue={searchValue}
+                onSearchChange={onSearchChange}
+                user={currentUser}
+                rightSlot={headerRightSlot}
+              />
 
               <div className="flex-1 min-h-0 overflow-y-auto px-4 py-4 sm:px-5 sm:py-5">
                 {fullWidthMain ? (

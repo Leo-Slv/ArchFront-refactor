@@ -35,6 +35,15 @@ export default function StorySprintCard({ story }: StorySprintCardProps) {
       </header>
 
       <div className="mt-3 space-y-2">
+        <div className="af-separator-b pb-2">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/50">
+            Acceptance Criteria
+          </p>
+          <p className="mt-2 text-xs leading-relaxed text-white/62">
+            {story.acceptanceCriteria}
+          </p>
+        </div>
+
         <div className="af-separator-b pb-1">
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/50">
             Tarefas

@@ -1,3 +1,5 @@
+import { useMemo, useState } from "react";
+
 import ProjectShell from "../../../components/layout/ProjectShell";
 import BurndownChart from "../../../components/sprint/BurndownChart";
 import SprintSummaryCard from "../../../components/sprint/SprintSummaryCard";
@@ -35,6 +37,7 @@ export default function SprintPage({ projectId }: SprintPageProps) {
   const sprintView = buildMockSprintView();
   const { sprint, taskViews, burndownPoints, scopeHours, burnedHours, remainingHours } =
     sprintView;
+  const [query, setQuery] = useState("");
 
   let projectFromParam: Project | undefined;
   if (projectId) {
@@ -45,6 +48,18 @@ export default function SprintPage({ projectId }: SprintPageProps) {
   const effectiveProjectId = projectId ?? sprint.projectId;
 
   const periodLabel = buildPeriodLabel(sprint);
+  const normalizedQuery = query.trim().toLowerCase();
+  const filteredTaskViews = useMemo(
+    () =>
+      taskViews.filter((task) =>
+        !normalizedQuery ||
+        [task.title, task.assignee.name, task.priorityLabel]
+          .join(" ")
+          .toLowerCase()
+          .includes(normalizedQuery),
+      ),
+    [normalizedQuery, taskViews],
+  );
 
   return (
     <ProjectShell
@@ -57,6 +72,10 @@ export default function SprintPage({ projectId }: SprintPageProps) {
       pageSubtitle={sprint.goal}
       pageContextLabel={`${sprint.name} • ${periodLabel}`}
       currentUser={currentUserProfile}
+      showSearch
+      searchPlaceholder="Buscar tarefas do sprint..."
+      searchValue={query}
+      onSearchChange={setQuery}
       mainColumn={
         <div className="space-y-4 lg:space-y-5">
           <SprintSummaryCard
@@ -77,7 +96,7 @@ export default function SprintPage({ projectId }: SprintPageProps) {
           </section>
         </div>
       }
-      sideColumn={<SprintTasksPanel tasks={taskViews} />}
+      sideColumn={<SprintTasksPanel tasks={filteredTaskViews} />}
     />
   );
 }
