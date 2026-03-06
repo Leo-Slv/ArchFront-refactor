@@ -7,6 +7,9 @@ export type StoryComplexity = "low" | "medium" | "high";
 export interface UserStory {
   id: string;
   title: string;
+  description: string;
+  effort: number;
+  assigneeId: string;
   assignee: string;
   status: UserStoryStatus;
   value: StoryValue;
@@ -42,7 +45,11 @@ export const mockProductBacklog: ProductBacklog = {
       userStories: [
         {
           id: "story-dnd-columns",
-          title: "Mover cards entre colunas do Kanban",
+          title: "Mover cards entre colunas (DnD)",
+          description:
+            "Quero arrastar cards entre colunas para atualizar o fluxo de trabalho.",
+          effort: 5,
+          assigneeId: "3de5f097-4f16-4d1b-8bbf-b7830fa6ab4c",
           assignee: "Ana Costa",
           status: "in-progress",
           value: "high",
@@ -51,6 +58,10 @@ export const mockProductBacklog: ProductBacklog = {
         {
           id: "story-dnd-order",
           title: "Reordenar cards dentro da mesma coluna",
+          description:
+            "Quero reorganizar cards dentro da mesma coluna sem perder a ordem visual.",
+          effort: 3,
+          assigneeId: "3de5f097-4f16-4d1b-8bbf-b7830fa6ab4c",
           assignee: "Ana Costa",
           status: "todo",
           value: "medium",
@@ -68,7 +79,11 @@ export const mockProductBacklog: ProductBacklog = {
       userStories: [
         {
           id: "story-epic-list",
-          title: "Exibir lista de epics com resumo",
+          title: "Listar epics e user stories",
+          description:
+            "Quero visualizar epics e suas stories para priorizar o backlog com mais rapidez.",
+          effort: 3,
+          assigneeId: "96cd4b95-acdf-4a62-9063-53292716b656",
           assignee: "Leo Irineu",
           status: "done",
           value: "high",
@@ -77,6 +92,10 @@ export const mockProductBacklog: ProductBacklog = {
         {
           id: "story-story-preview",
           title: "Mostrar 1–3 stories por epic na visão principal",
+          description:
+            "Quero ver um resumo das stories por epic para acelerar o refinement.",
+          effort: 2,
+          assigneeId: "96cd4b95-acdf-4a62-9063-53292716b656",
           assignee: "Leo Irineu",
           status: "in-progress",
           value: "medium",
@@ -95,6 +114,10 @@ export const mockProductBacklog: ProductBacklog = {
         {
           id: "story-capacity-input",
           title: "Definir capacidade da sprint em pontos",
+          description:
+            "Quero informar a capacidade da sprint para equilibrar o planejamento.",
+          effort: 5,
+          assigneeId: "f1f52f5a-2ec8-41cb-a304-a2efa17f769d",
           assignee: "Time ArchFlow",
           status: "todo",
           value: "medium",
@@ -103,6 +126,10 @@ export const mockProductBacklog: ProductBacklog = {
         {
           id: "story-capacity-warning",
           title: "Mostrar alerta quando capacidade for excedida",
+          description:
+            "Quero receber um alerta quando o time ultrapassar a capacidade planejada.",
+          effort: 3,
+          assigneeId: "f1f52f5a-2ec8-41cb-a304-a2efa17f769d",
           assignee: "Time ArchFlow",
           status: "todo",
           value: "high",
