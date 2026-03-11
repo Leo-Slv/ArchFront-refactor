@@ -1,4 +1,10 @@
+import type { KeyboardEvent, MouseEvent } from "react";
+
 import type { Project } from "../../pages/projects/_mocks/projects.mock";
+import {
+  navigateToPath,
+  shouldHandleNavigationClick,
+} from "../layout/sidebarNavigation";
 
 interface ProjectCardProps {
   project: Project;
@@ -17,9 +23,53 @@ const statusTone: Record<Project["status"], string> = {
 };
 
 export default function ProjectCard({ project }: ProjectCardProps) {
+  const backlogPath = `/projects/${project.id}/backlog`;
+
+  function shouldIgnoreCardNavigation(target: EventTarget | null): boolean {
+    if (!(target instanceof HTMLElement)) {
+      return false;
+    }
+
+    return Boolean(
+      target.closest(
+        'a, button, input, select, textarea, summary, [role="button"], [data-no-card-navigation]',
+      ),
+    );
+  }
+
+  function handleCardClick(event: MouseEvent<HTMLElement>): void {
+    if (
+      !shouldHandleNavigationClick(event) ||
+      shouldIgnoreCardNavigation(event.target)
+    ) {
+      return;
+    }
+
+    navigateToPath(backlogPath);
+  }
+
+  function handleCardKeyDown(event: KeyboardEvent<HTMLElement>): void {
+    if (event.defaultPrevented || shouldIgnoreCardNavigation(event.target)) {
+      return;
+    }
+
+    if (event.key !== "Enter" && event.key !== " ") {
+      return;
+    }
+
+    event.preventDefault();
+    navigateToPath(backlogPath);
+  }
 
   return (
-    <article className="af-surface-lg af-surface-hover flex min-h-[10.75rem] flex-col bg-[#14121a]/70 p-4">
+    <article
+      role="link"
+      tabIndex={0}
+      aria-label={`Abrir backlog do projeto ${project.name}`}
+      onClick={handleCardClick}
+      onKeyDown={handleCardKeyDown}
+      className="af-surface-lg af-surface-hover af-focus-ring flex min-h-[10.75rem] flex-col bg-[#14121a]/70 p-4"
+    >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex items-start gap-2.5">
           <div className="min-w-0">

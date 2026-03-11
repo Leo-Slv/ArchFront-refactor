@@ -52,7 +52,7 @@ export const mockProductBacklog: ProductBacklog = {
           description:
             "Quero arrastar cards entre colunas para atualizar o fluxo de trabalho.",
           acceptanceCriteria:
-            "O card deve poder ser movido entre colunas válidas, atualizar seu estado visual imediatamente e respeitar limites de WIP.",
+            "- Deve permitir mover o card entre colunas validas.\n- Deve atualizar o estado visual imediatamente apos o drop.\n- Deve respeitar os limites de WIP configurados.",
           effort: 5,
           dependencies: "Definição das colunas do Kanban e validação de WIP por horas.",
           priority: 1,
@@ -68,7 +68,7 @@ export const mockProductBacklog: ProductBacklog = {
           description:
             "Quero reorganizar cards dentro da mesma coluna sem perder a ordem visual.",
           acceptanceCriteria:
-            "A ordem deve ser preservada apos o drop, refletida no estado local e reaplicada ao reabrir o quadro.",
+            "- Deve preservar a ordem dos cards apos o drop.\n- Deve refletir a nova ordem no estado local.\n- Deve reaplicar a ordenacao ao reabrir o quadro.",
           effort: 3,
           dependencies: "Story de drag & drop entre colunas implementada.",
           priority: 2,
@@ -94,7 +94,7 @@ export const mockProductBacklog: ProductBacklog = {
           description:
             "Quero visualizar epics e suas stories para priorizar o backlog com mais rapidez.",
           acceptanceCriteria:
-            "A tela deve agrupar stories por epic, mostrar responsavel e permitir leitura rapida de status, valor e complexidade.",
+            "- Deve agrupar por epic.\n- Deve exibir prioridade, business value e status.\n- Deve permitir busca rapida.",
           effort: 3,
           dependencies: "Mocks de epics e stories consolidados para o projeto.",
           priority: 1,
@@ -110,7 +110,7 @@ export const mockProductBacklog: ProductBacklog = {
           description:
             "Quero ver um resumo das stories por epic para acelerar o refinement.",
           acceptanceCriteria:
-            "Cada epic deve exibir um subconjunto inicial de stories com informacoes essenciais e opcao para aprofundar detalhes.",
+            "- Deve exibir de 1 a 3 stories por epic na visao principal.\n- Deve mostrar informacoes essenciais de cada story.\n- Deve oferecer opcao para aprofundar os detalhes.",
           effort: 2,
           dependencies: "Agrupamento por epic e tabela principal ja disponiveis.",
           priority: 2,
@@ -136,7 +136,7 @@ export const mockProductBacklog: ProductBacklog = {
           description:
             "Quero informar a capacidade da sprint para equilibrar o planejamento.",
           acceptanceCriteria:
-            "O planejamento deve aceitar a capacidade informada, recalcular o total comprometido e sinalizar folga ou excesso.",
+            "- Deve aceitar a capacidade informada para a sprint.\n- Deve recalcular o total comprometido apos a atualizacao.\n- Deve sinalizar folga ou excesso de capacidade.",
           effort: 5,
           dependencies: "Resumo de sprint e regras de planejamento conectadas ao backlog.",
           priority: 2,
@@ -152,7 +152,7 @@ export const mockProductBacklog: ProductBacklog = {
           description:
             "Quero receber um alerta quando o time ultrapassar a capacidade planejada.",
           acceptanceCriteria:
-            "Ao ultrapassar a capacidade, a interface deve destacar o excesso e orientar o ajuste do escopo antes de confirmar a sprint.",
+            "- Deve destacar quando a capacidade for excedida.\n- Deve orientar o ajuste do escopo antes da confirmacao.\n- Deve manter o alerta visivel ate a capacidade voltar ao limite.",
           effort: 3,
           dependencies: "Capacidade da sprint calculada com base nas stories selecionadas.",
           priority: 1,

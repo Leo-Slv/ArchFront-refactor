@@ -1,16 +1,28 @@
 import { Fragment, useMemo, useState } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
 
+import TriageQueue, {
+  type TriageFilter,
+  type TriageQueueCounts,
+} from "../../../components/backlog/TriageQueue";
 import ProjectShell from "../../../components/layout/ProjectShell";
 import { getUserById } from "../../../mocks/users.mock";
-import { currentUserProfile, mockProjects, type Project } from "../_mocks/projects.mock";
-import { mockProductBacklog } from "./_mocks/productBacklog.mock";
+import {
+  currentUserProfile,
+  mockProjects,
+  type Project,
+} from "../_mocks/projects.mock";
+import { mockProductBacklog, type UserStory } from "./_mocks/productBacklog.mock";
 
 interface ProductBacklogPageProps {
   projectId?: string;
 }
 
 const fallbackProject: Project = mockProjects[1] ?? mockProjects[0];
+
+type StoryWithLegacyCriteria = UserStory & {
+  acceptance_criteria?: string | null;
+};
 
 function formatStatusLabel(status: string): string {
   if (status === "in-progress") return "Em andamento";
@@ -34,12 +46,57 @@ function formatComplexityLabel(complexity: string): string {
   return "baixa";
 }
 
+function getAssigneeName(assigneeId: string): string {
+  if (!assigneeId?.trim()) {
+    return "Sem responsável";
+  }
+
+  try {
+    return getUserById(assigneeId).name;
+  } catch {
+    return "Sem responsável";
+  }
+}
+
+function getAcceptanceCriteriaValue(story: StoryWithLegacyCriteria): string {
+  const acceptanceCriteria =
+    typeof story.acceptanceCriteria === "string" ? story.acceptanceCriteria : "";
+  const legacyAcceptanceCriteria =
+    typeof story.acceptance_criteria === "string" ? story.acceptance_criteria : "";
+
+  return acceptanceCriteria || legacyAcceptanceCriteria;
+}
+
+function matchesTriageFilter(
+  story: StoryWithLegacyCriteria,
+  triageFilter: TriageFilter,
+): boolean {
+  const acceptanceCriteria = getAcceptanceCriteriaValue(story).trim();
+
+  switch (triageFilter) {
+    case "noAssignee":
+      return !story.assigneeId?.trim();
+    case "missingCriteria":
+      return acceptanceCriteria.length === 0;
+    case "missingEffort":
+      return story.effort <= 0;
+    case "hasDependencies":
+      return story.dependencies.trim().length > 0;
+    case "draft":
+      return story.status === "draft" || story.status === "todo";
+    case "none":
+    default:
+      return true;
+  }
+}
+
 export default function ProductBacklogPage({
   projectId,
 }: ProductBacklogPageProps) {
   const backlog = mockProductBacklog;
   const [query, setQuery] = useState("");
   const [expandedStoryIds, setExpandedStoryIds] = useState<Set<string>>(new Set());
+  const [triageFilter, setTriageFilter] = useState<TriageFilter>("none");
 
   let projectFromParam: Project | undefined;
   if (projectId) {
@@ -50,6 +107,29 @@ export default function ProductBacklogPage({
   const effectiveProjectId = projectId ?? backlog.projectId;
 
   const normalizedQuery = query.trim().toLowerCase();
+  const allStories = useMemo(
+    () => backlog.epics.flatMap((epic) => epic.userStories),
+    [backlog.epics],
+  );
+  const triageCounts = useMemo<TriageQueueCounts>(
+    () => ({
+      noAssignee: allStories.filter((story) =>
+        matchesTriageFilter(story, "noAssignee"),
+      ).length,
+      missingCriteria: allStories.filter((story) =>
+        matchesTriageFilter(story, "missingCriteria"),
+      ).length,
+      missingEffort: allStories.filter((story) =>
+        matchesTriageFilter(story, "missingEffort"),
+      ).length,
+      hasDependencies: allStories.filter((story) =>
+        matchesTriageFilter(story, "hasDependencies"),
+      ).length,
+      draft: allStories.filter((story) => matchesTriageFilter(story, "draft"))
+        .length,
+    }),
+    [allStories],
+  );
   const filteredEpics = useMemo(
     () =>
       backlog.epics
@@ -60,25 +140,26 @@ export default function ProductBacklogPage({
               value.toLowerCase().includes(normalizedQuery),
             );
           const userStories = epic.userStories.filter((story) => {
-            if (epicMatches) {
-              return true;
-            }
-
-            const assigneeName = getUserById(story.assigneeId).name;
+            const assigneeName = getAssigneeName(story.assigneeId);
             const statusLabel = formatStatusLabel(story.status);
-            return [
-              story.title,
-              story.persona,
-              story.description,
-              story.acceptanceCriteria,
-              story.dependencies,
-              assigneeName,
-              statusLabel,
-              story.businessValue,
-            ]
-              .join(" ")
-              .toLowerCase()
-              .includes(normalizedQuery);
+            const matchesSearch =
+              epicMatches ||
+              [
+                story.title,
+                story.persona,
+                story.description,
+                getAcceptanceCriteriaValue(story),
+                story.dependencies,
+                assigneeName,
+                statusLabel,
+                story.businessValue,
+              ]
+                .join(" ")
+                .toLowerCase()
+                .includes(normalizedQuery);
+            const matchesTriage = matchesTriageFilter(story, triageFilter);
+
+            return matchesSearch && matchesTriage;
           });
 
           return {
@@ -86,10 +167,11 @@ export default function ProductBacklogPage({
             userStories,
           };
         })
-        .filter(
-          (epic) => epic.userStories.length > 0 || !normalizedQuery,
+        .filter((epic) =>
+          epic.userStories.length > 0 ||
+          (!normalizedQuery && triageFilter === "none"),
         ),
-    [backlog.epics, normalizedQuery],
+    [backlog.epics, normalizedQuery, triageFilter],
   );
 
   const totalStories = filteredEpics.reduce(
@@ -107,6 +189,14 @@ export default function ProductBacklogPage({
       }
       return next;
     });
+  }
+
+  function handleSelectTriageFilter(filter: Exclude<TriageFilter, "none">) {
+    setTriageFilter(filter);
+  }
+
+  function handleClearTriageFilter() {
+    setTriageFilter("none");
   }
 
   return (
@@ -182,7 +272,7 @@ export default function ProductBacklogPage({
                       <tbody>
                         {epic.userStories.map((story) => {
                           const isExpanded = expandedStoryIds.has(story.id);
-                          const assigneeName = getUserById(story.assigneeId).name;
+                          const assigneeName = getAssigneeName(story.assigneeId);
 
                           return (
                             <Fragment key={story.id}>
@@ -253,7 +343,7 @@ export default function ProductBacklogPage({
                                             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/50">
                                               Acceptance Criteria
                                             </p>
-                                            <p className="mt-1 text-xs leading-relaxed text-white/68">
+                                            <p className="mt-1 whitespace-pre-line text-xs leading-relaxed text-white/68">
                                               {story.acceptanceCriteria}
                                             </p>
                                           </div>
@@ -309,43 +399,12 @@ export default function ProductBacklogPage({
       }
       sideColumn={
         <>
-          <section className="af-surface-lg bg-[#14121a]/70 px-4 py-4 sm:px-5 sm:py-4">
-            <header className="af-separator-b pb-3">
-              <div className="flex items-center justify-between gap-2">
-                <div>
-                  <h2 className="text-sm font-semibold text-white">
-                    Refinement
-                  </h2>
-                  <p className="mt-1 text-xs text-white/60">
-                    Próximos passos para manter o fluxo saudável.
-                  </p>
-                </div>
-
-                <span className="af-surface-sm inline-flex items-center bg-white/5 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/72">
-                  Backlog
-                </span>
-              </div>
-            </header>
-
-            <ul className="mt-3 space-y-2.5 text-xs text-white/72">
-              <li className="flex gap-2">
-                <span className="mt-[6px] inline-block h-1.5 w-1.5 rounded-full bg-white/60" />
-                <p>Manter epics pequenos e stories bem definidos.</p>
-              </li>
-              <li className="flex gap-2">
-                <span className="mt-[6px] inline-block h-1.5 w-1.5 rounded-full bg-white/60" />
-                <p>Usar critérios de aceitação objetivos para priorizar.</p>
-              </li>
-              <li className="flex gap-2">
-                <span className="mt-[6px] inline-block h-1.5 w-1.5 rounded-full bg-white/60" />
-                <p>Priorizar por valor de negócio e risco mitigado.</p>
-              </li>
-              <li className="flex gap-2">
-                <span className="mt-[6px] inline-block h-1.5 w-1.5 rounded-full bg-white/60" />
-                <p>Evitar dependências críticas sem plano de mitigação.</p>
-              </li>
-            </ul>
-          </section>
+          <TriageQueue
+            counts={triageCounts}
+            activeFilter={triageFilter}
+            onSelectFilter={handleSelectTriageFilter}
+            onClearFilter={handleClearTriageFilter}
+          />
 
           <section className="af-surface-lg bg-[#14121a]/70 px-4 py-4 sm:px-5 sm:py-4">
             <header className="af-separator-b pb-3">

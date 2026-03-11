@@ -39,7 +39,7 @@ export default function StorySprintCard({ story }: StorySprintCardProps) {
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/50">
             Acceptance Criteria
           </p>
-          <p className="mt-2 text-xs leading-relaxed text-white/62">
+          <p className="mt-2 whitespace-pre-line text-xs leading-relaxed text-white/62">
             {story.acceptanceCriteria}
           </p>
         </div>
