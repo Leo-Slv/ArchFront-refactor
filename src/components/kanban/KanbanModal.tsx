@@ -2,7 +2,10 @@ import { useEffect } from "react";
 import { X } from "lucide-react";
 
 import type { KanbanCardView } from "../../pages/projects/kanban/_mocks/kanban.mock";
-import { getCardBadgeLabels } from "../../pages/projects/kanban/_mocks/kanban.mock";
+import {
+  formatKanbanStoryStatus,
+  getCardBadgeLabels,
+} from "../../pages/projects/kanban/_mocks/kanban.mock";
 import UserAvatar from "../ui/UserAvatar";
 import KanbanBadges from "./KanbanBadges";
 
@@ -79,7 +82,12 @@ export default function KanbanModal({ card, onClose }: KanbanModalProps) {
                   <div className="flex flex-wrap items-center gap-2">
                     <h3 className="text-sm font-semibold text-white">{card.title}</h3>
                     <KanbanBadges
-                      items={[card.status, `BV ${card.businessValue}`, card.priority, `Effort: ${card.effort}`]}
+                      items={[
+                        formatKanbanStoryStatus(card.status),
+                        `BV ${card.businessValue}`,
+                        card.priority,
+                        `Effort: ${card.effort}`,
+                      ]}
                     />
                   </div>
                   <p className="mt-2 text-[11px] text-white/55">{card.persona}</p>

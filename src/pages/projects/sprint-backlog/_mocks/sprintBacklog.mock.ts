@@ -1,14 +1,16 @@
+import { roadmapProjectId } from "../../../../mocks/backend/rawData";
 import {
-  mockProductBacklog,
-  type Epic,
-  type UserStory,
-} from "../../backlog/_mocks/productBacklog.mock";
-import { mockProjects } from "../../_mocks/projects.mock";
-import { getUserById } from "../../../../mocks/users.mock";
+  getActiveSprintForProject,
+  getEpicRowById,
+  getSprintItemsForSprint,
+  getTasksForUserStory,
+  getUserById,
+  getUserStoryRowById,
+  priorityNumberToLabel,
+} from "../../../../mocks/backend/selectors";
+import type { SprintStatus } from "../../../../mocks/backend/schema";
 import type { User } from "../../../../types/user";
 
-export type SprintStatus = "planned" | "active" | "completed";
-export type TaskStatus = "todo" | "in-progress" | "done";
 export type PriorityLevel = 1 | 2 | 3;
 export type PriorityLabel = "P1" | "P2" | "P3";
 
@@ -26,27 +28,20 @@ export interface SprintItem {
   id: string;
   sprintId: string;
   userStoryId: string;
-  position: number;
+  addedAt: string;
 }
 
 export interface Task {
   id: string;
   userStoryId: string;
-  position: number;
   title: string;
   description: string;
   priority: PriorityLevel;
   assigneeId: string;
-  estimateMinutes: number;
-  loggedMinutes: number;
-  status: TaskStatus;
+  estimatedHours: number;
+  actualHours: number;
   createdAt: string;
   updatedAt: string;
-}
-
-interface StorySource {
-  epic: Epic;
-  story: UserStory;
 }
 
 export interface StoryTaskRowView {
@@ -98,120 +93,45 @@ export interface SprintBacklogViewModel {
   assignees: AssigneeWorkloadView[];
 }
 
-const fallbackProject = mockProjects[0];
-const sourceProject =
-  mockProjects.find((project) => project.id === mockProductBacklog.projectId) ??
-  fallbackProject;
+const activeSprintRow = getActiveSprintForProject(roadmapProjectId);
 
-const storySources: StorySource[] = mockProductBacklog.epics.flatMap((epic) =>
-  epic.userStories.map((story) => ({ epic, story })),
-);
-
-const storySourceById = new Map(
-  storySources.map((entry) => [entry.story.id, entry]),
-);
-
-const projectMemberById = new Map(
-  sourceProject.members.map((member) => [member.userId, member.user]),
-);
+if (!activeSprintRow) {
+  throw new Error("Missing active sprint row for roadmap project.");
+}
 
 export const mockSprintBacklogSprint: Sprint = {
-  id: "sprint-14-backlog",
-  projectId: sourceProject.id,
-  name: "Sprint 14",
-  startDate: "2026-03-03T00:00:00Z",
-  endDate: "2026-03-14T00:00:00Z",
-  capacityHours: 24,
-  status: "active",
+  id: activeSprintRow.id,
+  projectId: activeSprintRow.project_id,
+  name: activeSprintRow.name,
+  startDate: `${activeSprintRow.start_date}T00:00:00Z`,
+  endDate: `${activeSprintRow.end_date}T00:00:00Z`,
+  capacityHours: activeSprintRow.capacity_hours ?? 0,
+  status: activeSprintRow.status,
 };
 
-export const mockSprintItems: SprintItem[] = [
-  {
-    id: "sprint-item-story-dnd-columns",
-    sprintId: mockSprintBacklogSprint.id,
-    userStoryId: "story-dnd-columns",
-    position: 0,
-  },
-  {
-    id: "sprint-item-story-epic-list",
-    sprintId: mockSprintBacklogSprint.id,
-    userStoryId: "story-epic-list",
-    position: 1,
-  },
-];
+export const mockSprintItems: SprintItem[] = getSprintItemsForSprint(
+  mockSprintBacklogSprint.id,
+).map((item) => ({
+  id: item.id,
+  sprintId: item.sprint_id,
+  userStoryId: item.user_story_id,
+  addedAt: item.added_at,
+}));
 
-export const mockTasks: Task[] = [
-  {
-    id: "task-dnd-native",
-    userStoryId: "story-dnd-columns",
-    position: 0,
-    title: "Implementar drag & drop nativo",
-    description: "Usar HTML5 DnD e persistir coluna/posição no estado.",
-    priority: 1,
-    assigneeId: "3de5f097-4f16-4d1b-8bbf-b7830fa6ab4c",
-    estimateMinutes: 300,
-    loggedMinutes: 120,
-    status: "in-progress",
-    createdAt: "2026-03-05T21:18:43.9252451Z",
-    updatedAt: "2026-03-05T21:18:43.9253329Z",
-  },
-  {
-    id: "task-dnd-persistence",
-    userStoryId: "story-dnd-columns",
-    position: 1,
-    title: "Persistir coluna e posição no backend",
-    description: "Salvar a ordem das colunas para refletir o fluxo atualizado.",
-    priority: 1,
-    assigneeId: "3de5f097-4f16-4d1b-8bbf-b7830fa6ab4c",
-    estimateMinutes: 360,
-    loggedMinutes: 120,
-    status: "todo",
-    createdAt: "2026-03-05T21:20:10.0000000Z",
-    updatedAt: "2026-03-05T21:20:10.0000000Z",
-  },
-  {
-    id: "task-backlog-epic-table",
-    userStoryId: "story-epic-list",
-    position: 0,
-    title: "Tela de backlog agrupada por epic",
-    description: "Tabela com prioridade, valor e status para leitura rápida.",
-    priority: 2,
-    assigneeId: "96cd4b95-acdf-4a62-9063-53292716b656",
-    estimateMinutes: 360,
-    loggedMinutes: 60,
-    status: "in-progress",
-    createdAt: "2026-03-05T21:22:10.0000000Z",
-    updatedAt: "2026-03-05T21:22:10.0000000Z",
-  },
-  {
-    id: "task-backlog-preview",
-    userStoryId: "story-epic-list",
-    position: 1,
-    title: "Listar epics e stories para refinement",
-    description: "Exibir contexto resumido para cada epic durante a priorização.",
-    priority: 2,
-    assigneeId: "96cd4b95-acdf-4a62-9063-53292716b656",
-    estimateMinutes: 180,
-    loggedMinutes: 180,
-    status: "done",
-    createdAt: "2026-03-05T21:23:10.0000000Z",
-    updatedAt: "2026-03-05T21:23:10.0000000Z",
-  },
-];
-
-function minutesToHours(value: number): number {
-  return Math.round((value / 60) * 10) / 10;
-}
-
-function resolveAssignee(assigneeId: string): User {
-  return projectMemberById.get(assigneeId) ?? getUserById(assigneeId);
-}
-
-function priorityToLabel(priority: PriorityLevel): PriorityLabel {
-  if (priority === 1) return "P1";
-  if (priority === 2) return "P2";
-  return "P3";
-}
+export const mockTasks: Task[] = mockSprintItems.flatMap((item) =>
+  getTasksForUserStory(item.userStoryId).map((task) => ({
+    id: task.id,
+    userStoryId: task.user_story_id,
+    title: task.title,
+    description: task.description ?? "",
+    priority: task.priority as PriorityLevel,
+    assigneeId: task.assignee_id ?? "",
+    estimatedHours: task.estimated_hours ?? 0,
+    actualHours: task.actual_hours ?? 0,
+    createdAt: task.created_at,
+    updatedAt: task.updated_at,
+  })),
+);
 
 function formatLoadLabel(weightRatio: number): string {
   if (weightRatio >= 0.45) return "Alta";
@@ -224,13 +144,13 @@ export function buildSprintBacklogView(): SprintBacklogViewModel {
 
   const sprintItems = [...mockSprintItems]
     .filter((item) => item.sprintId === sprint.id)
-    .sort((left, right) => left.position - right.position);
+    .sort((left, right) => left.addedAt.localeCompare(right.addedAt));
 
   const storyIds = new Set(sprintItems.map((item) => item.userStoryId));
 
   const sprintTasks = [...mockTasks]
     .filter((task) => storyIds.has(task.userStoryId))
-    .sort((left, right) => left.position - right.position);
+    .sort((left, right) => left.createdAt.localeCompare(right.createdAt));
 
   const taskViewsByStoryId = new Map<string, StoryTaskRowView[]>();
 
@@ -240,10 +160,10 @@ export function buildSprintBacklogView(): SprintBacklogViewModel {
       userStoryId: task.userStoryId,
       title: task.title,
       description: task.description,
-      priorityLabel: priorityToLabel(task.priority),
-      assignee: resolveAssignee(task.assigneeId),
-      estimatedHours: minutesToHours(task.estimateMinutes),
-      doneHours: minutesToHours(task.loggedMinutes),
+      priorityLabel: priorityNumberToLabel(task.priority),
+      assignee: getUserById(task.assigneeId),
+      estimatedHours: task.estimatedHours,
+      doneHours: task.actualHours,
     };
 
     const currentList = taskViewsByStoryId.get(task.userStoryId) ?? [];
@@ -253,30 +173,33 @@ export function buildSprintBacklogView(): SprintBacklogViewModel {
 
   const stories = sprintItems
     .map((item) => {
-      const source = storySourceById.get(item.userStoryId);
-      if (!source) {
-        return null;
-      }
+      const story = getUserStoryRowById(item.userStoryId);
+      const epic = getEpicRowById(story.epic_id);
+      const taskViews = taskViewsByStoryId.get(story.id) ?? [];
+      const storyAssignee =
+        story.assignee_id && story.assignee_id.trim().length > 0
+          ? getUserById(story.assignee_id)
+          : (taskViews[0]?.assignee ?? getUserById("96cd4b95-acdf-4a62-9063-53292716b656"));
 
       return {
-        id: source.story.id,
-        title: source.story.title,
-        epicName: source.epic.name,
-        acceptanceCriteria: source.story.acceptanceCriteria,
-        description: source.story.description,
-        effort: source.story.effort,
-        assignee: resolveAssignee(source.story.assigneeId),
-        tasks: taskViewsByStoryId.get(source.story.id) ?? [],
+        id: story.id,
+        title: story.title,
+        epicName: epic.name,
+        acceptanceCriteria: story.acceptance_criteria ?? "",
+        description: story.description,
+        effort: story.effort ?? 0,
+        assignee: storyAssignee,
+        tasks: taskViews,
       } satisfies SprintBacklogStoryView;
     })
     .filter((story): story is SprintBacklogStoryView => Boolean(story));
 
   const estimatedMinutesTotal = sprintTasks.reduce(
-    (sum, task) => sum + task.estimateMinutes,
+    (sum, task) => sum + task.estimatedHours,
     0,
   );
   const loggedMinutesTotal = sprintTasks.reduce(
-    (sum, task) => sum + task.loggedMinutes,
+    (sum, task) => sum + task.actualHours,
     0,
   );
 
@@ -289,20 +212,20 @@ export function buildSprintBacklogView(): SprintBacklogViewModel {
     }, new Map<string, Task[]>()),
   )
     .map(([assigneeId, tasksForAssignee]) => {
-      const assignee = resolveAssignee(assigneeId);
+      const assignee = getUserById(assigneeId);
       const storyCount = new Set(tasksForAssignee.map((task) => task.userStoryId))
         .size;
       const estimatedMinutes = tasksForAssignee.reduce(
-        (sum, task) => sum + task.estimateMinutes,
+        (sum, task) => sum + task.estimatedHours,
         0,
       );
       const loggedMinutes = tasksForAssignee.reduce(
-        (sum, task) => sum + task.loggedMinutes,
+        (sum, task) => sum + task.actualHours,
         0,
       );
       const remainingMinutes = Math.max(estimatedMinutes - loggedMinutes, 0);
       const averageTaskHours = tasksForAssignee.length
-        ? minutesToHours(estimatedMinutes / tasksForAssignee.length)
+        ? Math.round((estimatedMinutes / tasksForAssignee.length) * 10) / 10
         : 0;
       const progressRatio =
         estimatedMinutes > 0 ? Math.min(loggedMinutes / estimatedMinutes, 1) : 0;
@@ -310,7 +233,7 @@ export function buildSprintBacklogView(): SprintBacklogViewModel {
         estimatedMinutesTotal > 0 ? estimatedMinutes / estimatedMinutesTotal : 0;
 
       const topTasks = [...tasksForAssignee]
-        .sort((left, right) => right.estimateMinutes - left.estimateMinutes)
+        .sort((left, right) => right.estimatedHours - left.estimatedHours)
         .slice(0, 3)
         .map((task) => {
           const taskViews = taskViewsByStoryId.get(task.userStoryId) ?? [];
@@ -323,9 +246,9 @@ export function buildSprintBacklogView(): SprintBacklogViewModel {
         assignee,
         storyCount,
         taskCount: tasksForAssignee.length,
-        estimatedHours: minutesToHours(estimatedMinutes),
-        doneHours: minutesToHours(loggedMinutes),
-        remainingHours: minutesToHours(remainingMinutes),
+        estimatedHours: estimatedMinutes,
+        doneHours: loggedMinutes,
+        remainingHours: remainingMinutes,
         averageTaskHours,
         loadLabel: formatLoadLabel(sprintWeightRatio),
         progressRatio,
@@ -340,9 +263,9 @@ export function buildSprintBacklogView(): SprintBacklogViewModel {
     sprint,
     storyCount: stories.length,
     taskCount: sprintTasks.length,
-    estimatedHours: minutesToHours(estimatedMinutesTotal),
-    doneHours: minutesToHours(loggedMinutesTotal),
-    remainingHours: minutesToHours(
+    estimatedHours: estimatedMinutesTotal,
+    doneHours: loggedMinutesTotal,
+    remainingHours: Math.round(
       Math.max(estimatedMinutesTotal - loggedMinutesTotal, 0),
     ),
     stories,

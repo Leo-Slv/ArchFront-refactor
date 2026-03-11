@@ -25,9 +25,10 @@ type StoryWithLegacyCriteria = UserStory & {
 };
 
 function formatStatusLabel(status: string): string {
-  if (status === "in-progress") return "Em andamento";
+  if (status === "in_progress") return "Em andamento";
+  if (status === "ready") return "Pronta";
   if (status === "done") return "Concluída";
-  return "A fazer";
+  return "Rascunho";
 }
 
 function formatValueLabel(value: string): string {
@@ -41,6 +42,7 @@ function formatPriorityLabel(priority: number): string {
 }
 
 function formatComplexityLabel(complexity: string): string {
+  if (complexity === "very_high") return "muito alta";
   if (complexity === "high") return "alta";
   if (complexity === "medium") return "média";
   return "baixa";
@@ -83,7 +85,7 @@ function matchesTriageFilter(
     case "hasDependencies":
       return story.dependencies.trim().length > 0;
     case "draft":
-      return story.status === "draft" || story.status === "todo";
+      return story.status === "draft";
     case "none":
     default:
       return true;
@@ -192,7 +194,7 @@ export default function ProductBacklogPage({
   }
 
   function handleSelectTriageFilter(filter: Exclude<TriageFilter, "none">) {
-    setTriageFilter(filter);
+    setTriageFilter((current) => (current === filter ? "none" : filter));
   }
 
   function handleClearTriageFilter() {

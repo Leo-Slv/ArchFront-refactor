@@ -1,216 +1,96 @@
-import { currentUserProfile, getUserById } from "../../../../mocks/users.mock";
+import { roadmapProjectId } from "../../../../mocks/backend/rawData";
+import {
+  getActiveSprintForProject,
+  getSprintItemsForSprint,
+  getTasksForUserStory,
+  getUserById,
+  priorityNumberToLabel,
+} from "../../../../mocks/backend/selectors";
+import type { SprintStatus } from "../../../../mocks/backend/schema";
 import type { User } from "../../../../types/user";
-
-export type SprintStatus = "planned" | "active" | "completed";
 
 export interface Sprint {
   id: string;
   projectId: string;
   name: string;
   goal: string;
-  executionPlan: string;
   startDate: string;
   endDate: string;
   status: SprintStatus;
   capacityHours: number;
-  isArchived: boolean;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface SprintItem {
-  id: number;
+  id: string;
   sprintId: string;
-  userStoryId: number;
-  position: number;
-  notes: string;
+  userStoryId: string;
   addedAt: string;
 }
 
 export interface Task {
-  id: number;
-  userStoryId: number;
-  position: number;
+  id: string;
+  userStoryId: string;
   title: string;
   description: string;
   priority: number;
+  assigneeId: string;
+  estimatedHours: number;
+  actualHours: number;
   createdAt: string;
   updatedAt: string;
 }
 
-export const mockSprint: Sprint = {
-  id: "6c9ad60c-043f-4f37-bfe7-bf88185de7f7",
-  projectId: "39f134b8-30ba-43d2-837a-44b9ce9b9f1b",
-  name: "Sprint 14",
-  goal: "Entregar Kanban funcional e backlog navegável.",
-  executionPlan: "",
-  startDate: "2026-02-10T00:00:00Z",
-  endDate: "2026-02-21T00:00:00Z",
-  status: "active",
-  capacityHours: 32,
-  isArchived: false,
-  createdAt: "2026-03-05T21:16:43.619918Z",
-  updatedAt: "2026-03-05T21:16:43.6201266Z",
-};
-
-export const mockSprintItems: SprintItem[] = [
-  {
-    id: 1,
-    sprintId: mockSprint.id,
-    userStoryId: 1,
-    position: 0,
-    notes: "",
-    addedAt: "2026-03-05T21:17:41.3027478Z",
-  },
-  {
-    id: 2,
-    sprintId: mockSprint.id,
-    userStoryId: 2,
-    position: 1,
-    notes: "",
-    addedAt: "2026-03-05T21:17:41.3027478Z",
-  },
-  {
-    id: 3,
-    sprintId: mockSprint.id,
-    userStoryId: 3,
-    position: 2,
-    notes: "",
-    addedAt: "2026-03-05T21:17:41.3027478Z",
-  },
-];
-
-export const mockTasks: Task[] = [
-  {
-    id: 1,
-    userStoryId: 1,
-    position: 0,
-    title: "Implementar drag & drop nativo",
-    description: "",
-    priority: 1,
-    createdAt: "2026-03-05T21:18:43.9252451Z",
-    updatedAt: "2026-03-05T21:18:43.9253329Z",
-  },
-  {
-    id: 2,
-    userStoryId: 1,
-    position: 1,
-    title: "Persistir coluna/posição no backend",
-    description: "",
-    priority: 1,
-    createdAt: "2026-03-05T21:20:10.0000000Z",
-    updatedAt: "2026-03-05T21:20:10.0000000Z",
-  },
-  {
-    id: 3,
-    userStoryId: 1,
-    position: 2,
-    title: "Ajustar microinterações de hover",
-    description: "",
-    priority: 2,
-    createdAt: "2026-03-05T21:21:10.0000000Z",
-    updatedAt: "2026-03-05T21:21:10.0000000Z",
-  },
-  {
-    id: 4,
-    userStoryId: 2,
-    position: 0,
-    title: "Tela de backlog agrupada por epic",
-    description: "",
-    priority: 2,
-    createdAt: "2026-03-05T21:22:10.0000000Z",
-    updatedAt: "2026-03-05T21:22:10.0000000Z",
-  },
-  {
-    id: 5,
-    userStoryId: 2,
-    position: 1,
-    title: "Filtro por valor, status e risco",
-    description: "",
-    priority: 3,
-    createdAt: "2026-03-05T21:23:10.0000000Z",
-    updatedAt: "2026-03-05T21:23:10.0000000Z",
-  },
-  {
-    id: 6,
-    userStoryId: 3,
-    position: 0,
-    title: "Configurar capacidade do time",
-    description: "",
-    priority: 2,
-    createdAt: "2026-03-05T21:24:10.0000000Z",
-    updatedAt: "2026-03-05T21:24:10.0000000Z",
-  },
-  {
-    id: 7,
-    userStoryId: 3,
-    position: 1,
-    title: "Alertar quando capacidade for excedida",
-    description: "",
-    priority: 1,
-    createdAt: "2026-03-05T21:25:10.0000000Z",
-    updatedAt: "2026-03-05T21:25:10.0000000Z",
-  },
-];
-
 type PriorityLabel = "P1" | "P2" | "P3";
 
-interface SprintTaskMeta {
-  assigneeId: string;
-  estimatedHours: number;
-  doneHours: number;
-  priorityLabel: PriorityLabel;
+const activeSprintRow = getActiveSprintForProject(roadmapProjectId);
+
+if (!activeSprintRow) {
+  throw new Error("Missing active sprint row for roadmap project.");
 }
 
-const taskMetaById: Record<number, SprintTaskMeta> = {
-  1: {
-    assigneeId: "3de5f097-4f16-4d1b-8bbf-b7830fa6ab4c",
-    estimatedHours: 10,
-    doneHours: 4,
-    priorityLabel: "P1",
-  },
-  2: {
-    assigneeId: "3de5f097-4f16-4d1b-8bbf-b7830fa6ab4c",
-    estimatedHours: 6,
-    doneHours: 2,
-    priorityLabel: "P1",
-  },
-  3: {
-    assigneeId: "3de5f097-4f16-4d1b-8bbf-b7830fa6ab4c",
-    estimatedHours: 4,
-    doneHours: 1,
-    priorityLabel: "P2",
-  },
-  4: {
-    assigneeId: currentUserProfile.id,
-    estimatedHours: 6,
-    doneHours: 3,
-    priorityLabel: "P2",
-  },
-  5: {
-    assigneeId: currentUserProfile.id,
-    estimatedHours: 4,
-    doneHours: 0,
-    priorityLabel: "P3",
-  },
-  6: {
-    assigneeId: "8e570a67-b8ed-4f88-822a-bd52ab4e693a",
-    estimatedHours: 4,
-    doneHours: 0,
-    priorityLabel: "P2",
-  },
-  7: {
-    assigneeId: "f1f52f5a-2ec8-41cb-a304-a2efa17f769d",
-    estimatedHours: 4,
-    doneHours: 0,
-    priorityLabel: "P1",
-  },
+export const mockSprint: Sprint = {
+  id: activeSprintRow.id,
+  projectId: activeSprintRow.project_id,
+  name: activeSprintRow.name,
+  goal: activeSprintRow.goal ?? "",
+  startDate: `${activeSprintRow.start_date}T00:00:00Z`,
+  endDate: `${activeSprintRow.end_date}T00:00:00Z`,
+  status: activeSprintRow.status,
+  capacityHours: activeSprintRow.capacity_hours ?? 0,
+  createdAt: activeSprintRow.created_at,
+  updatedAt: activeSprintRow.updated_at,
 };
 
+export const mockSprintItems: SprintItem[] = getSprintItemsForSprint(mockSprint.id).map(
+  (item) => ({
+    id: item.id,
+    sprintId: item.sprint_id,
+    userStoryId: item.user_story_id,
+    addedAt: item.added_at,
+  }),
+);
+
+export const mockTasks: Task[] = mockSprintItems.flatMap((item) =>
+  getTasksForUserStory(item.userStoryId).map((task) => ({
+    id: task.id,
+    userStoryId: task.user_story_id,
+    title: task.title,
+    description: task.description ?? "",
+    priority: task.priority,
+    assigneeId: task.assignee_id ?? "",
+    estimatedHours: task.estimated_hours ?? 0,
+    actualHours: task.actual_hours ?? 0,
+    createdAt: task.created_at,
+    updatedAt: task.updated_at,
+  })),
+);
+
 export interface SprintTaskView {
-  id: number;
+  id: string;
   sprintId: string;
-  userStoryId: number;
+  userStoryId: string;
   title: string;
   assignee: User;
   estimatedHours: number;
@@ -256,33 +136,22 @@ function eachDayInclusive(startISO: string, endISO: string): Date[] {
 export function buildMockSprintView(): SprintViewModel {
   const sprint = mockSprint;
 
-  const items = mockSprintItems.filter(
-    (item) => item.sprintId === sprint.id,
-  );
+  const items = mockSprintItems.filter((item) => item.sprintId === sprint.id);
 
   const userStoryIds = new Set(items.map((item) => item.userStoryId));
 
-  const tasks = mockTasks.filter((task) =>
-    userStoryIds.has(task.userStoryId),
-  );
+  const tasks = mockTasks.filter((task) => userStoryIds.has(task.userStoryId));
 
   const taskViews: SprintTaskView[] = tasks.map((task) => {
-    const meta = taskMetaById[task.id] ?? {
-      assigneeId: currentUserProfile.id,
-      estimatedHours: 2,
-      doneHours: 0,
-      priorityLabel: "P3" as PriorityLabel,
-    };
-
     return {
       id: task.id,
       sprintId: sprint.id,
       userStoryId: task.userStoryId,
       title: task.title,
-      assignee: getUserById(meta.assigneeId),
-      estimatedHours: meta.estimatedHours,
-      doneHours: meta.doneHours,
-      priorityLabel: meta.priorityLabel,
+      assignee: getUserById(task.assigneeId),
+      estimatedHours: task.estimatedHours,
+      doneHours: task.actualHours,
+      priorityLabel: priorityNumberToLabel(task.priority),
     };
   });
 

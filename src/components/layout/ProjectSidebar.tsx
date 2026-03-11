@@ -1,6 +1,13 @@
 import type { LucideIcon } from "lucide-react";
 import type { MouseEvent, ReactNode } from "react";
-import { ArrowLeftFromLine, Layers2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import {
+  ArrowLeftFromLine,
+  Blocks,
+  ChevronDown,
+  ChevronRight,
+  Layers2,
+} from "lucide-react";
 
 import { cx } from "../../pages/ArchFlowLanding/utils/cx";
 import type { User } from "../../types/user";
@@ -51,6 +58,21 @@ export default function ProjectSidebar({
   footer,
 }: ProjectSidebarProps) {
   const ownerLabel = `owner: ${projectOwner.name}`;
+  const scrumItemIds: ProjectSidebarNavItemId[] = [
+    "backlog",
+    "sprint",
+    "sprint-backlog",
+  ];
+  const scrumItems = navItems.filter((item) => scrumItemIds.includes(item.id));
+  const topLevelItems = navItems.filter((item) => !scrumItemIds.includes(item.id));
+  const isScrumActive = scrumItemIds.includes(activeItem);
+  const [isScrumExpanded, setIsScrumExpanded] = useState(isScrumActive);
+
+  useEffect(() => {
+    if (isScrumActive) {
+      setIsScrumExpanded(true);
+    }
+  }, [isScrumActive]);
 
   function handleNavigation(
     event: MouseEvent<HTMLAnchorElement>,
@@ -62,6 +84,68 @@ export default function ProjectSidebar({
 
     event.preventDefault();
     navigateToPath(href);
+  }
+
+  function getNavRowClassName(isActive: boolean, options?: { indented?: boolean }) {
+    return cx(
+      "af-focus-ring flex w-full items-center justify-between gap-3 px-3 py-2 text-sm transition",
+      options?.indented ? "pl-4" : undefined,
+      isActive
+        ? "bg-white/[0.04] text-white"
+        : "text-white/72 hover:bg-white/[0.03] hover:text-white",
+    );
+  }
+
+  function renderNavItem(
+    item: ProjectSidebarNavItem,
+    options?: { indented?: boolean },
+  ) {
+    const Icon = item.icon;
+    const isActive = item.id === activeItem;
+
+    const content = (
+      <>
+        <span className="inline-flex min-w-0 items-center gap-2.5">
+          {Icon ? (
+            <Icon
+              className={cx("h-4 w-4", isActive ? "text-white/65" : "text-white/52")}
+              aria-hidden="true"
+            />
+          ) : null}
+          <span className="truncate">{item.label}</span>
+        </span>
+
+        {item.badge !== undefined ? (
+          <span className="af-surface-sm inline-flex min-w-6 shrink-0 items-center justify-center bg-white/5 px-1.5 py-0.5 text-[10px] text-white/60">
+            {item.badge}
+          </span>
+        ) : null}
+      </>
+    );
+
+    if (item.href) {
+      return (
+        <a
+          key={item.id}
+          href={item.href}
+          onClick={(event) => handleNavigation(event, item.href)}
+          className={getNavRowClassName(isActive, options)}
+          aria-current={isActive ? "page" : undefined}
+        >
+          {content}
+        </a>
+      );
+    }
+
+    return (
+      <div
+        key={item.id}
+        className={getNavRowClassName(isActive, options)}
+        aria-current={isActive ? "page" : undefined}
+      >
+        {content}
+      </div>
+    );
   }
 
   return (
@@ -120,71 +204,44 @@ export default function ProjectSidebar({
       </SidebarHeader>
 
       <SidebarContent>
-        <div className="af-separator-b px-4 py-3">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/45">
-            Navegação do projeto
-          </p>
-        </div>
-
         <nav className="px-4 py-3">
-          <div className="space-y-1">
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = item.id === activeItem;
+          <div className="space-y-3">
+            <div>
+              <button
+                type="button"
+                onClick={() => setIsScrumExpanded((current) => !current)}
+                aria-expanded={isScrumExpanded}
+                className={getNavRowClassName(isScrumActive)}
+              >
+                <span className="inline-flex min-w-0 items-center gap-2.5">
+                  <Blocks
+                    className={cx(
+                      "h-4 w-4",
+                      isScrumActive ? "text-white/65" : "text-white/52",
+                    )}
+                    aria-hidden="true"
+                  />
+                  <span className="truncate">Scrum</span>
+                </span>
+                {isScrumExpanded ? (
+                  <ChevronDown className="h-4 w-4 shrink-0 text-white/52" aria-hidden="true" />
+                ) : (
+                  <ChevronRight className="h-4 w-4 shrink-0 text-white/52" aria-hidden="true" />
+                )}
+              </button>
 
-              const baseClassName =
-                "af-focus-ring flex w-full items-center justify-between gap-3 px-3 py-2 text-sm transition";
-              const toneClassName = isActive
-                ? "bg-white/[0.04] text-white"
-                : "text-white/72 hover:bg-white/[0.03] hover:text-white";
-
-              const content = (
-                <>
-                  <span className="inline-flex min-w-0 items-center gap-2.5">
-                    {Icon ? (
-                      <Icon
-                        className={cx(
-                          "h-4 w-4",
-                          isActive ? "text-white/65" : "text-white/52",
-                        )}
-                        aria-hidden="true"
-                      />
-                    ) : null}
-                    <span className="truncate">{item.label}</span>
-                  </span>
-
-                  {item.badge !== undefined ? (
-                    <span className="af-surface-sm inline-flex min-w-6 shrink-0 items-center justify-center bg-white/5 px-1.5 py-0.5 text-[10px] text-white/60">
-                      {item.badge}
-                    </span>
-                  ) : null}
-                </>
-              );
-
-              if (item.href) {
-                return (
-                  <a
-                    key={item.id}
-                    href={item.href}
-                    onClick={(event) => handleNavigation(event, item.href)}
-                    className={cx(baseClassName, toneClassName)}
-                    aria-current={isActive ? "page" : undefined}
-                  >
-                    {content}
-                  </a>
-                );
-              }
-
-              return (
-                <div
-                  key={item.id}
-                  className={cx(baseClassName, toneClassName)}
-                  aria-current={isActive ? "page" : undefined}
-                >
-                  {content}
+              {isScrumExpanded ? (
+                <div className="mt-2 ml-4 border-l border-white/[0.06] pl-2">
+                  <div className="space-y-1">
+                    {scrumItems.map((item) => renderNavItem(item, { indented: true }))}
+                  </div>
                 </div>
-              );
-            })}
+              ) : null}
+            </div>
+
+            <div className="space-y-1">
+              {topLevelItems.map((item) => renderNavItem(item))}
+            </div>
           </div>
         </nav>
       </SidebarContent>

@@ -12,14 +12,14 @@ interface ProjectCardProps {
 
 const statusLabel: Record<Project["status"], string> = {
   active: "active",
-  paused: "paused",
   archived: "archived",
+  deleted: "deleted",
 };
 
 const statusTone: Record<Project["status"], string> = {
   active: "text-white/85",
-  paused: "text-white/70",
   archived: "text-white/50",
+  deleted: "text-white/45",
 };
 
 export default function ProjectCard({ project }: ProjectCardProps) {

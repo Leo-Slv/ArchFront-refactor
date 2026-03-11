@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { Eye, EyeOff } from "lucide-react";
 
 export type TriageFilter =
   | "none"
@@ -27,7 +27,6 @@ interface TriageItemDefinition {
   id: Exclude<TriageFilter, "none">;
   label: string;
   description: string;
-  badgeLabel?: ReactNode;
 }
 
 const triageItems: TriageItemDefinition[] = [
@@ -118,11 +117,21 @@ export default function TriageQueue({
                 <button
                   type="button"
                   onClick={() => onSelectFilter(item.id)}
-                  className={`af-focus-ring af-surface-sm inline-flex items-center bg-white/5 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] transition hover:bg-white/[0.08] hover:text-white ${
-                    isActive ? "text-white" : "text-white/72"
+                  aria-label={`${
+                    isActive ? "Disable filter" : "Enable filter"
+                  }: ${item.label}`}
+                  aria-pressed={isActive}
+                  className={`af-focus-ring af-surface-sm inline-flex h-7 w-7 items-center justify-center bg-white/5 transition hover:bg-white/[0.08] hover:text-white ${
+                    isActive
+                      ? "border border-white/12 text-white"
+                      : "text-white/55"
                   }`}
                 >
-                  Ver
+                  {isActive ? (
+                    <Eye className="h-3.5 w-3.5" aria-hidden="true" />
+                  ) : (
+                    <EyeOff className="h-3.5 w-3.5" aria-hidden="true" />
+                  )}
                 </button>
               </div>
             </div>
