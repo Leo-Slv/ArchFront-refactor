@@ -3,6 +3,7 @@ import { Plus } from "lucide-react";
 
 import type { KanbanColumnView } from "../../pages/projects/kanban/_mocks/kanban.mock";
 import KanbanCard from "./KanbanCard";
+import SystemBadge from "./SystemBadge";
 
 interface KanbanColumnProps {
   column: KanbanColumnView;
@@ -26,7 +27,7 @@ export default function KanbanColumn({
   return (
     <section
       className={`af-surface-lg flex h-full min-h-0 w-[19rem] shrink-0 flex-col bg-[#14121a]/70 transition ${
-        isOver ? "border-white/14 bg-white/[0.04]" : ""
+        isOver ? "af-accent-panel bg-white/[0.04]" : ""
       }`}
       onDragOver={(event) => {
         event.preventDefault();
@@ -47,12 +48,10 @@ export default function KanbanColumn({
         <div className="flex items-center justify-between gap-2">
           <div className="min-w-0" title={column.helpText}>
             <h2 className="text-sm font-semibold text-white">{column.title}</h2>
-            <p className="mt-1 text-[11px] text-white/52">{column.wipLabel}</p>
+            <p className="af-text-tertiary mt-1 text-[11px]">{column.wipLabel}</p>
           </div>
 
-          <span className="af-surface-sm inline-flex items-center bg-white/5 px-2 py-0.5 text-[10px] text-white/70">
-            {column.cards.length}
-          </span>
+          <SystemBadge>{String(column.cards.length)}</SystemBadge>
         </div>
       </header>
 
@@ -70,7 +69,7 @@ export default function KanbanColumn({
           ))}
 
           {!column.cards.length ? (
-            <div className="af-surface-md bg-black/10 px-3 py-6 text-center text-[11px] text-white/45">
+            <div className="af-surface-md af-text-tertiary bg-black/10 px-3 py-6 text-center text-[11px]">
               Arraste um card para cá
             </div>
           ) : null}
@@ -80,9 +79,9 @@ export default function KanbanColumn({
       <footer className="af-separator-t px-3 py-3">
         <button
           type="button"
-          className="af-focus-ring inline-flex w-full items-center gap-2 px-2 py-2 text-[11px] text-white/62 transition hover:bg-white/[0.03] hover:text-white"
+          className="af-focus-ring af-accent-hover af-text-secondary inline-flex w-full items-center gap-2 px-2 py-2 text-[11px] transition hover:bg-white/[0.03] hover:text-[var(--accent-primary)]"
         >
-          <Plus className="h-3.5 w-3.5" aria-hidden="true" />
+          <Plus className="af-accent-icon h-3.5 w-3.5" aria-hidden="true" />
           <span>Adicionar um card</span>
         </button>
       </footer>

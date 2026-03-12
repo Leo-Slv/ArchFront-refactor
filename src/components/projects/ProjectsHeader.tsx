@@ -10,7 +10,7 @@ export default function ProjectsHeader({
   return (
     <header className="af-surface-lg af-separator-b bg-[#14121a]/75 px-4 py-4 sm:px-5">
       <h1 className="text-lg font-semibold text-white sm:text-xl">{title}</h1>
-      <p className="mt-1 text-sm text-white/62">{description}</p>
+      <p className="af-text-secondary mt-1 text-sm">{description}</p>
     </header>
   );
 }

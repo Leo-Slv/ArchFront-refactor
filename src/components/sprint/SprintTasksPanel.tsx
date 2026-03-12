@@ -16,12 +16,12 @@ export default function SprintTasksPanel({ tasks }: SprintTasksPanelProps) {
             <h2 className="text-sm font-semibold text-white">
               Tarefas do Sprint
             </h2>
-            <p className="mt-1 text-xs text-white/60">
+            <p className="af-text-secondary mt-1 text-xs">
               Estimativa vs realizado, por responsável.
             </p>
           </div>
 
-          <span className="af-surface-sm inline-flex items-center bg-white/5 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/72">
+          <span className="af-surface-sm af-accent-chip inline-flex items-center px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/80">
             {tasks.length} tasks
           </span>
         </div>

@@ -69,7 +69,7 @@ export default function TriageQueue({
         <div className="flex items-start justify-between gap-3">
           <div>
             <h2 className="text-sm font-semibold text-white">Triage Queue</h2>
-            <p className="mt-1 text-xs text-white/60">
+            <p className="af-text-secondary mt-1 text-xs">
               Itens que precisam de acao.
             </p>
           </div>
@@ -78,7 +78,7 @@ export default function TriageQueue({
             <button
               type="button"
               onClick={onClearFilter}
-              className="af-focus-ring af-surface-sm inline-flex items-center bg-white/5 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/72 transition hover:bg-white/[0.08] hover:text-white"
+              className="af-focus-ring af-surface-sm af-accent-chip inline-flex items-center px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/80 transition hover:bg-[var(--accent-soft-25)] hover:text-white"
             >
               Clear filter
             </button>
@@ -97,21 +97,25 @@ export default function TriageQueue({
           return (
             <div
               key={item.id}
-              className={`af-surface-md flex items-center justify-between gap-3 bg-white/[0.03] px-3 py-2.5 transition hover:bg-white/[0.05] ${
-                isActive ? "text-white" : "text-white/72"
+              className={`af-surface-md flex items-center justify-between gap-3 bg-white/[0.03] px-3 py-2.5 transition hover:border-[color:var(--accent-soft-15)] hover:bg-white/[0.05] ${
+                isActive ? "af-accent-panel text-white" : "text-white/72"
               }`}
             >
               <div className="min-w-0">
                 <p className="truncate text-xs font-medium text-inherit">
                   {item.label}
                 </p>
-                <p className="mt-1 text-[11px] text-white/50">
+                <p className="af-text-tertiary mt-1 text-[11px]">
                   {item.description}
                 </p>
               </div>
 
               <div className="flex items-center gap-2">
-                <span className="af-surface-sm inline-flex min-w-8 items-center justify-center bg-white/5 px-2 py-1 text-[10px] font-semibold text-white/72">
+                <span
+                  className={`af-surface-sm inline-flex min-w-8 items-center justify-center px-2 py-1 text-[10px] font-semibold ${
+                    isActive ? "af-accent-chip text-white/80" : "bg-white/5 text-white/72"
+                  }`}
+                >
                   {counts[item.id]}
                 </span>
                 <button
@@ -121,10 +125,10 @@ export default function TriageQueue({
                     isActive ? "Disable filter" : "Enable filter"
                   }: ${item.label}`}
                   aria-pressed={isActive}
-                  className={`af-focus-ring af-surface-sm inline-flex h-7 w-7 items-center justify-center bg-white/5 transition hover:bg-white/[0.08] hover:text-white ${
+                  className={`af-focus-ring af-surface-sm inline-flex h-7 w-7 items-center justify-center transition hover:bg-white/[0.08] hover:text-[var(--accent-primary)] ${
                     isActive
-                      ? "border border-white/12 text-white"
-                      : "text-white/55"
+                      ? "af-accent-chip-strong text-white"
+                      : "bg-white/5 text-white/55"
                   }`}
                 >
                   {isActive ? (

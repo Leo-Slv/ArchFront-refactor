@@ -199,7 +199,7 @@ export default function SprintBacklogPage({
                 <h2 className="text-sm font-semibold text-white">
                   User Stories na Sprint
                 </h2>
-                <p className="mt-1 text-xs text-white/60">
+                <p className="af-text-secondary mt-1 text-xs">
                   Itens planejados para entrega em {periodLabel}.
                 </p>
               </div>

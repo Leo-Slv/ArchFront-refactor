@@ -88,10 +88,10 @@ export default function ProjectSidebar({
 
   function getNavRowClassName(isActive: boolean, options?: { indented?: boolean }) {
     return cx(
-      "af-focus-ring flex w-full items-center justify-between gap-3 px-3 py-2 text-sm transition",
+      "af-focus-ring af-nav-item flex w-full items-center justify-between gap-3 px-3 py-2 text-sm transition",
       options?.indented ? "pl-4" : undefined,
       isActive
-        ? "bg-white/[0.04] text-white"
+        ? "af-nav-item-active text-white"
         : "text-white/72 hover:bg-white/[0.03] hover:text-white",
     );
   }
@@ -108,7 +108,10 @@ export default function ProjectSidebar({
         <span className="inline-flex min-w-0 items-center gap-2.5">
           {Icon ? (
             <Icon
-              className={cx("h-4 w-4", isActive ? "text-white/65" : "text-white/52")}
+              className={cx(
+                "af-nav-icon h-4 w-4",
+                isActive ? "text-[var(--accent-primary)]" : "text-white/52",
+              )}
               aria-hidden="true"
             />
           ) : null}
@@ -116,7 +119,12 @@ export default function ProjectSidebar({
         </span>
 
         {item.badge !== undefined ? (
-          <span className="af-surface-sm inline-flex min-w-6 shrink-0 items-center justify-center bg-white/5 px-1.5 py-0.5 text-[10px] text-white/60">
+          <span
+            className={cx(
+              "af-surface-sm inline-flex min-w-6 shrink-0 items-center justify-center px-1.5 py-0.5 text-[10px]",
+              isActive ? "af-accent-chip text-white/80" : "bg-white/5 text-white/60",
+            )}
+          >
             {item.badge}
           </span>
         ) : null}
@@ -167,7 +175,7 @@ export default function ProjectSidebar({
               <p className="truncate text-sm font-semibold text-white">
                 ArchFlow Platform
               </p>
-              <p className="truncate text-[11px] text-white/52">
+              <p className="af-text-tertiary truncate text-[11px]">
                 Workspace
               </p>
             </div>
@@ -187,7 +195,7 @@ export default function ProjectSidebar({
                   <p className="truncate text-sm text-white">
                     {projectName}
                   </p>
-                  <p className="truncate text-[11px] text-white/52">
+                  <p className="af-text-tertiary truncate text-[11px]">
                     {ownerLabel}
                   </p>
                 </div>
@@ -216,22 +224,33 @@ export default function ProjectSidebar({
                 <span className="inline-flex min-w-0 items-center gap-2.5">
                   <Blocks
                     className={cx(
-                      "h-4 w-4",
-                      isScrumActive ? "text-white/65" : "text-white/52",
+                      "af-nav-icon h-4 w-4",
+                      isScrumActive ? "text-[var(--accent-primary)]" : "text-white/52",
                     )}
                     aria-hidden="true"
                   />
                   <span className="truncate">Scrum</span>
                 </span>
                 {isScrumExpanded ? (
-                  <ChevronDown className="h-4 w-4 shrink-0 text-white/52" aria-hidden="true" />
+                  <ChevronDown
+                    className="af-nav-chevron h-4 w-4 shrink-0 text-white/52"
+                    aria-hidden="true"
+                  />
                 ) : (
-                  <ChevronRight className="h-4 w-4 shrink-0 text-white/52" aria-hidden="true" />
+                  <ChevronRight
+                    className="af-nav-chevron h-4 w-4 shrink-0 text-white/52"
+                    aria-hidden="true"
+                  />
                 )}
               </button>
 
               {isScrumExpanded ? (
-                <div className="mt-2 ml-4 border-l border-white/[0.06] pl-2">
+                <div
+                  className={cx(
+                    "mt-2 ml-4 border-l pl-2",
+                    isScrumActive ? "border-[color:var(--accent-soft-25)]" : "border-white/[0.06]",
+                  )}
+                >
                   <div className="space-y-1">
                     {scrumItems.map((item) => renderNavItem(item, { indented: true }))}
                   </div>
@@ -251,11 +270,11 @@ export default function ProjectSidebar({
           <a
             href="/projects"
             onClick={(event) => handleNavigation(event, "/projects")}
-            className="af-focus-ring inline-flex w-full items-center justify-between gap-3 px-3 py-2 text-sm text-white/76 transition hover:bg-white/[0.03] hover:text-white"
+            className="af-focus-ring af-nav-item inline-flex w-full items-center justify-between gap-3 px-3 py-2 text-sm text-white/76 transition hover:bg-white/[0.03] hover:text-white"
           >
             <span className="inline-flex min-w-0 items-center gap-2.5">
               <ArrowLeftFromLine
-                className="h-4 w-4 text-white/52"
+                className="af-nav-icon h-4 w-4 text-white/52"
                 aria-hidden="true"
               />
               <span className="truncate">Sair do projeto</span>

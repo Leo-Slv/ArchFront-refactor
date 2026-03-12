@@ -48,11 +48,17 @@ export default function SprintSummaryCard({
               <h2 className="truncate text-sm font-semibold text-white">
                 {sprint.name}
               </h2>
-              <span className="af-surface-sm inline-flex items-center bg-white/5 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/72">
+              <span
+                className={`af-surface-sm inline-flex items-center px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] ${
+                  sprint.status === "active"
+                    ? "af-accent-chip-strong text-white"
+                    : "bg-white/5 text-white/72"
+                }`}
+              >
                 {formatStatusLabel(sprint.status)}
               </span>
             </div>
-            <p className="text-xs text-white/70">{sprint.goal}</p>
+            <p className="af-text-secondary text-xs">{sprint.goal}</p>
           </div>
 
           <div className="af-surface-sm inline-flex items-center bg-white/5 px-2.5 py-0.5 text-[10px] text-white/72">
@@ -62,15 +68,15 @@ export default function SprintSummaryCard({
       </header>
 
       <div className="mt-3 space-y-4">
-        <div className="grid gap-3 text-xs text-white/72 sm:grid-cols-2">
+        <div className="af-text-secondary grid gap-3 text-xs sm:grid-cols-2">
           <div className="space-y-1">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/52">
+            <p className="af-text-tertiary text-[11px] font-semibold uppercase tracking-[0.18em]">
               Período
             </p>
             <p>{periodLabel}</p>
           </div>
           <div className="space-y-1">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/52">
+            <p className="af-text-tertiary text-[11px] font-semibold uppercase tracking-[0.18em]">
               Capacidade
             </p>
             <p>{formatHours(capacity)}</p>
@@ -78,13 +84,13 @@ export default function SprintSummaryCard({
         </div>
 
         <div className="space-y-2">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/52">
+          <p className="af-text-tertiary text-[11px] font-semibold uppercase tracking-[0.18em]">
             Progresso
           </p>
 
           <div className="space-y-2">
             <div className="space-y-1">
-              <div className="flex items-center justify-between text-[11px] text-white/72">
+              <div className="af-text-secondary flex items-center justify-between text-[11px]">
                 <span>Horas registradas</span>
                 <span>
                   {formatHours(burnedHours)} • {registeredPercent}%
@@ -92,7 +98,7 @@ export default function SprintSummaryCard({
               </div>
               <div className="af-surface-md bg-black/30">
                 <div
-                  className="bg-[var(--af-pin,#6f32ff)]"
+                  className="af-accent-progress"
                   style={{
                     width: `${registeredRatio * 100}%`,
                     height: "6px",
@@ -102,7 +108,7 @@ export default function SprintSummaryCard({
             </div>
 
             <div className="space-y-1">
-              <div className="flex items-center justify-between text-[11px] text-white/72">
+              <div className="af-text-secondary flex items-center justify-between text-[11px]">
                 <span>Horas estimadas</span>
                 <span>
                   {formatHours(scopeHours)} • {estimatedPercent}%
@@ -120,17 +126,17 @@ export default function SprintSummaryCard({
             </div>
           </div>
 
-          <div className="grid gap-2 text-[11px] text-white/72 sm:grid-cols-3">
+          <div className="af-text-secondary grid gap-2 text-[11px] sm:grid-cols-3">
             <div className="af-surface-sm bg-white/5 px-2 py-1.5">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/55">
+              <p className="af-text-tertiary text-[10px] font-semibold uppercase tracking-[0.16em]">
                 Scope
               </p>
               <p className="mt-0.5 text-sm text-white">
                 {formatHours(scopeHours)}
               </p>
             </div>
-            <div className="af-surface-sm bg-white/5 px-2 py-1.5">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/55">
+            <div className="af-surface-sm af-accent-panel bg-white/5 px-2 py-1.5">
+              <p className="af-text-tertiary text-[10px] font-semibold uppercase tracking-[0.16em]">
                 Burned
               </p>
               <p className="mt-0.5 text-sm text-white">
@@ -138,7 +144,7 @@ export default function SprintSummaryCard({
               </p>
             </div>
             <div className="af-surface-sm bg-white/5 px-2 py-1.5">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/55">
+              <p className="af-text-tertiary text-[10px] font-semibold uppercase tracking-[0.16em]">
                 Remaining
               </p>
               <p className="mt-0.5 text-sm text-white">

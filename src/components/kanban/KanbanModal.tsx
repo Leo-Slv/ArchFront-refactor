@@ -4,10 +4,11 @@ import { X } from "lucide-react";
 import type { KanbanCardView } from "../../pages/projects/kanban/_mocks/kanban.mock";
 import {
   formatKanbanStoryStatus,
-  getCardBadgeLabels,
+  getCardSystemBadges,
 } from "../../pages/projects/kanban/_mocks/kanban.mock";
 import UserAvatar from "../ui/UserAvatar";
-import KanbanBadges from "./KanbanBadges";
+import SystemBadge from "./SystemBadge";
+import UserLabelBadge from "./UserLabelBadge";
 
 interface KanbanModalProps {
   card: KanbanCardView | null;
@@ -52,15 +53,30 @@ export default function KanbanModal({ card, onClose }: KanbanModalProps) {
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0 space-y-3">
                   <h2 className="text-lg font-semibold text-white">{card.title}</h2>
-                  <KanbanBadges items={getCardBadgeLabels(card)} />
+                  {card.userLabels.length ? (
+                    <div className="flex flex-wrap gap-1.5">
+                      {card.userLabels.map((label) => (
+                        <UserLabelBadge
+                          key={label.id}
+                          name={label.name}
+                          color={label.color}
+                        />
+                      ))}
+                    </div>
+                  ) : null}
+                  <div className="flex flex-wrap gap-1.5">
+                    {getCardSystemBadges(card).map((badge) => (
+                      <SystemBadge key={badge}>{badge}</SystemBadge>
+                    ))}
+                  </div>
                 </div>
 
                 <button
                   type="button"
                   onClick={onClose}
-                  className="af-focus-ring inline-flex items-center gap-2 px-2 py-2 text-sm text-white/76 transition hover:bg-white/[0.03] hover:text-white"
+                  className="af-focus-ring af-accent-hover inline-flex items-center gap-2 px-2 py-2 text-sm text-white/76 transition hover:bg-white/[0.03] hover:text-[var(--accent-primary)]"
                 >
-                  <X className="h-4 w-4" aria-hidden="true" />
+                  <X className="af-accent-icon h-4 w-4" aria-hidden="true" />
                   <span>Fechar</span>
                 </button>
               </div>
@@ -79,18 +95,34 @@ export default function KanbanModal({ card, onClose }: KanbanModalProps) {
                   User Story
                 </p>
                 <div className="af-surface-md bg-white/[0.03] px-3 py-3">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h3 className="text-sm font-semibold text-white">{card.title}</h3>
-                    <KanbanBadges
-                      items={[
-                        formatKanbanStoryStatus(card.status),
-                        `BV ${card.businessValue}`,
-                        card.priority,
+                  <div className="space-y-2">
+                    {card.userLabels.length ? (
+                      <div className="flex flex-wrap gap-1.5">
+                        {card.userLabels.map((label) => (
+                          <UserLabelBadge
+                            key={label.id}
+                            name={label.name}
+                            color={label.color}
+                          />
+                        ))}
+                      </div>
+                    ) : null}
+                    <div className="flex flex-wrap items-center gap-2">
+                      {[
                         `Effort: ${card.effort}`,
-                      ]}
-                    />
+                        `BV ${card.businessValue}`,
+                        formatKanbanStoryStatus(card.status),
+                        card.dueDateLabel,
+                        ...card.linkedChips,
+                      ].map((badge) => (
+                        <SystemBadge key={badge}>{badge}</SystemBadge>
+                      ))}
+                    </div>
                   </div>
-                  <p className="mt-2 text-[11px] text-white/55">{card.persona}</p>
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                    <h3 className="text-sm font-semibold text-white">{card.title}</h3>
+                  </div>
+                  <p className="af-text-tertiary mt-2 text-[11px]">{card.persona}</p>
                   <p className="mt-3 text-sm leading-relaxed text-white/72">
                     {card.description}
                   </p>
@@ -128,11 +160,11 @@ export default function KanbanModal({ card, onClose }: KanbanModalProps) {
                       <div className="min-w-0 space-y-1">
                         <div className="flex flex-wrap items-center gap-2">
                           <h4 className="text-sm text-white">{task.title}</h4>
-                          <span className="af-surface-sm inline-flex h-6 items-center bg-white/5 px-2 py-0 text-[10px] leading-none text-white/72">
+                          <SystemBadge className="h-6 py-0 leading-none">
                             {task.priority}
-                          </span>
+                          </SystemBadge>
                         </div>
-                        <p className="text-[11px] text-white/55">{task.assignee.name}</p>
+                        <p className="af-text-tertiary text-[11px]">{task.assignee.name}</p>
                       </div>
                       <span className="af-surface-sm inline-flex h-6 shrink-0 items-center bg-black/30 px-2 py-0 text-[10px] leading-none text-white/72">
                         {task.doneHours}h / {task.estimatedHours}h
@@ -151,7 +183,7 @@ export default function KanbanModal({ card, onClose }: KanbanModalProps) {
                   <div className="flex items-center justify-between gap-2">
                     <div>
                       <h3 className="text-sm font-semibold text-white">Atribuição</h3>
-                      <p className="mt-1 text-xs text-white/60">
+                      <p className="af-text-secondary mt-1 text-xs">
                         Responsável e metadados
                       </p>
                     </div>
@@ -161,7 +193,7 @@ export default function KanbanModal({ card, onClose }: KanbanModalProps) {
                   </div>
                 </header>
 
-                <div className="mt-3 space-y-2.5 text-[11px] text-white/68">
+                <div className="af-text-secondary mt-3 space-y-2.5 text-[11px]">
                   <div className="flex items-center justify-between gap-3">
                     <span className="af-surface-sm inline-flex items-center bg-white/5 px-2 py-0.5 text-[10px] text-white/65">
                       Assignee
@@ -194,7 +226,11 @@ export default function KanbanModal({ card, onClose }: KanbanModalProps) {
                     <span className="af-surface-sm inline-flex items-center bg-white/5 px-2 py-0.5 text-[10px] text-white/65">
                       Linked
                     </span>
-                    <KanbanBadges items={card.linkedChips} tone="subtle" />
+                    <div className="flex flex-wrap justify-end gap-1.5">
+                      {card.linkedChips.map((badge) => (
+                        <SystemBadge key={badge}>{badge}</SystemBadge>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </section>
@@ -204,7 +240,7 @@ export default function KanbanModal({ card, onClose }: KanbanModalProps) {
                   <div className="flex items-center justify-between gap-2">
                     <div>
                       <h3 className="text-sm font-semibold text-white">Comentários</h3>
-                      <p className="mt-1 text-xs text-white/60">
+                      <p className="af-text-secondary mt-1 text-xs">
                         Discussão do item
                       </p>
                     </div>
@@ -229,7 +265,7 @@ export default function KanbanModal({ card, onClose }: KanbanModalProps) {
                           />
                           <div className="min-w-0">
                             <p className="text-sm text-white">{comment.author.name}</p>
-                            <p className="text-[11px] text-white/50">
+                            <p className="af-text-tertiary text-[11px]">
                               {comment.createdAtLabel}
                             </p>
                           </div>

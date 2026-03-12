@@ -32,21 +32,18 @@ export default function ProjectHeader({
       <div className="min-w-0 space-y-1">
         <div className="flex flex-wrap items-center gap-2">
           <h1 className="text-lg font-semibold text-white sm:text-xl">{title}</h1>
-
-          {subtitleChip ? (
-            <span className="af-surface-sm inline-flex items-center bg-white/5 px-2.5 py-1 text-[10px] font-semibold text-white/72">
-              {subtitleChip}
-            </span>
-          ) : null}
         </div>
 
-        {description ? <p className="text-sm text-white/62">{description}</p> : null}
+        {description ? <p className="af-text-secondary text-sm">{description}</p> : null}
       </div>
 
       <div className="flex shrink-0 items-center gap-2">
         {showSearch ? (
-          <label className="af-surface-md flex h-9 min-w-[15rem] items-center gap-2 bg-white/5 px-3 text-sm text-white/68 sm:min-w-[19rem]">
-            <Search className="h-4 w-4 shrink-0 text-white/45" aria-hidden="true" />
+          <label className="af-surface-md af-input-shell af-focus-ring af-text-secondary flex h-9 min-w-[15rem] items-center gap-2 bg-white/5 px-3 text-sm sm:min-w-[19rem]">
+            <Search
+              className="af-input-icon af-text-tertiary h-4 w-4 shrink-0"
+              aria-hidden="true"
+            />
             <input
               value={searchValue}
               onChange={(event) => onSearchChange?.(event.target.value)}

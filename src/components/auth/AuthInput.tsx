@@ -45,7 +45,7 @@ const AuthInput = forwardRef<HTMLInputElement, AuthInputProps>(function AuthInpu
           <button
             type="button"
             aria-label={isPasswordVisible ? "Hide password" : "Show password"}
-            className="absolute inset-y-1 right-1 inline-flex w-10 items-center justify-center rounded-[var(--radius-sm)] text-white/46 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring-color)]"
+            className="absolute inset-y-1 right-1 inline-flex w-10 items-center justify-center rounded-[var(--radius-sm)] text-white/46 transition hover:text-[var(--accent-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring-color)]"
             onClick={() => setIsPasswordVisible((current) => !current)}
           >
             {isPasswordVisible ? (

@@ -21,10 +21,10 @@ export default function SectionBlock({
             {title}
           </h2>
           {description ? (
-            <p className="mt-1 text-xs text-white/48">{description}</p>
+            <p className="af-text-tertiary mt-1 text-xs">{description}</p>
           ) : null}
         </div>
-        <span className="af-surface-sm inline-flex min-w-6 shrink-0 items-center justify-center bg-white/5 px-1.5 py-0.5 text-[10px] text-white/60">
+        <span className="af-surface-sm af-accent-chip inline-flex min-w-6 shrink-0 items-center justify-center px-1.5 py-0.5 text-[10px] text-white/80">
           {count}
         </span>
       </div>

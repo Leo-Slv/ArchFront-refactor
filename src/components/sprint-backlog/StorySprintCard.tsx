@@ -20,8 +20,8 @@ export default function StorySprintCard({ story }: StorySprintCardProps) {
             </span>
           </div>
 
-          <p className="text-xs text-white/62">{story.description}</p>
-          <p className="text-[11px] text-white/55">Effort: {story.effort}</p>
+          <p className="af-text-secondary text-xs">{story.description}</p>
+          <p className="af-text-tertiary text-[11px]">Effort: {story.effort}</p>
         </div>
 
         <div className="af-surface-sm inline-flex items-center gap-2 self-start bg-white/5 px-2.5 py-1 text-[10px] text-white/72">
@@ -36,16 +36,16 @@ export default function StorySprintCard({ story }: StorySprintCardProps) {
 
       <div className="mt-3 space-y-2">
         <div className="af-separator-b pb-2">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/50">
+          <p className="af-text-tertiary text-[11px] font-semibold uppercase tracking-[0.18em]">
             Acceptance Criteria
           </p>
-          <p className="mt-2 whitespace-pre-line text-xs leading-relaxed text-white/62">
+          <p className="af-text-secondary mt-2 whitespace-pre-line text-xs leading-relaxed">
             {story.acceptanceCriteria}
           </p>
         </div>
 
         <div className="af-separator-b pb-1">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/50">
+          <p className="af-text-tertiary text-[11px] font-semibold uppercase tracking-[0.18em]">
             Tarefas
           </p>
         </div>

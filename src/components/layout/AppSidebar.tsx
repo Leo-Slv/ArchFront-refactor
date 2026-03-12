@@ -57,9 +57,9 @@ function SidebarItem({
 }) {
   const Icon = item.icon;
   const baseClassName =
-    "af-focus-ring flex w-full items-center justify-between gap-3 px-3 py-2 text-sm transition";
+    "af-focus-ring af-nav-item flex w-full items-center justify-between gap-3 px-3 py-2 text-sm transition";
   const toneClassName = active
-    ? "bg-white/[0.04] text-white"
+    ? "af-nav-item-active text-white"
     : "text-white/72 hover:bg-white/[0.03] hover:text-white";
 
   function handleLinkClick(event: MouseEvent<HTMLAnchorElement>): void {
@@ -76,7 +76,10 @@ function SidebarItem({
       <span className="inline-flex min-w-0 items-center gap-2.5">
         {Icon ? (
           <Icon
-            className={cx("h-4 w-4", active ? "text-white/65" : "text-white/52")}
+            className={cx(
+              "af-nav-icon h-4 w-4",
+              active ? "text-[var(--accent-primary)]" : "text-white/52",
+            )}
             aria-hidden="true"
           />
         ) : null}
@@ -84,7 +87,12 @@ function SidebarItem({
       </span>
 
       {item.badge !== undefined ? (
-        <span className="af-surface-sm inline-flex min-w-6 shrink-0 items-center justify-center bg-white/5 px-1.5 py-0.5 text-[10px] text-white/60">
+        <span
+          className={cx(
+            "af-surface-sm inline-flex min-w-6 shrink-0 items-center justify-center px-1.5 py-0.5 text-[10px]",
+            active ? "af-accent-chip text-white/80" : "bg-white/5 text-white/60",
+          )}
+        >
           {item.badge}
         </span>
       ) : null}
@@ -165,7 +173,7 @@ export default function AppSidebar({
                   {header.title}
                 </p>
                 {header.subtitle ? (
-                  <p className="truncate text-[11px] text-white/52">
+                  <p className="af-text-tertiary truncate text-[11px]">
                     {header.subtitle}
                   </p>
                 ) : null}
@@ -188,7 +196,7 @@ export default function AppSidebar({
                       {userSummary.user.name}
                     </p>
                     {userSummary.user.type ? (
-                      <p className="truncate text-[11px] text-white/52">
+                      <p className="af-text-tertiary truncate text-[11px]">
                         plano {userSummary.user.type}
                       </p>
                     ) : null}
@@ -208,7 +216,7 @@ export default function AppSidebar({
 
       <SidebarContent>
         <div className="af-separator-b px-4 py-3">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/45">
+          <p className="af-text-tertiary text-[11px] font-semibold uppercase tracking-[0.2em]">
             {navLabel}
           </p>
         </div>
@@ -231,10 +239,10 @@ export default function AppSidebar({
           <a
             href="/"
             onClick={handleSignOut}
-            className="af-focus-ring inline-flex w-full items-center justify-between gap-3 px-3 py-2 text-sm text-white/76 transition hover:bg-white/[0.03] hover:text-white"
+            className="af-focus-ring af-nav-item inline-flex w-full items-center justify-between gap-3 px-3 py-2 text-sm text-white/76 transition hover:bg-white/[0.03] hover:text-white"
           >
             <span className="inline-flex min-w-0 items-center gap-2.5">
-              <LogOut className="h-4 w-4 text-white/52" aria-hidden="true" />
+              <LogOut className="af-nav-icon h-4 w-4 text-white/52" aria-hidden="true" />
               <span className="truncate">{signOutLabel}</span>
             </span>
           </a>

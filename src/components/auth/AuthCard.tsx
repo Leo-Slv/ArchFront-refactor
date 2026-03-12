@@ -34,7 +34,7 @@ export default function AuthCard({
           {title}
         </h1>
         {subtitle ? (
-          <p className="mt-1.5 text-sm leading-relaxed text-white/60 sm:mt-2">
+          <p className="af-text-secondary mt-1.5 text-sm leading-relaxed sm:mt-2">
             {subtitle}
           </p>
         ) : null}

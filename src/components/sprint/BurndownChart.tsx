@@ -63,22 +63,22 @@ function BurndownTooltip({
       )}
     >
       <div className="flex items-center justify-between gap-2">
-        <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/55">
+        <span className="af-text-tertiary text-[10px] font-semibold uppercase tracking-[0.16em]">
           Dia
         </span>
-        <span className="text-[10px] text-white/60">{point.dateISO}</span>
+        <span className="af-text-secondary text-[10px]">{point.dateISO}</span>
       </div>
       <div className="mt-1 space-y-0.5">
         <div className="flex items-center justify-between gap-2">
-          <span className="text-white/62">Ideal remaining</span>
+          <span className="af-text-secondary">Ideal remaining</span>
           <span>{formatHours(point.idealRemaining)}</span>
         </div>
         <div className="flex items-center justify-between gap-2">
-          <span className="text-white/62">Actual remaining</span>
+          <span className="af-text-secondary">Actual remaining</span>
           <span>{formatHours(point.actualRemaining)}</span>
         </div>
         <div className="flex items-center justify-between gap-2">
-          <span className="text-white/62">Delta</span>
+          <span className="af-text-secondary">Delta</span>
           <span>{formatHours(point.delta)}</span>
         </div>
       </div>
@@ -136,20 +136,20 @@ export default function BurndownChart({
     <div className="space-y-3">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/52">
+          <p className="af-text-tertiary text-xs font-semibold uppercase tracking-[0.18em]">
             Burndown
           </p>
-          <p className="text-xs text-white/68">
+          <p className="af-text-secondary text-xs">
             Remaining hours (Actual vs Ideal)
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2 text-[10px] text-white/72">
-          <span className="af-surface-sm inline-flex items-center bg-white/5 px-2 py-0.5">
+        <div className="af-text-secondary flex flex-wrap items-center gap-2 text-[10px]">
+          <span className="af-surface-sm af-accent-chip inline-flex items-center px-2 py-0.5">
             <span className="mr-1 inline-block h-1 w-4 bg-[var(--af-pin)]" />
             Scope:&nbsp;{formatHours(scopeHours)}
           </span>
-          <span className="af-surface-sm inline-flex items-center bg-white/5 px-2 py-0.5">
+          <span className="af-surface-sm af-accent-chip inline-flex items-center px-2 py-0.5">
             <span className="mr-1 inline-block h-1 w-4 bg-[var(--af-pin)]/70" />
             Burned:&nbsp;{formatHours(burnedHours)}
           </span>
@@ -218,7 +218,7 @@ export default function BurndownChart({
         </ResponsiveContainer>
       </div>
 
-      <p className="text-[10px] text-white/45">
+      <p className="af-text-tertiary text-[10px]">
         Nota: sem histórico diário (worklog/done_at). A linha &quot;Actual&quot;
         é uma aproximação distribuindo horas registradas até o due date do card
         (ou fim da sprint).

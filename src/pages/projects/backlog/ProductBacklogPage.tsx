@@ -236,15 +236,15 @@ export default function ProductBacklogPage({
                         {epic.name}
                       </h2>
 
-                      <span className="af-surface-sm inline-flex items-center bg-white/5 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/72">
+                      <span className="af-surface-sm af-accent-chip inline-flex items-center px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/80">
                         {epic.priority}
                       </span>
                     </div>
 
-                    <p className="text-xs text-white/60">{epic.description}</p>
+                    <p className="af-text-secondary text-xs">{epic.description}</p>
                   </div>
 
-                  <div className="flex items-center gap-2 text-xs text-white/55">
+                  <div className="af-text-tertiary flex items-center gap-2 text-xs">
                     <span className="af-surface-sm inline-flex items-center bg-white/5 px-2 py-1 text-[10px] text-white/70">
                       {storyCount} stories
                     </span>
@@ -289,7 +289,7 @@ export default function ProductBacklogPage({
                                         : `Mostrar detalhes de ${story.title}`
                                     }
                                     onClick={() => toggleStoryExpanded(story.id)}
-                                    className="af-focus-ring inline-flex h-7 w-7 items-center justify-center text-white/60 transition hover:bg-white/[0.03] hover:text-white"
+                                    className="af-focus-ring af-accent-hover inline-flex h-7 w-7 items-center justify-center text-white/60 transition hover:bg-white/[0.03] hover:text-[var(--accent-primary)]"
                                   >
                                     {isExpanded ? (
                                       <ChevronDown className="h-4 w-4" aria-hidden="true" />
@@ -302,7 +302,7 @@ export default function ProductBacklogPage({
                                   <span className="block truncate">{story.title}</span>
                                 </td>
                                 <td className="bg-white/[0.02] px-2 py-1.5 align-middle">
-                                  <span className="block truncate text-white/68">
+                                  <span className="af-text-secondary block truncate">
                                     {assigneeName}
                                   </span>
                                 </td>
@@ -320,14 +320,14 @@ export default function ProductBacklogPage({
                               {isExpanded ? (
                                 <tr>
                                   <td colSpan={6} className="px-0 pt-0.5">
-                                    <div className="af-surface-md bg-white/[0.03] px-3 py-3">
+                                    <div className="af-surface-md bg-transparent px-3 py-3">
                                       <div className="grid gap-3 lg:grid-cols-[minmax(0,1.45fr)_minmax(0,1fr)]">
                                         <div className="space-y-3">
                                           <div>
                                             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/50">
                                               Persona
                                             </p>
-                                            <p className="mt-1 text-xs text-white/68">
+                                            <p className="af-text-secondary mt-1 text-xs">
                                               {story.persona}
                                             </p>
                                           </div>
@@ -336,7 +336,7 @@ export default function ProductBacklogPage({
                                             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/50">
                                               Description
                                             </p>
-                                            <p className="mt-1 text-xs leading-relaxed text-white/68">
+                                            <p className="af-text-secondary mt-1 text-xs leading-relaxed">
                                               {story.description}
                                             </p>
                                           </div>
@@ -345,7 +345,7 @@ export default function ProductBacklogPage({
                                             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/50">
                                               Acceptance Criteria
                                             </p>
-                                            <p className="mt-1 whitespace-pre-line text-xs leading-relaxed text-white/68">
+                                            <p className="af-text-secondary mt-1 whitespace-pre-line text-xs leading-relaxed">
                                               {story.acceptanceCriteria}
                                             </p>
                                           </div>
@@ -354,7 +354,7 @@ export default function ProductBacklogPage({
                                             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/50">
                                               Dependencies
                                             </p>
-                                            <p className="mt-1 text-xs leading-relaxed text-white/68">
+                                            <p className="af-text-secondary mt-1 text-xs leading-relaxed">
                                               {story.dependencies}
                                             </p>
                                           </div>
@@ -413,20 +413,20 @@ export default function ProductBacklogPage({
               <div className="flex items-center justify-between gap-2">
                 <div>
                   <h2 className="text-sm font-semibold text-white">Métricas</h2>
-                  <p className="mt-1 text-xs text-white/60">
+                  <p className="af-text-secondary mt-1 text-xs">
                     Visão rápida do backlog.
                   </p>
                 </div>
 
-                <span className="af-surface-sm inline-flex items-center bg-white/5 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/72">
+                <span className="af-surface-sm af-accent-chip inline-flex items-center px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/80">
                   Snapshot
                 </span>
               </div>
             </header>
 
             <dl className="mt-3 grid grid-cols-2 gap-3 text-xs">
-              <div className="af-surface-md bg-white/5 px-3 py-2.5">
-                <dt className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/55">
+              <div className="af-surface-md af-accent-panel bg-white/5 px-3 py-2.5">
+                <dt className="af-text-tertiary text-[10px] font-semibold uppercase tracking-[0.16em]">
                   Stories
                 </dt>
                 <dd className="mt-1 text-lg font-semibold text-white">
@@ -435,7 +435,7 @@ export default function ProductBacklogPage({
               </div>
 
               <div className="af-surface-md bg-white/5 px-3 py-2.5">
-                <dt className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/55">
+                <dt className="af-text-tertiary text-[10px] font-semibold uppercase tracking-[0.16em]">
                   Epics
                 </dt>
                 <dd className="mt-1 text-lg font-semibold text-white">

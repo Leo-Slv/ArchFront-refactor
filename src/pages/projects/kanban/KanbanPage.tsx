@@ -177,9 +177,9 @@ export default function KanbanPage({ projectId }: KanbanPageProps) {
         <>
           {toast ? (
             <div className="pointer-events-none fixed right-5 top-5 z-40 w-full max-w-sm">
-              <div className="af-surface-lg bg-[#14121a]/95 px-4 py-3 shadow-[0_14px_40px_rgba(0,0,0,0.35)]">
+              <div className="af-surface-lg af-accent-panel bg-[#14121a]/95 px-4 py-3 shadow-[0_14px_40px_rgba(0,0,0,0.35)]">
                 <p className="text-sm font-semibold text-white">{toast.title}</p>
-                <p className="mt-1 text-xs leading-relaxed text-white/68">
+                <p className="af-text-secondary mt-1 text-xs leading-relaxed">
                   {toast.body}
                 </p>
               </div>
@@ -205,9 +205,9 @@ export default function KanbanPage({ projectId }: KanbanPageProps) {
                   <div className="af-separator-b px-3 py-3">
                     <button
                       type="button"
-                      className="af-focus-ring inline-flex w-full items-center gap-2 px-2 py-2 text-sm text-white/68 transition hover:bg-white/[0.03] hover:text-white"
+                      className="af-focus-ring af-accent-hover af-text-secondary inline-flex w-full items-center gap-2 px-2 py-2 text-sm transition hover:bg-white/[0.03] hover:text-[var(--accent-primary)]"
                     >
-                      <Plus className="h-4 w-4" aria-hidden="true" />
+                      <Plus className="af-accent-icon h-4 w-4" aria-hidden="true" />
                       <span>Adicionar outra coluna</span>
                     </button>
                   </div>

@@ -34,7 +34,7 @@ export default function AssigneeWorkloadCard({
             {assignee.statusChips.map((chip) => (
               <span
                 key={chip}
-                className="af-surface-sm inline-flex h-6 items-center bg-white/5 px-2 py-1 text-[10px] leading-none text-white/65"
+                className="af-surface-sm af-text-secondary inline-flex h-6 items-center bg-white/5 px-2 py-1 text-[10px] leading-none"
               >
                 {chip}
               </span>
@@ -42,7 +42,7 @@ export default function AssigneeWorkloadCard({
           </div>
         </div>
 
-        <div className="flex flex-wrap gap-1.5 text-[10px] text-white/72">
+        <div className="af-text-secondary flex flex-wrap gap-1.5 text-[10px]">
           <span className="af-surface-sm inline-flex h-6 shrink-0 items-center bg-white/5 px-2 py-1 leading-none">
             {assignee.storyCount} stories
           </span>
@@ -62,20 +62,20 @@ export default function AssigneeWorkloadCard({
       </header>
 
       <div className="mt-3 space-y-3">
-        <div className="space-y-1 text-[11px] text-white/62">
+        <div className="af-text-secondary space-y-1 text-[11px]">
           <p>Carga: {assignee.loadLabel}</p>
           <p>Média por task: {assignee.averageTaskHours}h</p>
         </div>
 
         <div className="space-y-2">
           <div className="space-y-1">
-            <div className="flex items-center justify-between gap-2 text-[11px] text-white/68">
+            <div className="af-text-secondary flex items-center justify-between gap-2 text-[11px]">
               <span>Progresso</span>
               <span>{formatPercent(assignee.progressRatio)}</span>
             </div>
             <div className="af-surface-md bg-black/30">
               <div
-                className="bg-[var(--af-pin,#6f32ff)]"
+                className="af-accent-progress"
                 style={{
                   width: `${assignee.progressRatio * 100}%`,
                   height: "6px",
@@ -85,7 +85,7 @@ export default function AssigneeWorkloadCard({
           </div>
 
           <div className="space-y-1">
-            <div className="flex items-center justify-between gap-2 text-[11px] text-white/68">
+            <div className="af-text-secondary flex items-center justify-between gap-2 text-[11px]">
               <span>Peso no sprint</span>
               <span>{formatPercent(assignee.sprintWeightRatio)}</span>
             </div>
@@ -103,7 +103,7 @@ export default function AssigneeWorkloadCard({
 
         <div className="space-y-2">
           <div className="af-separator-b pb-1">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/50">
+            <p className="af-text-tertiary text-[11px] font-semibold uppercase tracking-[0.18em]">
               Top tasks (maior estimativa)
             </p>
           </div>
@@ -112,14 +112,14 @@ export default function AssigneeWorkloadCard({
             {assignee.topTasks.map((task) => (
               <div
                 key={task.id}
-                className="af-surface-sm flex items-center justify-between gap-3 bg-black/20 px-2.5 py-2 text-[11px] text-white/70"
+                className="af-surface-sm af-text-secondary flex items-center justify-between gap-3 bg-black/20 px-2.5 py-2 text-[11px]"
               >
                 <div className="min-w-0">
                   <p className="truncate text-white/80">{task.title}</p>
-                  <p className="truncate text-white/50">{task.priorityLabel}</p>
+                  <p className="af-text-tertiary truncate">{task.priorityLabel}</p>
                 </div>
 
-                <span className="shrink-0 text-white/65">
+                <span className="af-text-secondary shrink-0">
                   Rem {Math.max(task.estimatedHours - task.doneHours, 0)}h
                 </span>
               </div>

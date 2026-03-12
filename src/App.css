@@ -37,9 +37,10 @@
 
 .af-focus-ring:focus-visible {
   outline: none;
-  border-color: var(--border-color-hover);
+  border-color: var(--accent-soft-35);
   box-shadow:
     0 0 0 3px var(--focus-ring-color),
+    0 0 0 1px var(--accent-soft-25),
     inset 0 1px 0 var(--border-highlight),
     inset 0 -1px 0 var(--border-shade),
     var(--af-surface-shadow, 0 0 #0000);
@@ -63,5 +64,109 @@
     transparent,
     rgba(255, 255, 255, 0.1),
     transparent
+  );
+}
+
+.af-text-secondary {
+  color: var(--text-secondary);
+}
+
+.af-text-tertiary {
+  color: var(--text-tertiary);
+}
+
+.af-input-shell {
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    background-color 180ms ease,
+    color 180ms ease;
+}
+
+.af-input-shell:focus-within {
+  border-color: var(--accent-soft-35);
+  box-shadow:
+    0 0 0 3px var(--focus-ring-color),
+    0 0 0 1px var(--accent-soft-25),
+    inset 0 1px 0 var(--border-highlight),
+    inset 0 -1px 0 var(--border-shade),
+    var(--af-surface-shadow, 0 0 #0000);
+}
+
+.af-input-shell:focus-within .af-input-icon {
+  color: var(--accent-primary);
+}
+
+.af-nav-item {
+  position: relative;
+}
+
+.af-nav-item:hover {
+  border-color: var(--accent-soft-15);
+}
+
+.af-nav-item:hover .af-nav-icon,
+.af-nav-item:hover .af-nav-chevron {
+  color: var(--accent-primary);
+}
+
+.af-nav-item-active {
+  border-color: var(--accent-soft-25);
+  background:
+    linear-gradient(
+      90deg,
+      rgba(var(--accent-primary-rgb), 0.16) 0%,
+      rgba(var(--accent-primary-rgb), 0.08) 34%,
+      rgba(255, 255, 255, 0.03) 100%
+    );
+  box-shadow:
+    inset 2px 0 0 var(--accent-primary),
+    inset 0 1px 0 var(--border-highlight),
+    inset 0 -1px 0 var(--border-shade),
+    var(--af-surface-shadow, 0 0 #0000);
+}
+
+.af-accent-chip {
+  border-color: var(--accent-soft-25);
+  background: rgba(var(--accent-primary-rgb), 0.12);
+  color: rgba(255, 255, 255, 0.84);
+}
+
+.af-accent-chip-strong {
+  border-color: var(--accent-soft-35);
+  background: rgba(var(--accent-primary-rgb), 0.18);
+  color: #fff;
+}
+
+.af-accent-panel {
+  border-color: var(--accent-soft-25);
+  background-image:
+    linear-gradient(
+      90deg,
+      rgba(var(--accent-primary-rgb), 0.12) 0%,
+      rgba(var(--accent-primary-rgb), 0.05) 30%,
+      transparent 65%
+    );
+  box-shadow:
+    inset 2px 0 0 var(--accent-primary),
+    inset 0 1px 0 var(--border-highlight),
+    inset 0 -1px 0 var(--border-shade),
+    var(--af-surface-shadow, 0 0 #0000);
+}
+
+.af-accent-hover:hover {
+  border-color: var(--accent-soft-25);
+}
+
+.af-accent-hover:hover .af-accent-icon,
+.af-accent-hover:focus-visible .af-accent-icon {
+  color: var(--accent-primary);
+}
+
+.af-accent-progress {
+  background: linear-gradient(
+    90deg,
+    rgba(var(--accent-primary-rgb), 0.98),
+    rgba(var(--accent-primary-rgb), 0.78)
   );
 }

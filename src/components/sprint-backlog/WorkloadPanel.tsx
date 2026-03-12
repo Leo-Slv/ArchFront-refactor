@@ -26,12 +26,12 @@ export default function WorkloadPanel({
             <h2 className="text-sm font-semibold text-white">
               Workload por responsável
             </h2>
-            <p className="mt-1 text-xs text-white/60">
+            <p className="af-text-secondary mt-1 text-xs">
               Distribuição de esforço por pessoa no sprint.
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-1.5 text-[10px] text-white/72">
+          <div className="af-text-secondary flex flex-wrap items-center gap-1.5 text-[10px]">
             <span className="af-surface-sm inline-flex items-center bg-white/5 px-2 py-0.5">
               Stories: {storyCount}
             </span>

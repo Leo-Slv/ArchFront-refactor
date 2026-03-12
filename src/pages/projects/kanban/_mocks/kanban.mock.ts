@@ -15,6 +15,7 @@ import {
 } from "../../../../mocks/backend/selectors";
 import type {
   BusinessValue,
+  LabelRow,
   SprintStatus,
   UserStoryComplexity as StoryComplexity,
   UserStoryStatus,
@@ -50,6 +51,12 @@ export interface KanbanCommentView {
   createdAtLabel: string;
 }
 
+export interface KanbanUserLabelView {
+  id: string;
+  name: string;
+  color: string;
+}
+
 export interface KanbanCardView {
   id: string;
   title: string;
@@ -58,7 +65,7 @@ export interface KanbanCardView {
   acceptanceCriteria: string[];
   effort: number;
   epicName: string;
-  labels: string[];
+  userLabels: KanbanUserLabelView[];
   priority: UserStoryPriority;
   businessValue: BusinessValue;
   complexity: StoryComplexity;
@@ -184,7 +191,13 @@ function buildKanbanCardView(rawColumnId: string, cardId: string): KanbanCardVie
 
   const story = getUserStoryRowById(rawCard.user_story_id);
   const epic = getEpicRowById(story.epic_id);
-  const labels = getLabelsForCard(rawCard.id).map((label) => label.name);
+  const userLabels: KanbanUserLabelView[] = getLabelsForCard(rawCard.id).map(
+    (label: LabelRow) => ({
+      id: label.id,
+      name: label.name,
+      color: label.color,
+    }),
+  );
   const taskViews = getTasksForUserStory(story.id).map((task) => ({
     id: task.id,
     title: task.title,
@@ -195,21 +208,23 @@ function buildKanbanCardView(rawColumnId: string, cardId: string): KanbanCardVie
       task.assignee_id ?? story.assignee_id ?? "96cd4b95-acdf-4a62-9063-53292716b656",
     ),
   }));
-  const commentViews = getCommentsForCard(rawCard.id).map((comment) => ({
-    id: comment.id,
-    author: getUserById(comment.user_id),
-    body: comment.content,
-    type: comment.parent_comment_id ? "note" : "comment",
-    createdAt: comment.created_at,
-    createdAtLabel: formatDateTime(comment.created_at),
-  }));
+  const commentViews: KanbanCommentView[] = getCommentsForCard(rawCard.id).map(
+    (comment): KanbanCommentView => ({
+      id: comment.id,
+      author: getUserById(comment.user_id),
+      body: comment.content,
+      type: comment.parent_comment_id ? "note" : "comment",
+      createdAt: comment.created_at,
+      createdAtLabel: formatDateTime(comment.created_at),
+    }),
+  );
   const dueDateISO = rawCard.due_date ?? story.updated_at.slice(0, 10);
   const searchText = [
     rawCard.title,
     story.persona,
     rawCard.description ?? story.description,
     epic.name,
-    ...labels,
+    ...userLabels.map((label) => label.name),
     ...taskViews.map((task) => task.title),
   ]
     .join(" ")
@@ -223,7 +238,7 @@ function buildKanbanCardView(rawColumnId: string, cardId: string): KanbanCardVie
     acceptanceCriteria: splitAcceptanceCriteria(story.acceptance_criteria),
     effort: story.effort ?? 0,
     epicName: epic.name,
-    labels,
+    userLabels,
     priority: priorityNumberToLabel(story.priority),
     businessValue: story.business_value,
     complexity: story.complexity,
@@ -327,21 +342,25 @@ export function getCardById(
   return board.allCards.find((card) => card.id === cardId) ?? null;
 }
 
-export function getCardBadgeLabels(card: KanbanCardView): string[] {
+export function getCardSystemBadges(card: KanbanCardView): string[] {
   return [
     `Epic: ${card.epicName}`,
-    ...card.labels,
     `Priority: ${formatPriorityTone(card.priority)}`,
     card.dueDateLabel,
     `Est/Act: ${card.estimatedHours}h / ${card.doneHours}h`,
-  ];
-}
-
-export function getInlineCardTags(card: KanbanCardView): string[] {
-  return [
-    card.labels[0] ?? "Front-end",
     `Effort: ${card.effort}`,
     formatBusinessValue(card.businessValue),
     formatKanbanStoryStatus(card.status),
+    ...card.linkedChips,
+  ];
+}
+
+export function getInlineCardSystemBadges(card: KanbanCardView): string[] {
+  return [
+    `Effort: ${card.effort}`,
+    formatBusinessValue(card.businessValue),
+    formatKanbanStoryStatus(card.status),
+    formatDate(card.dueDateISO),
+    ...card.linkedChips,
   ];
 }
