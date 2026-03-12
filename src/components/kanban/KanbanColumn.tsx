@@ -79,7 +79,7 @@ export default function KanbanColumn({
       <footer className="af-separator-t px-3 py-3">
         <button
           type="button"
-          className="af-focus-ring af-accent-hover af-text-secondary inline-flex w-full items-center gap-2 px-2 py-2 text-[11px] transition hover:bg-white/[0.03] hover:text-[var(--accent-primary)]"
+          className="af-focus-ring af-accent-hover af-text-secondary inline-flex w-full items-center gap-2 px-2 py-2 text-[11px] transition hover:bg-white/[0.03] hover:text-[var(--accent-soft-35)]"
         >
           <Plus className="af-accent-icon h-3.5 w-3.5" aria-hidden="true" />
           <span>Adicionar um card</span>

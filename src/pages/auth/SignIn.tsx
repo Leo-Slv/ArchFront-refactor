@@ -5,6 +5,11 @@ import AuthInput from "../../components/auth/AuthInput";
 import OAuthButtons, {
   type OAuthProvider,
 } from "../../components/auth/OAuthButtons";
+import {
+  DEFAULT_LOADING_DURATION_MS,
+  startTimedGlobalLoading,
+} from "../../hooks/useGlobalLoading";
+import { navigateToPath } from "../../components/layout/sidebarNavigation";
 import AuthLayout from "./AuthLayout";
 
 const primaryButtonClassName =
@@ -26,6 +31,8 @@ function Divider() {
 export default function SignIn() {
   const handleOAuth = (provider: OAuthProvider) => {
     console.log(`oauth: ${provider}`);
+    startTimedGlobalLoading("auth", DEFAULT_LOADING_DURATION_MS + 180);
+    navigateToPath("/projects", { withLoading: false });
   };
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -37,6 +44,9 @@ export default function SignIn() {
       email: formData.get("email"),
       password: formData.get("password"),
     });
+
+    startTimedGlobalLoading("auth", DEFAULT_LOADING_DURATION_MS + 180);
+    navigateToPath("/projects", { withLoading: false });
   };
 
   return (

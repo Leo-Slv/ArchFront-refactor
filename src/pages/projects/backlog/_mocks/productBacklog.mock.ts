@@ -1,4 +1,3 @@
-import { roadmapProjectId } from "../../../../mocks/backend/rawData";
 import {
   getEpicsForProject,
   getUserStoriesForEpic,
@@ -48,35 +47,44 @@ export interface ProductBacklog {
   epics: Epic[];
 }
 
-export const mockProductBacklog: ProductBacklog = {
-  projectId: roadmapProjectId,
-  epics: getEpicsForProject(roadmapProjectId).map((epic, index) => ({
-    id: epic.id,
-    name: epic.name,
-    description: epic.description ?? "",
-    priority: priorityNumberToLabel(epic.priority),
-    position: index + 1,
-    businessValue: epic.business_value,
-    status: epic.status,
-    color: epic.color,
-    userStories: getUserStoriesForEpic(epic.id).map((story) => ({
-      id: story.id,
-      epicId: story.epic_id,
-      title: story.title,
-      persona: story.persona,
-      description: story.description,
-      acceptanceCriteria: story.acceptance_criteria ?? "",
-      acceptance_criteria: story.acceptance_criteria ?? "",
-      effort: story.effort ?? 0,
-      dependencies: story.dependencies ?? "",
-      priority: story.priority,
-      businessValue: story.business_value,
-      assigneeId: story.assignee_id ?? "",
-      status: story.status,
-      complexity: story.complexity,
-      createdAt: story.created_at,
-      updatedAt: story.updated_at,
-    })),
-  })),
-};
+export function buildProductBacklogView(projectId: string): ProductBacklog {
+  try {
+    return {
+      projectId,
+      epics: getEpicsForProject(projectId).map((epic, index) => ({
+        id: epic.id,
+        name: epic.name,
+        description: epic.description ?? "",
+        priority: priorityNumberToLabel(epic.priority),
+        position: index + 1,
+        businessValue: epic.business_value,
+        status: epic.status,
+        color: epic.color,
+        userStories: getUserStoriesForEpic(epic.id).map((story) => ({
+          id: story.id,
+          epicId: story.epic_id,
+          title: story.title,
+          persona: story.persona,
+          description: story.description,
+          acceptanceCriteria: story.acceptance_criteria ?? "",
+          acceptance_criteria: story.acceptance_criteria ?? "",
+          effort: story.effort ?? 0,
+          dependencies: story.dependencies ?? "",
+          priority: story.priority,
+          businessValue: story.business_value,
+          assigneeId: story.assignee_id ?? "",
+          status: story.status,
+          complexity: story.complexity,
+          createdAt: story.created_at,
+          updatedAt: story.updated_at,
+        })),
+      })),
+    };
+  } catch {
+    return {
+      projectId,
+      epics: [],
+    };
+  }
+}
 

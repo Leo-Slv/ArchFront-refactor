@@ -1,6 +1,8 @@
 import { useMemo, useState } from "react";
 
 import ProjectShell from "../../../components/layout/ProjectShell";
+import { useProjectSprint } from "../../../contexts/ProjectSprintContext";
+import ProjectEmptyState from "../../../components/projects/ProjectEmptyState";
 import BurndownChart from "../../../components/sprint/BurndownChart";
 import SprintSummaryCard from "../../../components/sprint/SprintSummaryCard";
 import SprintTasksPanel from "../../../components/sprint/SprintTasksPanel";
@@ -34,9 +36,6 @@ function buildPeriodLabel(sprint: Sprint): string {
 const fallbackProject: Project = mockProjects[1] ?? mockProjects[0];
 
 export default function SprintPage({ projectId }: SprintPageProps) {
-  const sprintView = buildMockSprintView();
-  const { sprint, taskViews, burndownPoints, scopeHours, burnedHours, remainingHours } =
-    sprintView;
   const [query, setQuery] = useState("");
 
   let projectFromParam: Project | undefined;
@@ -45,7 +44,34 @@ export default function SprintPage({ projectId }: SprintPageProps) {
   }
 
   const currentProject: Project = projectFromParam ?? fallbackProject;
-  const effectiveProjectId = projectId ?? sprint.projectId;
+  const effectiveProjectId = projectId ?? currentProject.id;
+  const { sprints, selectedSprintId } = useProjectSprint(effectiveProjectId);
+
+  if (!sprints.length || !selectedSprintId) {
+    return (
+      <ProjectShell
+        projectId={effectiveProjectId}
+        projectName={currentProject.name}
+        projectOwner={currentProject.owner}
+        projectBadgeLabel={String(currentProject.members.length)}
+        activeNavItem="sprint"
+        pageTitle="Sprint"
+        pageSubtitle="This project does not have any sprints yet."
+        currentUser={currentUserProfile}
+        mainColumn={
+          <ProjectEmptyState
+            title="This project does not have any sprints yet."
+            description="Create a sprint to start planning scope, tracking progress, and viewing burndown metrics."
+            actionLabel="Create sprint"
+          />
+        }
+      />
+    );
+  }
+
+  const sprintView = buildMockSprintView(effectiveProjectId, selectedSprintId ?? undefined);
+  const { sprint, taskViews, burndownPoints, scopeHours, burnedHours, remainingHours } =
+    sprintView;
 
   const periodLabel = buildPeriodLabel(sprint);
   const normalizedQuery = query.trim().toLowerCase();

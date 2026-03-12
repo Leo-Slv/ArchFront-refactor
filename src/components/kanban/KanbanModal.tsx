@@ -74,7 +74,7 @@ export default function KanbanModal({ card, onClose }: KanbanModalProps) {
                 <button
                   type="button"
                   onClick={onClose}
-                  className="af-focus-ring af-accent-hover inline-flex items-center gap-2 px-2 py-2 text-sm text-white/76 transition hover:bg-white/[0.03] hover:text-[var(--accent-primary)]"
+                  className="af-focus-ring af-accent-hover inline-flex items-center gap-2 px-2 py-2 text-sm text-white/76 transition hover:bg-white/[0.03] hover:text-[var(--accent-soft-35)]"
                 >
                   <X className="af-accent-icon h-4 w-4" aria-hidden="true" />
                   <span>Fechar</span>

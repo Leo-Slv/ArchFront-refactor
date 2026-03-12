@@ -1,6 +1,8 @@
 import { useMemo, useState } from "react";
 
 import ProjectShell from "../../../components/layout/ProjectShell";
+import { useProjectSprint } from "../../../contexts/ProjectSprintContext";
+import ProjectEmptyState from "../../../components/projects/ProjectEmptyState";
 import StorySprintCard from "../../../components/sprint-backlog/StorySprintCard";
 import WorkloadPanel from "../../../components/sprint-backlog/WorkloadPanel";
 import {
@@ -42,11 +44,6 @@ export default function SprintBacklogPage({
   projectId,
 }: SprintBacklogPageProps) {
   const [query, setQuery] = useState("");
-  const sprintBacklogView = buildSprintBacklogView();
-  const {
-    sprint,
-    stories,
-  } = sprintBacklogView;
 
   let projectFromParam: Project | undefined;
   if (projectId) {
@@ -54,7 +51,39 @@ export default function SprintBacklogPage({
   }
 
   const currentProject: Project = projectFromParam ?? fallbackProject;
-  const effectiveProjectId = projectId ?? sprint.projectId;
+  const effectiveProjectId = projectId ?? currentProject.id;
+  const { sprints, selectedSprintId } = useProjectSprint(effectiveProjectId);
+
+  if (!sprints.length || !selectedSprintId) {
+    return (
+      <ProjectShell
+        projectId={effectiveProjectId}
+        projectName={currentProject.name}
+        projectOwner={currentProject.owner}
+        projectBadgeLabel={String(currentProject.members.length)}
+        activeNavItem="sprint-backlog"
+        pageTitle="Sprint Backlog"
+        pageSubtitle="This project does not have any sprints yet."
+        currentUser={currentUserProfile}
+        mainColumn={
+          <ProjectEmptyState
+            title="This project does not have any sprints yet."
+            description="Create a sprint before planning user stories and tasks for execution."
+            actionLabel="Create sprint"
+          />
+        }
+      />
+    );
+  }
+
+  const sprintBacklogView = buildSprintBacklogView(
+    effectiveProjectId,
+    selectedSprintId ?? undefined,
+  );
+  const {
+    sprint,
+    stories,
+  } = sprintBacklogView;
   const periodLabel = buildPeriodLabel(sprint.startDate, sprint.endDate);
   const normalizedQuery = query.trim().toLowerCase();
   const filteredStories = useMemo(
@@ -192,32 +221,40 @@ export default function SprintBacklogPage({
       searchValue={query}
       onSearchChange={setQuery}
       mainColumn={
-        <section className="af-surface-lg bg-[#14121a]/70 px-4 py-4 sm:px-5 sm:py-4">
-          <header className="af-separator-b pb-3">
-            <div className="flex flex-wrap items-start justify-between gap-3">
-              <div>
-                <h2 className="text-sm font-semibold text-white">
-                  User Stories na Sprint
-                </h2>
-                <p className="af-text-secondary mt-1 text-xs">
-                  Itens planejados para entrega em {periodLabel}.
-                </p>
+        stories.length === 0 ? (
+          <ProjectEmptyState
+            title="No items in this sprint."
+            description="This sprint has not received any backlog items yet. Add stories to start planning work."
+            actionLabel="Add item to sprint"
+          />
+        ) : (
+          <section className="af-surface-lg bg-[#14121a]/70 px-4 py-4 sm:px-5 sm:py-4">
+            <header className="af-separator-b pb-3">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <h2 className="text-sm font-semibold text-white">
+                    User Stories na Sprint
+                  </h2>
+                  <p className="af-text-secondary mt-1 text-xs">
+                    Itens planejados para entrega em {periodLabel}.
+                  </p>
+                </div>
+
+                <span className="af-surface-sm inline-flex items-center bg-white/5 px-2 py-0.5 text-[10px] font-semibold text-white/72">
+                  {filteredStories.length} stories
+                </span>
               </div>
+            </header>
 
-              <span className="af-surface-sm inline-flex items-center bg-white/5 px-2 py-0.5 text-[10px] font-semibold text-white/72">
-                {filteredStories.length} stories
-              </span>
+            <div className="mt-3 space-y-3">
+              {filteredStories.map((story) => (
+                <StorySprintCard key={story.id} story={story} />
+              ))}
             </div>
-          </header>
-
-          <div className="mt-3 space-y-3">
-            {filteredStories.map((story) => (
-              <StorySprintCard key={story.id} story={story} />
-            ))}
-          </div>
-        </section>
+          </section>
+        )
       }
-      sideColumn={
+      sideColumn={stories.length === 0 ? undefined : (
         <WorkloadPanel
           assignees={filteredAssignees}
           storyCount={filteredStories.length}
@@ -226,7 +263,7 @@ export default function SprintBacklogPage({
           doneHours={filteredDoneHours}
           remainingHours={filteredRemainingHours}
         />
-      }
+      )}
     />
   );
 }

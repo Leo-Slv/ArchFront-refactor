@@ -125,7 +125,7 @@ export default function TriageQueue({
                     isActive ? "Disable filter" : "Enable filter"
                   }: ${item.label}`}
                   aria-pressed={isActive}
-                  className={`af-focus-ring af-surface-sm inline-flex h-7 w-7 items-center justify-center transition hover:bg-white/[0.08] hover:text-[var(--accent-primary)] ${
+                  className={`af-focus-ring af-surface-sm inline-flex h-7 w-7 items-center justify-center transition hover:bg-white/[0.08] hover:text-[var(--accent-soft-35)] ${
                     isActive
                       ? "af-accent-chip-strong text-white"
                       : "bg-white/5 text-white/55"

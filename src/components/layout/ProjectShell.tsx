@@ -8,6 +8,7 @@ import {
 
 import { SidebarInset, SidebarProvider } from "../ui/sidebar";
 import type { User } from "../../types/user";
+import SprintSelector from "../sprint/SprintSelector";
 import ProjectHeader from "./ProjectHeader";
 import ProjectSidebar, {
   type ProjectSidebarNavItemId,
@@ -58,6 +59,11 @@ export default function ProjectShell({
   headerRightSlot,
   fullWidthMain = false,
 }: ProjectShellProps) {
+  const shouldShowSprintSelector =
+    activeNavItem === "sprint" ||
+    activeNavItem === "sprint-backlog" ||
+    activeNavItem === "kanban";
+
   return (
     <div
       className="h-[100dvh] min-h-[100dvh] w-full overflow-hidden bg-[var(--site-bg,#16171d)] text-white"
@@ -110,7 +116,16 @@ export default function ProjectShell({
                 searchValue={searchValue}
                 onSearchChange={onSearchChange}
                 user={currentUser}
-                rightSlot={headerRightSlot}
+                rightSlot={
+                  shouldShowSprintSelector ? (
+                    <div className="flex items-center gap-2">
+                      <SprintSelector projectId={projectId} />
+                      {headerRightSlot}
+                    </div>
+                  ) : (
+                    headerRightSlot
+                  )
+                }
               />
 
               <div className="flex-1 min-h-0 overflow-y-auto px-4 py-4 sm:px-5 sm:py-5">

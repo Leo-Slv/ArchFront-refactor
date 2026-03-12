@@ -1,7 +1,8 @@
 import { roadmapProjectId } from "../../../../mocks/backend/rawData";
 import {
-  getActiveSprintForProject,
+  getDefaultSprintForProject,
   getEpicRowById,
+  getSprintRowById,
   getSprintItemsForSprint,
   getTasksForUserStory,
   getUserById,
@@ -93,45 +94,19 @@ export interface SprintBacklogViewModel {
   assignees: AssigneeWorkloadView[];
 }
 
-const activeSprintRow = getActiveSprintForProject(roadmapProjectId);
+function buildSprintFromRowId(sprintId: string): Sprint {
+  const sprintRow = getSprintRowById(sprintId);
 
-if (!activeSprintRow) {
-  throw new Error("Missing active sprint row for roadmap project.");
+  return {
+    id: sprintRow.id,
+    projectId: sprintRow.project_id,
+    name: sprintRow.name,
+    startDate: `${sprintRow.start_date}T00:00:00Z`,
+    endDate: `${sprintRow.end_date}T00:00:00Z`,
+    capacityHours: sprintRow.capacity_hours ?? 0,
+    status: sprintRow.status,
+  };
 }
-
-export const mockSprintBacklogSprint: Sprint = {
-  id: activeSprintRow.id,
-  projectId: activeSprintRow.project_id,
-  name: activeSprintRow.name,
-  startDate: `${activeSprintRow.start_date}T00:00:00Z`,
-  endDate: `${activeSprintRow.end_date}T00:00:00Z`,
-  capacityHours: activeSprintRow.capacity_hours ?? 0,
-  status: activeSprintRow.status,
-};
-
-export const mockSprintItems: SprintItem[] = getSprintItemsForSprint(
-  mockSprintBacklogSprint.id,
-).map((item) => ({
-  id: item.id,
-  sprintId: item.sprint_id,
-  userStoryId: item.user_story_id,
-  addedAt: item.added_at,
-}));
-
-export const mockTasks: Task[] = mockSprintItems.flatMap((item) =>
-  getTasksForUserStory(item.userStoryId).map((task) => ({
-    id: task.id,
-    userStoryId: task.user_story_id,
-    title: task.title,
-    description: task.description ?? "",
-    priority: task.priority as PriorityLevel,
-    assigneeId: task.assignee_id ?? "",
-    estimatedHours: task.estimated_hours ?? 0,
-    actualHours: task.actual_hours ?? 0,
-    createdAt: task.created_at,
-    updatedAt: task.updated_at,
-  })),
-);
 
 function formatLoadLabel(weightRatio: number): string {
   if (weightRatio >= 0.45) return "Alta";
@@ -139,16 +114,44 @@ function formatLoadLabel(weightRatio: number): string {
   return "Baixa";
 }
 
-export function buildSprintBacklogView(): SprintBacklogViewModel {
-  const sprint = mockSprintBacklogSprint;
+export function buildSprintBacklogView(
+  projectId = roadmapProjectId,
+  sprintId?: string,
+): SprintBacklogViewModel {
+  const fallbackSprintRow = getDefaultSprintForProject(projectId);
 
-  const sprintItems = [...mockSprintItems]
-    .filter((item) => item.sprintId === sprint.id)
+  if (!fallbackSprintRow && !sprintId) {
+    throw new Error(`Missing sprint row for project ${projectId}.`);
+  }
+
+  const sprint = buildSprintFromRowId(sprintId ?? fallbackSprintRow!.id);
+
+  const sprintItems: SprintItem[] = getSprintItemsForSprint(sprint.id)
+    .map((item) => ({
+      id: item.id,
+      sprintId: item.sprint_id,
+      userStoryId: item.user_story_id,
+      addedAt: item.added_at,
+    }))
     .sort((left, right) => left.addedAt.localeCompare(right.addedAt));
 
   const storyIds = new Set(sprintItems.map((item) => item.userStoryId));
 
-  const sprintTasks = [...mockTasks]
+  const sprintTasks: Task[] = sprintItems
+    .flatMap((item) =>
+      getTasksForUserStory(item.userStoryId).map((task) => ({
+        id: task.id,
+        userStoryId: task.user_story_id,
+        title: task.title,
+        description: task.description ?? "",
+        priority: task.priority as PriorityLevel,
+        assigneeId: task.assignee_id ?? "",
+        estimatedHours: task.estimated_hours ?? 0,
+        actualHours: task.actual_hours ?? 0,
+        createdAt: task.created_at,
+        updatedAt: task.updated_at,
+      })),
+    )
     .filter((task) => storyIds.has(task.userStoryId))
     .sort((left, right) => left.createdAt.localeCompare(right.createdAt));
 

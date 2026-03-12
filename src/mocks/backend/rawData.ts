@@ -23,6 +23,8 @@ const abpProjectId = "d339e7f4-f03f-40f0-bfe8-5f27f5b65f5b";
 const inboxProjectId = "cb63837f-e9cb-4441-bdb5-39f2b9dbe77a";
 
 const roadmapBacklogId = "8c1fd85f-0b30-4dfc-ae78-2d5183d65216";
+const sprint12Id = "6c9ad60c-043f-4f37-bfe7-bf88185de7f5";
+const sprint13Id = "6c9ad60c-043f-4f37-bfe7-bf88185de7f6";
 const activeSprintId = "6c9ad60c-043f-4f37-bfe7-bf88185de7f7";
 const roadmapBoardId = "cbec3bfe-3164-4fdc-bf95-2fb48344b8c8";
 
@@ -505,6 +507,30 @@ const userStoriesTable: UserStoryRow[] = [
 
 const sprintsTable: SprintRow[] = [
   {
+    id: sprint12Id,
+    project_id: roadmapProjectId,
+    name: "Sprint 12",
+    goal: "Entregar visibilidade inicial do board e instrumentacao de fluxo.",
+    start_date: "2026-02-03",
+    end_date: "2026-02-14",
+    status: "completed",
+    capacity_hours: 28,
+    created_at: "2026-02-02T09:00:00.000000Z",
+    updated_at: "2026-02-14T18:00:00.000000Z",
+  },
+  {
+    id: sprint13Id,
+    project_id: roadmapProjectId,
+    name: "Sprint 13",
+    goal: "Consolidar busca, ordenacao de cards e leitura rapida do board.",
+    start_date: "2026-02-17",
+    end_date: "2026-02-28",
+    status: "completed",
+    capacity_hours: 30,
+    created_at: "2026-02-16T09:00:00.000000Z",
+    updated_at: "2026-02-28T18:00:00.000000Z",
+  },
+  {
     id: activeSprintId,
     project_id: roadmapProjectId,
     name: "Sprint 14",
@@ -519,6 +545,36 @@ const sprintsTable: SprintRow[] = [
 ];
 
 const sprintItemsTable: SprintItemRow[] = [
+  {
+    id: "fd35bf41-519c-4112-8959-aef7179a3996",
+    sprint_id: sprint12Id,
+    user_story_id: storyIds.observabilityEvents,
+    added_at: "2026-02-03T09:17:41.3027478Z",
+  },
+  {
+    id: "fd35bf41-519c-4112-8959-aef7179a3997",
+    sprint_id: sprint12Id,
+    user_story_id: storyIds.cardComments,
+    added_at: "2026-02-03T09:18:41.3027478Z",
+  },
+  {
+    id: "fd35bf41-519c-4112-8959-aef7179a3998",
+    sprint_id: sprint12Id,
+    user_story_id: storyIds.boardWip,
+    added_at: "2026-02-03T09:19:41.3027478Z",
+  },
+  {
+    id: "fd35bf41-519c-4112-8959-aef7179a3999",
+    sprint_id: sprint13Id,
+    user_story_id: storyIds.dndOrder,
+    added_at: "2026-02-17T09:17:41.3027478Z",
+  },
+  {
+    id: "fd35bf41-519c-4112-8959-aef7179a4000",
+    sprint_id: sprint13Id,
+    user_story_id: storyIds.cardSearch,
+    added_at: "2026-02-17T09:18:41.3027478Z",
+  },
   {
     id: "fd35bf41-519c-4112-8959-aef7179a4001",
     sprint_id: activeSprintId,
@@ -542,6 +598,12 @@ const sprintItemsTable: SprintItemRow[] = [
     sprint_id: activeSprintId,
     user_story_id: storyIds.linkUsTask,
     added_at: "2026-03-05T21:20:41.3027478Z",
+  },
+  {
+    id: "fd35bf41-519c-4112-8959-aef7179a4005",
+    sprint_id: sprint13Id,
+    user_story_id: storyIds.observabilityDashboard,
+    added_at: "2026-02-17T09:19:41.3027478Z",
   },
 ];
 
@@ -629,6 +691,150 @@ const tasksTable: TaskRow[] = [
     priority: 2,
     created_at: "2026-03-05T21:26:10.0000000Z",
     updated_at: "2026-03-05T21:26:10.0000000Z",
+  },
+  {
+    id: "c5dc7f0a-6d4e-4ab5-91ea-12eb5d7d7008",
+    user_story_id: storyIds.observabilityEvents,
+    title: "Registrar evento de abertura de modal",
+    description: "Capturar quando usuarios abrem o detalhe do card.",
+    assignee_id: "8e570a67-b8ed-4f88-822a-bd52ab4e693a",
+    estimated_hours: 3,
+    actual_hours: 3,
+    priority: 2,
+    created_at: "2026-02-03T10:10:00.0000000Z",
+    updated_at: "2026-02-03T10:10:00.0000000Z",
+  },
+  {
+    id: "c5dc7f0a-6d4e-4ab5-91ea-12eb5d7d7009",
+    user_story_id: storyIds.observabilityEvents,
+    title: "Registrar evento de mudanca de coluna",
+    description: "Persistir eventos de fluxo para analise posterior.",
+    assignee_id: "8e570a67-b8ed-4f88-822a-bd52ab4e693a",
+    estimated_hours: 4,
+    actual_hours: 2,
+    priority: 2,
+    created_at: "2026-02-03T11:10:00.0000000Z",
+    updated_at: "2026-02-03T11:10:00.0000000Z",
+  },
+  {
+    id: "c5dc7f0a-6d4e-4ab5-91ea-12eb5d7d7010",
+    user_story_id: storyIds.cardComments,
+    title: "Renderizar comentarios no modal",
+    description: "Exibir historico da conversa no detalhe do card.",
+    assignee_id: "3de5f097-4f16-4d1b-8bbf-b7830fa6ab4c",
+    estimated_hours: 2,
+    actual_hours: 2,
+    priority: 2,
+    created_at: "2026-02-03T13:10:00.0000000Z",
+    updated_at: "2026-02-03T13:10:00.0000000Z",
+  },
+  {
+    id: "c5dc7f0a-6d4e-4ab5-91ea-12eb5d7d7011",
+    user_story_id: storyIds.cardComments,
+    title: "Exibir autor e horario",
+    description: "Contextualizar cada comentario com metadados leves.",
+    assignee_id: "3de5f097-4f16-4d1b-8bbf-b7830fa6ab4c",
+    estimated_hours: 1,
+    actual_hours: 1,
+    priority: 2,
+    created_at: "2026-02-03T14:10:00.0000000Z",
+    updated_at: "2026-02-03T14:10:00.0000000Z",
+  },
+  {
+    id: "c5dc7f0a-6d4e-4ab5-91ea-12eb5d7d7012",
+    user_story_id: storyIds.boardWip,
+    title: "Somar horas estimadas por coluna",
+    description: "Consolidar WIP com base nas estimativas dos cards.",
+    assignee_id: "8e570a67-b8ed-4f88-822a-bd52ab4e693a",
+    estimated_hours: 2,
+    actual_hours: 1,
+    priority: 3,
+    created_at: "2026-02-03T15:10:00.0000000Z",
+    updated_at: "2026-02-03T15:10:00.0000000Z",
+  },
+  {
+    id: "c5dc7f0a-6d4e-4ab5-91ea-12eb5d7d7013",
+    user_story_id: storyIds.boardWip,
+    title: "Exibir limite WIP no cabecalho",
+    description: "Adicionar leitura rapida de capacidade por coluna.",
+    assignee_id: "8e570a67-b8ed-4f88-822a-bd52ab4e693a",
+    estimated_hours: 2,
+    actual_hours: 1,
+    priority: 3,
+    created_at: "2026-02-03T16:10:00.0000000Z",
+    updated_at: "2026-02-03T16:10:00.0000000Z",
+  },
+  {
+    id: "c5dc7f0a-6d4e-4ab5-91ea-12eb5d7d7014",
+    user_story_id: storyIds.dndOrder,
+    title: "Persistir ordem local apos reorder",
+    description: "Salvar a nova ordem visual sem perder estabilidade.",
+    assignee_id: "3de5f097-4f16-4d1b-8bbf-b7830fa6ab4c",
+    estimated_hours: 3,
+    actual_hours: 3,
+    priority: 2,
+    created_at: "2026-02-17T10:10:00.0000000Z",
+    updated_at: "2026-02-17T10:10:00.0000000Z",
+  },
+  {
+    id: "c5dc7f0a-6d4e-4ab5-91ea-12eb5d7d7015",
+    user_story_id: storyIds.dndOrder,
+    title: "Recalcular posicao apos drop",
+    description: "Normalizar indices apos mover card dentro da coluna.",
+    assignee_id: "3de5f097-4f16-4d1b-8bbf-b7830fa6ab4c",
+    estimated_hours: 2,
+    actual_hours: 1,
+    priority: 2,
+    created_at: "2026-02-17T11:10:00.0000000Z",
+    updated_at: "2026-02-17T11:10:00.0000000Z",
+  },
+  {
+    id: "c5dc7f0a-6d4e-4ab5-91ea-12eb5d7d7016",
+    user_story_id: storyIds.cardSearch,
+    title: "Indexar labels derivadas na busca",
+    description: "Permitir que a busca considere labels e metadata do card.",
+    assignee_id: "96cd4b95-acdf-4a62-9063-53292716b656",
+    estimated_hours: 3,
+    actual_hours: 2,
+    priority: 2,
+    created_at: "2026-02-17T13:10:00.0000000Z",
+    updated_at: "2026-02-17T13:10:00.0000000Z",
+  },
+  {
+    id: "c5dc7f0a-6d4e-4ab5-91ea-12eb5d7d7017",
+    user_story_id: storyIds.cardSearch,
+    title: "Aplicar filtro sem perder contexto do board",
+    description: "Manter a navegacao rapida durante refinamentos sucessivos.",
+    assignee_id: "96cd4b95-acdf-4a62-9063-53292716b656",
+    estimated_hours: 2,
+    actual_hours: 1,
+    priority: 2,
+    created_at: "2026-02-17T14:10:00.0000000Z",
+    updated_at: "2026-02-17T14:10:00.0000000Z",
+  },
+  {
+    id: "c5dc7f0a-6d4e-4ab5-91ea-12eb5d7d7018",
+    user_story_id: storyIds.observabilityDashboard,
+    title: "Montar agregacao de throughput",
+    description: "Consolidar volume de entrega por sprint e coluna.",
+    assignee_id: "f1f52f5a-2ec8-41cb-a304-a2efa17f769d",
+    estimated_hours: 5,
+    actual_hours: 3,
+    priority: 2,
+    created_at: "2026-02-17T15:10:00.0000000Z",
+    updated_at: "2026-02-17T15:10:00.0000000Z",
+  },
+  {
+    id: "c5dc7f0a-6d4e-4ab5-91ea-12eb5d7d7019",
+    user_story_id: storyIds.observabilityDashboard,
+    title: "Exibir tempo medio por etapa",
+    description: "Destacar gargalos principais por coluna do fluxo.",
+    assignee_id: "f1f52f5a-2ec8-41cb-a304-a2efa17f769d",
+    estimated_hours: 4,
+    actual_hours: 2,
+    priority: 2,
+    created_at: "2026-02-17T16:10:00.0000000Z",
+    updated_at: "2026-02-17T16:10:00.0000000Z",
   },
 ];
 
@@ -1041,6 +1247,505 @@ const cardActivitiesTable: CardActivityRow[] = [
     created_at: "2026-03-06T09:20:00.000Z",
   },
 ];
+
+const demoProjectSeeds = [
+  {
+    projectId: testProjectId,
+    scope: "test",
+    backlogId: "seed-test-backlog",
+    sprintId: "seed-test-sprint-active",
+    boardId: "seed-test-board",
+    sprint: {
+      name: "Sprint 07",
+      goal: "Colocar o setup do workspace em producao com onboarding, templates e colaboracao basica.",
+      startDate: "2026-03-10",
+      endDate: "2026-03-21",
+      capacityHours: 24,
+    },
+    labels: [
+      { id: "seed-test-label-setup", name: "Setup", color: "#4f8cff" },
+      { id: "seed-test-label-ux", name: "UX", color: "#a855f7" },
+    ],
+    epics: [
+      {
+        id: "seed-test-epic-setup",
+        name: "Workspace Setup",
+        description: "Fluxos iniciais para criacao, onboarding e padronizacao do workspace.",
+        businessValue: "high",
+        status: "active",
+        priority: 1,
+        color: "#4f8cff",
+        stories: [
+          {
+            id: "seed-test-story-onboarding",
+            title: "Criar onboarding do workspace",
+            persona: "Como administradora do projeto, quero orientar o primeiro acesso para configurar o workspace rapidamente.",
+            description: "Entregar um fluxo inicial com passos guiados para membros entenderem o espaco de trabalho.",
+            acceptanceCriteria:
+              "Dado um workspace novo\nQuando a administradora acessar pela primeira vez\nEntao deve ver passos guiados para concluir a configuracao inicial.",
+            effort: 5,
+            dependencies: "Depende do template inicial do projeto.",
+            priority: 1,
+            businessValue: "high",
+            assigneeId: "3de5f097-4f16-4d1b-8bbf-b7830fa6ab4c",
+            status: "in_progress",
+            complexity: "medium",
+            inSprint: true,
+            card: {
+              id: "seed-test-card-onboarding",
+              column: "doing",
+              position: 0,
+              priority: "high",
+              dueDate: "2026-03-19",
+              estimatedHours: 5,
+              actualHours: 2,
+              labels: ["seed-test-label-setup", "seed-test-label-ux"],
+            },
+            tasks: [
+              {
+                id: "seed-test-task-steps",
+                title: "Mapear passos iniciais",
+                description: "Definir ordem e conteudo dos passos exibidos no onboarding.",
+                assigneeId: "3de5f097-4f16-4d1b-8bbf-b7830fa6ab4c",
+                estimatedHours: 3,
+                actualHours: 1,
+                priority: 1,
+              },
+              {
+                id: "seed-test-task-progress",
+                title: "Salvar progresso do onboarding",
+                description: "Persistir o passo atual para retomada posterior.",
+                assigneeId: "8e570a67-b8ed-4f88-822a-bd52ab4e693a",
+                estimatedHours: 2,
+                actualHours: 1,
+                priority: 2,
+              },
+            ],
+          },
+          {
+            id: "seed-test-story-template",
+            title: "Template inicial de projeto",
+            persona: "Como lider de squad, quero criar um projeto a partir de um template para acelerar o setup.",
+            description: "Disponibilizar um template padrao com colunas, labels e configuracoes iniciais.",
+            acceptanceCriteria:
+              "Dado um novo projeto\nQuando eu escolher um template padrao\nEntao o projeto deve nascer com estrutura inicial configurada.",
+            effort: 3,
+            dependencies: "",
+            priority: 2,
+            businessValue: "medium",
+            assigneeId: "96cd4b95-acdf-4a62-9063-53292716b656",
+            status: "ready",
+            complexity: "low",
+            inSprint: true,
+            card: {
+              id: "seed-test-card-template",
+              column: "todo",
+              position: 0,
+              priority: "medium",
+              dueDate: "2026-03-20",
+              estimatedHours: 3,
+              actualHours: 0,
+              labels: ["seed-test-label-setup"],
+            },
+            tasks: [
+              {
+                id: "seed-test-task-template",
+                title: "Montar estrutura base do template",
+                description: "Criar epics, statuses e configuracoes padrao do projeto.",
+                assigneeId: "96cd4b95-acdf-4a62-9063-53292716b656",
+                estimatedHours: 3,
+                actualHours: 0,
+                priority: 2,
+              },
+            ],
+          },
+        ],
+      },
+      {
+        id: "seed-test-epic-team",
+        name: "Team Collaboration",
+        description: "Ferramentas para visibilidade de equipe e acompanhamento de membros.",
+        businessValue: "medium",
+        status: "draft",
+        priority: 2,
+        color: "#22c55e",
+        stories: [
+          {
+            id: "seed-test-story-members",
+            title: "Painel de membros do projeto",
+            persona: "Como scrum master, quero visualizar membros e papeis para acompanhar a composicao do time.",
+            description: "Exibir lista de membros, funcoes e data de entrada diretamente no projeto.",
+            acceptanceCriteria:
+              "Dado um projeto com membros\nQuando eu abrir o painel do time\nEntao devo ver nome, papel e data de entrada de cada pessoa.",
+            effort: 2,
+            dependencies: "",
+            priority: 3,
+            businessValue: "medium",
+            assigneeId: "8e570a67-b8ed-4f88-822a-bd52ab4e693a",
+            status: "draft",
+            complexity: "low",
+            inSprint: false,
+            tasks: [
+              {
+                id: "seed-test-task-members",
+                title: "Listar membros e papeis",
+                description: "Preparar a tabela inicial com metadados dos membros.",
+                assigneeId: "8e570a67-b8ed-4f88-822a-bd52ab4e693a",
+                estimatedHours: 2,
+                actualHours: 0,
+                priority: 3,
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    projectId: abpProjectId,
+    scope: "abp",
+    backlogId: "seed-abp-backlog",
+    sprintId: "seed-abp-sprint-active",
+    boardId: "seed-abp-board",
+    sprint: {
+      name: "Sprint 18",
+      goal: "Avancar o fluxo de acesso do time e a leitura executiva do status do projeto.",
+      startDate: "2026-03-10",
+      endDate: "2026-03-21",
+      capacityHours: 26,
+    },
+    labels: [
+      { id: "seed-abp-label-backend", name: "Backend", color: "#ef4444" },
+      { id: "seed-abp-label-metrics", name: "Metrics", color: "#22c55e" },
+    ],
+    epics: [
+      {
+        id: "seed-abp-epic-access",
+        name: "Access Control",
+        description: "Fluxos para convite, acesso inicial e organizacao do time por papois.",
+        businessValue: "high",
+        status: "active",
+        priority: 1,
+        color: "#ef4444",
+        stories: [
+          {
+            id: "seed-abp-story-invite",
+            title: "Fluxo de convite para equipe",
+            persona: "Como product owner, quero convidar colaboradores para acelerar o inicio do projeto.",
+            description: "Permitir convites com papel inicial e confirmacao do acesso ao workspace.",
+            acceptanceCriteria:
+              "Dado um novo colaborador\nQuando eu enviar um convite\nEntao ele deve receber o acesso inicial com papel configurado.",
+            effort: 5,
+            dependencies: "",
+            priority: 1,
+            businessValue: "high",
+            assigneeId: "3de5f097-4f16-4d1b-8bbf-b7830fa6ab4c",
+            status: "in_progress",
+            complexity: "medium",
+            inSprint: true,
+            card: {
+              id: "seed-abp-card-invite",
+              column: "review",
+              position: 0,
+              priority: "high",
+              dueDate: "2026-03-18",
+              estimatedHours: 5,
+              actualHours: 3,
+              labels: ["seed-abp-label-backend"],
+            },
+            tasks: [
+              {
+                id: "seed-abp-task-invite-api",
+                title: "Criar endpoint de convite",
+                description: "Montar o endpoint que cria convites com papel inicial.",
+                assigneeId: "3de5f097-4f16-4d1b-8bbf-b7830fa6ab4c",
+                estimatedHours: 3,
+                actualHours: 2,
+                priority: 1,
+              },
+              {
+                id: "seed-abp-task-invite-email",
+                title: "Padronizar mensagem de convite",
+                description: "Preparar conteudo do e-mail de convite com instrucoes de acesso.",
+                assigneeId: "96cd4b95-acdf-4a62-9063-53292716b656",
+                estimatedHours: 2,
+                actualHours: 1,
+                priority: 2,
+              },
+            ],
+          },
+        ],
+      },
+      {
+        id: "seed-abp-epic-insights",
+        name: "Executive Insights",
+        description: "Visoes resumidas para acompanhamento rapido de saude e progresso do projeto.",
+        businessValue: "high",
+        status: "active",
+        priority: 2,
+        color: "#22c55e",
+        stories: [
+          {
+            id: "seed-abp-story-summary",
+            title: "Resumo de saude do projeto",
+            persona: "Como gestora, quero um resumo visual do projeto para avaliar andamento sem abrir varios paineis.",
+            description: "Apresentar indicadores centrais de status, risco e progresso do sprint atual.",
+            acceptanceCriteria:
+              "Dado um projeto ativo\nQuando eu abrir o resumo executivo\nEntao devo ver indicadores principais do sprint e do backlog.",
+            effort: 3,
+            dependencies: "Depende do fluxo de convite para refletir tamanho da equipe.",
+            priority: 2,
+            businessValue: "high",
+            assigneeId: "8e570a67-b8ed-4f88-822a-bd52ab4e693a",
+            status: "ready",
+            complexity: "medium",
+            inSprint: true,
+            card: {
+              id: "seed-abp-card-summary",
+              column: "doing",
+              position: 0,
+              priority: "medium",
+              dueDate: "2026-03-20",
+              estimatedHours: 3,
+              actualHours: 1,
+              labels: ["seed-abp-label-metrics"],
+            },
+            tasks: [
+              {
+                id: "seed-abp-task-summary",
+                title: "Consolidar indicadores do cabecalho",
+                description: "Montar bloco inicial com status, progresso e risco do sprint.",
+                assigneeId: "8e570a67-b8ed-4f88-822a-bd52ab4e693a",
+                estimatedHours: 3,
+                actualHours: 1,
+                priority: 2,
+              },
+            ],
+          },
+          {
+            id: "seed-abp-story-sprint-kpis",
+            title: "Indicadores por sprint",
+            persona: "Como gerente, quero comparar indicadores entre sprints para identificar tendencia de entrega.",
+            description: "Construir visao de historico com throughput, carga e tempo medio por sprint.",
+            acceptanceCriteria:
+              "Dado um conjunto de sprints\nQuando eu consultar os indicadores\nEntao devo comparar a evolucao de throughput e carga.",
+            effort: 5,
+            dependencies: "",
+            priority: 3,
+            businessValue: "medium",
+            assigneeId: "96cd4b95-acdf-4a62-9063-53292716b656",
+            status: "draft",
+            complexity: "high",
+            inSprint: false,
+            tasks: [
+              {
+                id: "seed-abp-task-kpis",
+                title: "Modelar consolidado historico",
+                description: "Estruturar os dados para comparacao entre sprints.",
+                assigneeId: "96cd4b95-acdf-4a62-9063-53292716b656",
+                estimatedHours: 5,
+                actualHours: 0,
+                priority: 3,
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+] as const;
+
+for (const seed of demoProjectSeeds) {
+  const createdAtBase = `${seed.sprint.startDate}T09:00:00.000000Z`;
+  const columnIdByName = {
+    todo: `${seed.scope}-column-todo`,
+    doing: `${seed.scope}-column-doing`,
+    review: `${seed.scope}-column-review`,
+    done: `${seed.scope}-column-done`,
+  } as const;
+
+  productBacklogsTable.push({
+    id: seed.backlogId,
+    project_id: seed.projectId,
+    overview: `${seed.scope.toUpperCase()} backlog seed for cross-project coverage.`,
+    created_at: createdAtBase,
+    updated_at: createdAtBase,
+  });
+
+  sprintsTable.push({
+    id: seed.sprintId,
+    project_id: seed.projectId,
+    name: seed.sprint.name,
+    goal: seed.sprint.goal,
+    start_date: seed.sprint.startDate,
+    end_date: seed.sprint.endDate,
+    status: "active",
+    capacity_hours: seed.sprint.capacityHours,
+    created_at: createdAtBase,
+    updated_at: createdAtBase,
+  });
+
+  boardsTable.push({
+    id: seed.boardId,
+    project_id: seed.projectId,
+    sprint_id: seed.sprintId,
+    name: `${seed.sprint.name} Board`,
+    description: `Board principal do ${seed.sprint.name}.`,
+    board_type: "kanban",
+    is_default: true,
+    created_at: createdAtBase,
+    updated_at: createdAtBase,
+  });
+
+  boardColumnsTable.push(
+    {
+      id: columnIdByName.todo,
+      board_id: seed.boardId,
+      name: "To do",
+      description: "Itens prontos para iniciar.",
+      position: 0,
+      wip_limit: 24,
+      color: "#95a5a6",
+      is_done_column: false,
+      created_at: createdAtBase,
+      updated_at: createdAtBase,
+    },
+    {
+      id: columnIdByName.doing,
+      board_id: seed.boardId,
+      name: "Doing",
+      description: "Itens em desenvolvimento.",
+      position: 1,
+      wip_limit: 18,
+      color: "#6f32ff",
+      is_done_column: false,
+      created_at: createdAtBase,
+      updated_at: createdAtBase,
+    },
+    {
+      id: columnIdByName.review,
+      board_id: seed.boardId,
+      name: "Review",
+      description: "Itens aguardando validacao.",
+      position: 2,
+      wip_limit: 12,
+      color: "#4f8cff",
+      is_done_column: false,
+      created_at: createdAtBase,
+      updated_at: createdAtBase,
+    },
+    {
+      id: columnIdByName.done,
+      board_id: seed.boardId,
+      name: "Done",
+      description: "Itens concluidos na sprint.",
+      position: 3,
+      wip_limit: null,
+      color: "#22c55e",
+      is_done_column: true,
+      created_at: createdAtBase,
+      updated_at: createdAtBase,
+    },
+  );
+
+  labelsTable.push(
+    ...seed.labels.map((label, index) => ({
+      id: label.id,
+      project_id: seed.projectId,
+      name: label.name,
+      color: label.color,
+      created_at: `${seed.sprint.startDate}T0${index + 8}:00:00.000000Z`,
+    })),
+  );
+
+  for (const epic of seed.epics) {
+    epicsTable.push({
+      id: epic.id,
+      product_backlog_id: seed.backlogId,
+      name: epic.name,
+      description: epic.description,
+      business_value: epic.businessValue,
+      status: epic.status,
+      priority: epic.priority,
+      color: epic.color,
+      created_at: createdAtBase,
+      updated_at: createdAtBase,
+    });
+
+    for (const story of epic.stories) {
+      userStoriesTable.push({
+        id: story.id,
+        epic_id: epic.id,
+        title: story.title,
+        persona: story.persona,
+        description: story.description,
+        acceptance_criteria: story.acceptanceCriteria,
+        effort: story.effort,
+        dependencies: story.dependencies,
+        priority: story.priority,
+        complexity: story.complexity,
+        business_value: story.businessValue,
+        status: story.status,
+        assignee_id: story.assigneeId,
+        created_at: createdAtBase,
+        updated_at: createdAtBase,
+      });
+
+      for (const task of story.tasks) {
+        tasksTable.push({
+          id: task.id,
+          user_story_id: story.id,
+          title: task.title,
+          description: task.description,
+          assignee_id: task.assigneeId,
+          estimated_hours: task.estimatedHours,
+          actual_hours: task.actualHours,
+          priority: task.priority,
+          created_at: createdAtBase,
+          updated_at: createdAtBase,
+        });
+      }
+
+      if (story.inSprint) {
+        sprintItemsTable.push({
+          id: `${story.id}-sprint-item`,
+          sprint_id: seed.sprintId,
+          user_story_id: story.id,
+          added_at: createdAtBase,
+        });
+      }
+
+      if (story.inSprint && story.card) {
+        cardsTable.push({
+          id: story.card.id,
+          column_id: columnIdByName[story.card.column],
+          user_story_id: story.id,
+          task_id: null,
+          title: story.title,
+          description: story.description,
+          assignee_id: story.assigneeId,
+          position: story.card.position,
+          priority: story.card.priority,
+          due_date: story.card.dueDate,
+          estimated_hours: story.card.estimatedHours,
+          actual_hours: story.card.actualHours,
+          color: "#ffffff",
+          created_at: createdAtBase,
+          updated_at: createdAtBase,
+        });
+
+        cardLabelsTable.push(
+          ...story.card.labels.map((labelId, index) => ({
+            id: `${story.card?.id}-label-${index + 1}`,
+            card_id: story.card?.id,
+            label_id: labelId,
+            created_at: createdAtBase,
+          })),
+        );
+      }
+    }
+  }
+}
 
 function assert(condition: boolean, message: string): void {
   if (!condition) {

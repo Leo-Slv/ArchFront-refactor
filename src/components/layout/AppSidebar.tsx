@@ -78,7 +78,7 @@ function SidebarItem({
           <Icon
             className={cx(
               "af-nav-icon h-4 w-4",
-              active ? "text-[var(--accent-primary)]" : "text-white/52",
+              active ? "text-[var(--accent-soft-35)]" : "text-white/52",
             )}
             aria-hidden="true"
           />

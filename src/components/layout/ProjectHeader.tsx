@@ -38,27 +38,29 @@ export default function ProjectHeader({
       </div>
 
       <div className="flex shrink-0 items-center gap-2">
-        {showSearch ? (
-          <label className="af-surface-md af-input-shell af-focus-ring af-text-secondary flex h-9 min-w-[15rem] items-center gap-2 bg-white/5 px-3 text-sm sm:min-w-[19rem]">
-            <Search
-              className="af-input-icon af-text-tertiary h-4 w-4 shrink-0"
-              aria-hidden="true"
-            />
-            <input
-              value={searchValue}
-              onChange={(event) => onSearchChange?.(event.target.value)}
-              placeholder={searchPlaceholder}
-              className="w-full bg-transparent text-sm text-white outline-none placeholder:text-white/38"
-            />
-          </label>
-        ) : null}
+        {rightSlot ? <div className="order-1">{rightSlot}</div> : null}
 
-        {rightSlot}
+        {showSearch ? (
+          <div className="order-2">
+            <label className="af-surface-md af-input-shell af-focus-ring af-text-secondary flex h-9 min-w-[15rem] items-center gap-2 bg-white/5 px-3 text-sm sm:min-w-[19rem]">
+              <Search
+                className="af-input-icon af-text-tertiary h-4 w-4 shrink-0"
+                aria-hidden="true"
+              />
+              <input
+                value={searchValue}
+                onChange={(event) => onSearchChange?.(event.target.value)}
+                placeholder={searchPlaceholder}
+                className="w-full bg-transparent text-sm text-white outline-none placeholder:text-white/38"
+              />
+            </label>
+          </div>
+        ) : null}
 
         <button
           type="button"
           aria-label={user.name}
-          className="af-surface-md af-surface-hover af-focus-ring inline-flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white/5 text-xs font-semibold text-white/80 transition hover:text-white"
+          className="af-surface-md af-surface-hover af-focus-ring order-3 inline-flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white/5 text-xs font-semibold text-white/80 transition hover:text-white"
           style={{ borderRadius: "9999px" }}
         >
           <UserAvatar

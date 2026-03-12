@@ -207,6 +207,16 @@ export function getActiveSprintForProject(projectId: string): SprintRow | null {
   );
 }
 
+export function getSprintsForProject(projectId: string): SprintRow[] {
+  return [...(sprintsByProjectId.get(projectId) ?? [])].sort((left, right) =>
+    right.start_date.localeCompare(left.start_date),
+  );
+}
+
+export function getDefaultSprintForProject(projectId: string): SprintRow | null {
+  return getActiveSprintForProject(projectId) ?? getSprintsForProject(projectId)[0] ?? null;
+}
+
 export function getSprintItemsForSprint(sprintId: string): SprintItemRow[] {
   return [...(sprintItemsBySprintId.get(sprintId) ?? [])].sort((left, right) =>
     left.added_at.localeCompare(right.added_at),

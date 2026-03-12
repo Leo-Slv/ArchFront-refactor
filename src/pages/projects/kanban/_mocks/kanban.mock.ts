@@ -1,12 +1,14 @@
 import { roadmapProjectId } from "../../../../mocks/backend/rawData";
 import {
-  getActiveSprintForProject,
   getCardsForColumn,
   getColumnsForBoard,
   getCommentsForCard,
   getDefaultBoardForProject,
+  getDefaultSprintForProject,
   getEpicRowById,
   getLabelsForCard,
+  getSprintItemsForSprint,
+  getSprintRowById,
   getTasksForUserStory,
   getUserById,
   getUserStoryRowById,
@@ -110,23 +112,6 @@ export interface KanbanBoardViewModel {
   allCards: KanbanCardView[];
 }
 
-const activeSprintRow = getActiveSprintForProject(roadmapProjectId);
-const defaultBoardRow = getDefaultBoardForProject(roadmapProjectId);
-
-if (!activeSprintRow || !defaultBoardRow) {
-  throw new Error("Missing active sprint or default board for roadmap project.");
-}
-
-export const mockKanbanSprint: KanbanSprint = {
-  id: activeSprintRow.id,
-  projectId: activeSprintRow.project_id,
-  name: activeSprintRow.name,
-  capacityHours: activeSprintRow.capacity_hours ?? 0,
-  status: activeSprintRow.status,
-};
-
-const rawBoardColumns = getColumnsForBoard(defaultBoardRow.id);
-
 function mapRawColumnToViewId(columnName: string): KanbanColumnId {
   const normalizedName = columnName.toLowerCase();
   if (normalizedName.includes("review")) return "review";
@@ -135,20 +120,52 @@ function mapRawColumnToViewId(columnName: string): KanbanColumnId {
   return "todo";
 }
 
-const viewColumnIdByRawColumnId = new Map<string, KanbanColumnId>(
-  rawBoardColumns.map((column) => [column.id, mapRawColumnToViewId(column.name)]),
-);
+function buildKanbanSprint(projectId = roadmapProjectId, sprintId?: string): KanbanSprint {
+  const sprintRow = sprintId
+    ? getSprintRowById(sprintId)
+    : getDefaultSprintForProject(projectId);
 
-const columnMeta: Array<
-  Pick<KanbanColumnView, "id" | "title" | "wipLimitHours" | "helpText">
-> = rawBoardColumns.map((column) => ({
-  id: viewColumnIdByRawColumnId.get(column.id) ?? "todo",
-  title: column.name,
-  wipLimitHours: column.wip_limit,
-  helpText:
-    column.description ??
-    "WIP (Work in Progress): limite em horas para manter o fluxo saudavel no board.",
-}));
+  if (!sprintRow) {
+    throw new Error(`Missing sprint row for project ${projectId}.`);
+  }
+
+  return {
+    id: sprintRow.id,
+    projectId: sprintRow.project_id,
+    name: sprintRow.name,
+    capacityHours: sprintRow.capacity_hours ?? 0,
+    status: sprintRow.status,
+  };
+}
+
+function getBoardColumnsMeta(projectId = roadmapProjectId) {
+  const defaultBoardRow = getDefaultBoardForProject(projectId);
+
+  if (!defaultBoardRow) {
+    throw new Error(`Missing default board for project ${projectId}.`);
+  }
+
+  const rawBoardColumns = getColumnsForBoard(defaultBoardRow.id);
+  const viewColumnIdByRawColumnId = new Map<string, KanbanColumnId>(
+    rawBoardColumns.map((column) => [column.id, mapRawColumnToViewId(column.name)]),
+  );
+  const columnMeta: Array<
+    Pick<KanbanColumnView, "id" | "title" | "wipLimitHours" | "helpText">
+  > = rawBoardColumns.map((column) => ({
+    id: viewColumnIdByRawColumnId.get(column.id) ?? "todo",
+    title: column.name,
+    wipLimitHours: column.wip_limit,
+    helpText:
+      column.description ??
+      "WIP (Work in Progress): limite em horas para manter o fluxo saudavel no board.",
+  }));
+
+  return {
+    rawBoardColumns,
+    viewColumnIdByRawColumnId,
+    columnMeta,
+  };
+}
 
 function formatDate(dateISO: string): string {
   return new Date(dateISO).toLocaleDateString("pt-BR");
@@ -181,7 +198,11 @@ export function formatKanbanStoryStatus(status: UserStoryStatus): string {
   return status;
 }
 
-function buildKanbanCardView(rawColumnId: string, cardId: string): KanbanCardView {
+function buildKanbanCardView(
+  rawColumnId: string,
+  cardId: string,
+  viewColumnIdByRawColumnId: Map<string, KanbanColumnId>,
+): KanbanCardView {
   const columnId = viewColumnIdByRawColumnId.get(rawColumnId) ?? "todo";
   const rawCard = getCardsForColumn(rawColumnId).find((card) => card.id === cardId);
 
@@ -267,22 +288,37 @@ function buildKanbanCardView(rawColumnId: string, cardId: string): KanbanCardVie
   };
 }
 
-function buildAllCards(): KanbanCardView[] {
+function buildAllCards(
+  projectId = roadmapProjectId,
+  sprintId?: string,
+): KanbanCardView[] {
+  const sprint = buildKanbanSprint(projectId, sprintId);
+  const sprintStoryIds = new Set(
+    getSprintItemsForSprint(sprint.id).map((item) => item.user_story_id),
+  );
+
+  const { rawBoardColumns, viewColumnIdByRawColumnId } = getBoardColumnsMeta(projectId);
+
   return rawBoardColumns.flatMap((column) =>
-    getCardsForColumn(column.id).map((card) => buildKanbanCardView(column.id, card.id)),
+    getCardsForColumn(column.id)
+      .filter((card) => card.user_story_id && sprintStoryIds.has(card.user_story_id))
+      .map((card) =>
+        buildKanbanCardView(column.id, card.id, viewColumnIdByRawColumnId),
+      ),
   );
 }
 
-export function buildKanbanBoardView(searchTerm = ""): KanbanBoardViewModel {
-  const query = searchTerm.trim().toLowerCase();
-  const allCards = buildAllCards();
-  const filteredCards = allCards.filter(
-    (card) => !query || card.searchText.includes(query),
-  );
+export function buildKanbanBoardView(
+  projectId = roadmapProjectId,
+  sprintId?: string,
+): KanbanBoardViewModel {
+  const sprint = buildKanbanSprint(projectId, sprintId);
+  const allCards = buildAllCards(projectId, sprint.id);
+  const { columnMeta } = getBoardColumnsMeta(projectId);
 
   return {
-    sprint: mockKanbanSprint,
-    columns: buildKanbanColumns(filteredCards),
+    sprint,
+    columns: buildKanbanColumns(allCards, columnMeta),
     allCards,
   };
 }
@@ -297,7 +333,14 @@ export function buildInitialKanbanCardState(
   }));
 }
 
-export function buildKanbanColumns(cards: KanbanCardView[]): KanbanColumnView[] {
+export function buildKanbanColumns(
+  cards: KanbanCardView[],
+  columnMetaOverride?: Array<
+    Pick<KanbanColumnView, "id" | "title" | "wipLimitHours" | "helpText">
+  >,
+): KanbanColumnView[] {
+  const columnMeta = columnMetaOverride ?? getBoardColumnsMeta().columnMeta;
+
   return columnMeta.map((column) => {
     const columnCards = cards
       .filter((card) => card.kanbanStatus === column.id)
@@ -321,8 +364,13 @@ export function getColumnUsageHours(cards: KanbanCardView[]): number {
   return cards.reduce((sum, card) => sum + card.estimatedHours, 0);
 }
 
-export function getColumnConfig(columnId: KanbanColumnId) {
-  const config = columnMeta.find((column) => column.id === columnId);
+export function getColumnConfig(
+  columnId: KanbanColumnId,
+  projectId = roadmapProjectId,
+) {
+  const config = getBoardColumnsMeta(projectId).columnMeta.find(
+    (column) => column.id === columnId,
+  );
 
   if (!config) {
     throw new Error(`Missing Kanban column config for ${columnId}`);

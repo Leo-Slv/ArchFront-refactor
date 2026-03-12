@@ -1,6 +1,7 @@
 import { roadmapProjectId } from "../../../../mocks/backend/rawData";
 import {
-  getActiveSprintForProject,
+  getDefaultSprintForProject,
+  getSprintRowById,
   getSprintItemsForSprint,
   getTasksForUserStory,
   getUserById,
@@ -44,49 +45,6 @@ export interface Task {
 
 type PriorityLabel = "P1" | "P2" | "P3";
 
-const activeSprintRow = getActiveSprintForProject(roadmapProjectId);
-
-if (!activeSprintRow) {
-  throw new Error("Missing active sprint row for roadmap project.");
-}
-
-export const mockSprint: Sprint = {
-  id: activeSprintRow.id,
-  projectId: activeSprintRow.project_id,
-  name: activeSprintRow.name,
-  goal: activeSprintRow.goal ?? "",
-  startDate: `${activeSprintRow.start_date}T00:00:00Z`,
-  endDate: `${activeSprintRow.end_date}T00:00:00Z`,
-  status: activeSprintRow.status,
-  capacityHours: activeSprintRow.capacity_hours ?? 0,
-  createdAt: activeSprintRow.created_at,
-  updatedAt: activeSprintRow.updated_at,
-};
-
-export const mockSprintItems: SprintItem[] = getSprintItemsForSprint(mockSprint.id).map(
-  (item) => ({
-    id: item.id,
-    sprintId: item.sprint_id,
-    userStoryId: item.user_story_id,
-    addedAt: item.added_at,
-  }),
-);
-
-export const mockTasks: Task[] = mockSprintItems.flatMap((item) =>
-  getTasksForUserStory(item.userStoryId).map((task) => ({
-    id: task.id,
-    userStoryId: task.user_story_id,
-    title: task.title,
-    description: task.description ?? "",
-    priority: task.priority,
-    assigneeId: task.assignee_id ?? "",
-    estimatedHours: task.estimated_hours ?? 0,
-    actualHours: task.actual_hours ?? 0,
-    createdAt: task.created_at,
-    updatedAt: task.updated_at,
-  })),
-);
-
 export interface SprintTaskView {
   id: string;
   sprintId: string;
@@ -117,6 +75,23 @@ export interface SprintViewModel {
   burndownPoints: BurndownPoint[];
 }
 
+function buildSprintFromRowId(sprintId: string): Sprint {
+  const sprintRow = getSprintRowById(sprintId);
+
+  return {
+    id: sprintRow.id,
+    projectId: sprintRow.project_id,
+    name: sprintRow.name,
+    goal: sprintRow.goal ?? "",
+    startDate: `${sprintRow.start_date}T00:00:00Z`,
+    endDate: `${sprintRow.end_date}T00:00:00Z`,
+    status: sprintRow.status,
+    capacityHours: sprintRow.capacity_hours ?? 0,
+    createdAt: sprintRow.created_at,
+    updatedAt: sprintRow.updated_at,
+  };
+}
+
 function eachDayInclusive(startISO: string, endISO: string): Date[] {
   const dates: Date[] = [];
   const start = new Date(startISO);
@@ -133,14 +108,43 @@ function eachDayInclusive(startISO: string, endISO: string): Date[] {
   return dates;
 }
 
-export function buildMockSprintView(): SprintViewModel {
-  const sprint = mockSprint;
+export function buildMockSprintView(
+  projectId = roadmapProjectId,
+  sprintId?: string,
+): SprintViewModel {
+  const fallbackSprintRow = getDefaultSprintForProject(projectId);
 
-  const items = mockSprintItems.filter((item) => item.sprintId === sprint.id);
+  if (!fallbackSprintRow && !sprintId) {
+    throw new Error(`Missing sprint row for project ${projectId}.`);
+  }
+
+  const sprint = buildSprintFromRowId(sprintId ?? fallbackSprintRow!.id);
+
+  const items: SprintItem[] = getSprintItemsForSprint(sprint.id).map((item) => ({
+    id: item.id,
+    sprintId: item.sprint_id,
+    userStoryId: item.user_story_id,
+    addedAt: item.added_at,
+  }));
 
   const userStoryIds = new Set(items.map((item) => item.userStoryId));
 
-  const tasks = mockTasks.filter((task) => userStoryIds.has(task.userStoryId));
+  const tasks: Task[] = items.flatMap((item) =>
+    getTasksForUserStory(item.userStoryId)
+      .map((task) => ({
+        id: task.id,
+        userStoryId: task.user_story_id,
+        title: task.title,
+        description: task.description ?? "",
+        priority: task.priority,
+        assigneeId: task.assignee_id ?? "",
+        estimatedHours: task.estimated_hours ?? 0,
+        actualHours: task.actual_hours ?? 0,
+        createdAt: task.created_at,
+        updatedAt: task.updated_at,
+      }))
+      .filter((task) => userStoryIds.has(task.userStoryId)),
+  );
 
   const taskViews: SprintTaskView[] = tasks.map((task) => {
     return {

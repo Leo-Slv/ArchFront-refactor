@@ -110,7 +110,7 @@ export default function ProjectSidebar({
             <Icon
               className={cx(
                 "af-nav-icon h-4 w-4",
-                isActive ? "text-[var(--accent-primary)]" : "text-white/52",
+                isActive ? "text-[var(--accent-soft-35)]" : "text-white/52",
               )}
               aria-hidden="true"
             />
@@ -225,7 +225,7 @@ export default function ProjectSidebar({
                   <Blocks
                     className={cx(
                       "af-nav-icon h-4 w-4",
-                      isScrumActive ? "text-[var(--accent-primary)]" : "text-white/52",
+                      isScrumActive ? "text-[var(--accent-soft-35)]" : "text-white/52",
                     )}
                     aria-hidden="true"
                   />

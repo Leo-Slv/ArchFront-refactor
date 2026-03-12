@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 
 import "./App.css";
 
+import LoadingScreen from "./components/ui/LoadingScreen";
+import { ProjectSprintProvider } from "./contexts/ProjectSprintContext";
+import { useGlobalLoadingVisibility } from "./hooks/useGlobalLoading";
 import ArchFlowLanding from "./pages/ArchFlowLanding/ArchFlowLanding";
 import SignIn from "./pages/auth/SignIn";
 import SignUp from "./pages/auth/SignUp";
@@ -17,6 +20,7 @@ function getPathname(): string {
 
 export default function App() {
   const [pathname, setPathname] = useState(getPathname);
+  const isGlobalLoadingVisible = useGlobalLoadingVisibility();
 
   useEffect(() => {
     function handleLocationChange() {
@@ -33,37 +37,44 @@ export default function App() {
   const segments = pathname.split("/").filter(Boolean);
 
   // TODO: Replace this pathname switch with the project's router config if a client-side router is introduced.
-  if (segments[0] === "projects" && segments[2] === "sprint-backlog") {
-    const projectId = segments[1];
-    return <SprintBacklogPage projectId={projectId} />;
-  }
+  let page = <ArchFlowLanding />;
 
-  if (segments[0] === "projects" && segments[2] === "kanban") {
+  if (segments[0] === "projects" && segments[1]) {
     const projectId = segments[1];
-    return <KanbanPage projectId={projectId} />;
-  }
 
-  if (segments[0] === "projects" && segments[2] === "sprint") {
-    const projectId = segments[1];
-    return <SprintPage projectId={projectId} />;
-  }
+    let projectPage = null;
 
-  if (segments[0] === "projects" && segments[2] === "backlog") {
-    const projectId = segments[1];
-    return <ProductBacklogPage projectId={projectId} />;
+    if (segments[2] === "sprint-backlog") {
+      projectPage = <SprintBacklogPage projectId={projectId} />;
+    } else if (segments[2] === "kanban") {
+      projectPage = <KanbanPage projectId={projectId} />;
+    } else if (segments[2] === "sprint") {
+      projectPage = <SprintPage projectId={projectId} />;
+    } else if (segments[2] === "backlog") {
+      projectPage = <ProductBacklogPage projectId={projectId} />;
+    }
+
+    if (projectPage) {
+      page = <ProjectSprintProvider>{projectPage}</ProjectSprintProvider>;
+    }
   }
 
   if (pathname === "/signin") {
-    return <SignIn />;
+    page = <SignIn />;
   }
 
   if (pathname === "/signup") {
-    return <SignUp />;
+    page = <SignUp />;
   }
 
   if (pathname === "/projects") {
-    return <ProjectsHubPage />;
+    page = <ProjectsHubPage />;
   }
 
-  return <ArchFlowLanding />;
+  return (
+    <>
+      {page}
+      <LoadingScreen isVisible={isGlobalLoadingVisible} />
+    </>
+  );
 }

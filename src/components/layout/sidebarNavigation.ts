@@ -1,5 +1,10 @@
 import type { MouseEvent } from "react";
 
+import {
+  DEFAULT_LOADING_DURATION_MS,
+  startTimedGlobalLoading,
+} from "../../hooks/useGlobalLoading";
+
 export function shouldHandleNavigationClick(
   event: MouseEvent<HTMLElement>,
 ): boolean {
@@ -13,9 +18,24 @@ export function shouldHandleNavigationClick(
   );
 }
 
-export function navigateToPath(pathname: string): void {
+interface NavigateToPathOptions {
+  withLoading?: boolean;
+  loadingDurationMs?: number;
+}
+
+export function navigateToPath(
+  pathname: string,
+  {
+    withLoading = true,
+    loadingDurationMs = DEFAULT_LOADING_DURATION_MS,
+  }: NavigateToPathOptions = {},
+): void {
   if (window.location.pathname === pathname) {
     return;
+  }
+
+  if (withLoading) {
+    startTimedGlobalLoading("navigation", loadingDurationMs);
   }
 
   window.history.pushState({}, "", pathname);

@@ -94,7 +94,7 @@
 }
 
 .af-input-shell:focus-within .af-input-icon {
-  color: var(--accent-primary);
+  color: var(--accent-soft-35);
 }
 
 .af-nav-item {
@@ -107,20 +107,14 @@
 
 .af-nav-item:hover .af-nav-icon,
 .af-nav-item:hover .af-nav-chevron {
-  color: var(--accent-primary);
+  color: var(--accent-soft-35);
 }
 
 .af-nav-item-active {
   border-color: var(--accent-soft-25);
-  background:
-    linear-gradient(
-      90deg,
-      rgba(var(--accent-primary-rgb), 0.16) 0%,
-      rgba(var(--accent-primary-rgb), 0.08) 34%,
-      rgba(255, 255, 255, 0.03) 100%
-    );
+  background: var(--accent-soft-15);
   box-shadow:
-    inset 2px 0 0 var(--accent-primary),
+    inset 2px 0 0 var(--accent-soft-35),
     inset 0 1px 0 var(--border-highlight),
     inset 0 -1px 0 var(--border-shade),
     var(--af-surface-shadow, 0 0 #0000);
@@ -128,27 +122,21 @@
 
 .af-accent-chip {
   border-color: var(--accent-soft-25);
-  background: rgba(var(--accent-primary-rgb), 0.12);
+  background: var(--accent-soft-15);
   color: rgba(255, 255, 255, 0.84);
 }
 
 .af-accent-chip-strong {
   border-color: var(--accent-soft-35);
-  background: rgba(var(--accent-primary-rgb), 0.18);
+  background: var(--accent-soft-15);
   color: #fff;
 }
 
 .af-accent-panel {
   border-color: var(--accent-soft-25);
-  background-image:
-    linear-gradient(
-      90deg,
-      rgba(var(--accent-primary-rgb), 0.12) 0%,
-      rgba(var(--accent-primary-rgb), 0.05) 30%,
-      transparent 65%
-    );
+  background: var(--accent-soft-15);
   box-shadow:
-    inset 2px 0 0 var(--accent-primary),
+    inset 2px 0 0 var(--accent-soft-35),
     inset 0 1px 0 var(--border-highlight),
     inset 0 -1px 0 var(--border-shade),
     var(--af-surface-shadow, 0 0 #0000);
@@ -160,13 +148,9 @@
 
 .af-accent-hover:hover .af-accent-icon,
 .af-accent-hover:focus-visible .af-accent-icon {
-  color: var(--accent-primary);
+  color: var(--accent-soft-35);
 }
 
 .af-accent-progress {
-  background: linear-gradient(
-    90deg,
-    rgba(var(--accent-primary-rgb), 0.98),
-    rgba(var(--accent-primary-rgb), 0.78)
-  );
+  background: var(--accent-primary);
 }

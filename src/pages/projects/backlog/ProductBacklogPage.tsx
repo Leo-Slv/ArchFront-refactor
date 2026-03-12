@@ -12,7 +12,11 @@ import {
   mockProjects,
   type Project,
 } from "../_mocks/projects.mock";
-import { mockProductBacklog, type UserStory } from "./_mocks/productBacklog.mock";
+import ProjectEmptyState from "../../../components/projects/ProjectEmptyState";
+import {
+  buildProductBacklogView,
+  type UserStory,
+} from "./_mocks/productBacklog.mock";
 
 interface ProductBacklogPageProps {
   projectId?: string;
@@ -95,7 +99,6 @@ function matchesTriageFilter(
 export default function ProductBacklogPage({
   projectId,
 }: ProductBacklogPageProps) {
-  const backlog = mockProductBacklog;
   const [query, setQuery] = useState("");
   const [expandedStoryIds, setExpandedStoryIds] = useState<Set<string>>(new Set());
   const [triageFilter, setTriageFilter] = useState<TriageFilter>("none");
@@ -106,7 +109,8 @@ export default function ProductBacklogPage({
   }
 
   const currentProject: Project = projectFromParam ?? fallbackProject;
-  const effectiveProjectId = projectId ?? backlog.projectId;
+  const effectiveProjectId = projectId ?? currentProject.id;
+  const backlog = buildProductBacklogView(effectiveProjectId);
 
   const normalizedQuery = query.trim().toLowerCase();
   const allStories = useMemo(
@@ -217,189 +221,197 @@ export default function ProductBacklogPage({
       searchValue={query}
       onSearchChange={setQuery}
       mainColumn={
-        <div className="space-y-4 lg:space-y-5">
-          {filteredEpics.map((epic) => {
-            const storyCount = epic.userStories.length;
+        backlog.epics.length === 0 ? (
+          <ProjectEmptyState
+            title="No user stories have been added yet."
+            description="This project is still empty. Add backlog items to start planning epics, stories, and sprint candidates."
+            actionLabel="Add User Story"
+          />
+        ) : (
+          <div className="space-y-4 lg:space-y-5">
+            {filteredEpics.map((epic) => {
+              const storyCount = epic.userStories.length;
 
-            return (
-              <article
-                key={epic.id}
-                className="af-surface-lg bg-[#14121a]/70 px-4 py-4 sm:px-5 sm:py-4"
-              >
-                <header className="flex flex-wrap items-start justify-between gap-3">
-                  <div className="min-w-0 space-y-1">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/50">
-                      Epic
-                    </p>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <h2 className="truncate text-sm font-semibold text-white">
-                        {epic.name}
-                      </h2>
+              return (
+                <article
+                  key={epic.id}
+                  className="af-surface-lg bg-[#14121a]/70 px-4 py-4 sm:px-5 sm:py-4"
+                >
+                  <header className="flex flex-wrap items-start justify-between gap-3">
+                    <div className="min-w-0 space-y-1">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/50">
+                        Epic
+                      </p>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h2 className="truncate text-sm font-semibold text-white">
+                          {epic.name}
+                        </h2>
 
-                      <span className="af-surface-sm af-accent-chip inline-flex items-center px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/80">
-                        {epic.priority}
-                      </span>
+                        <span className="af-surface-sm af-accent-chip inline-flex items-center px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/80">
+                          {epic.priority}
+                        </span>
+                      </div>
+
+                      <p className="af-text-secondary text-xs">{epic.description}</p>
                     </div>
 
-                    <p className="af-text-secondary text-xs">{epic.description}</p>
-                  </div>
+                    <div className="af-text-tertiary flex items-center gap-2 text-xs">
+                      <span className="af-surface-sm inline-flex items-center bg-white/5 px-2 py-1 text-[10px] text-white/70">
+                        {storyCount} stories
+                      </span>
+                    </div>
+                  </header>
 
-                  <div className="af-text-tertiary flex items-center gap-2 text-xs">
-                    <span className="af-surface-sm inline-flex items-center bg-white/5 px-2 py-1 text-[10px] text-white/70">
-                      {storyCount} stories
-                    </span>
-                  </div>
-                </header>
+                  <div className="mt-3 space-y-2">
+                    <div className="af-separator-b flex items-center justify-between gap-3 pb-1">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/50">
+                        User Story
+                      </p>
+                    </div>
 
-                <div className="mt-3 space-y-2">
-                  <div className="af-separator-b flex items-center justify-between gap-3 pb-1">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/50">
-                      User Story
-                    </p>
-                  </div>
+                    <div className="af-surface-md overflow-x-auto bg-black/20 px-3 py-2.5">
+                      <table className="w-full min-w-[42rem] border-separate border-spacing-y-1.5">
+                        <thead>
+                          <tr className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/44">
+                            <th className="w-10 px-2 py-1 text-left font-semibold" />
+                            <th className="px-2 py-1 text-left font-semibold">Story</th>
+                            <th className="px-2 py-1 text-left font-semibold">Assignee</th>
+                            <th className="px-2 py-1 text-left font-semibold">Status</th>
+                            <th className="px-2 py-1 text-left font-semibold">Value</th>
+                            <th className="px-2 py-1 text-left font-semibold">Complexity</th>
+                          </tr>
+                        </thead>
 
-                  <div className="af-surface-md overflow-x-auto bg-black/20 px-3 py-2.5">
-                    <table className="w-full min-w-[42rem] border-separate border-spacing-y-1.5">
-                      <thead>
-                        <tr className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/44">
-                          <th className="w-10 px-2 py-1 text-left font-semibold" />
-                          <th className="px-2 py-1 text-left font-semibold">Story</th>
-                          <th className="px-2 py-1 text-left font-semibold">Assignee</th>
-                          <th className="px-2 py-1 text-left font-semibold">Status</th>
-                          <th className="px-2 py-1 text-left font-semibold">Value</th>
-                          <th className="px-2 py-1 text-left font-semibold">Complexity</th>
-                        </tr>
-                      </thead>
+                        <tbody>
+                          {epic.userStories.map((story) => {
+                            const isExpanded = expandedStoryIds.has(story.id);
+                            const assigneeName = getAssigneeName(story.assigneeId);
 
-                      <tbody>
-                        {epic.userStories.map((story) => {
-                          const isExpanded = expandedStoryIds.has(story.id);
-                          const assigneeName = getAssigneeName(story.assigneeId);
+                            return (
+                              <Fragment key={story.id}>
+                                <tr className="text-[11px] text-white/76">
+                                  <td className="bg-white/[0.02] px-2 py-1.5 align-middle">
+                                    <button
+                                      type="button"
+                                      aria-expanded={isExpanded}
+                                      aria-label={
+                                        isExpanded
+                                          ? `Ocultar detalhes de ${story.title}`
+                                          : `Mostrar detalhes de ${story.title}`
+                                      }
+                                      onClick={() => toggleStoryExpanded(story.id)}
+                                      className="af-focus-ring af-accent-hover inline-flex h-7 w-7 items-center justify-center text-white/60 transition hover:bg-white/[0.03] hover:text-[var(--accent-soft-35)]"
+                                    >
+                                      {isExpanded ? (
+                                        <ChevronDown className="h-4 w-4" aria-hidden="true" />
+                                      ) : (
+                                        <ChevronRight className="h-4 w-4" aria-hidden="true" />
+                                      )}
+                                    </button>
+                                  </td>
+                                  <td className="bg-white/[0.02] px-2 py-1.5 align-middle">
+                                    <span className="block truncate">{story.title}</span>
+                                  </td>
+                                  <td className="bg-white/[0.02] px-2 py-1.5 align-middle">
+                                    <span className="af-text-secondary block truncate">
+                                      {assigneeName}
+                                    </span>
+                                  </td>
+                                  <td className="bg-white/[0.02] px-2 py-1.5 align-middle text-white/70">
+                                    {formatStatusLabel(story.status)}
+                                  </td>
+                                  <td className="bg-white/[0.02] px-2 py-1.5 align-middle text-white/70">
+                                    {formatValueLabel(story.businessValue)}
+                                  </td>
+                                  <td className="bg-white/[0.02] px-2 py-1.5 align-middle text-white/70">
+                                    {formatComplexityLabel(story.complexity)}
+                                  </td>
+                                </tr>
 
-                          return (
-                            <Fragment key={story.id}>
-                              <tr className="text-[11px] text-white/76">
-                                <td className="bg-white/[0.02] px-2 py-1.5 align-middle">
-                                  <button
-                                    type="button"
-                                    aria-expanded={isExpanded}
-                                    aria-label={
-                                      isExpanded
-                                        ? `Ocultar detalhes de ${story.title}`
-                                        : `Mostrar detalhes de ${story.title}`
-                                    }
-                                    onClick={() => toggleStoryExpanded(story.id)}
-                                    className="af-focus-ring af-accent-hover inline-flex h-7 w-7 items-center justify-center text-white/60 transition hover:bg-white/[0.03] hover:text-[var(--accent-primary)]"
-                                  >
-                                    {isExpanded ? (
-                                      <ChevronDown className="h-4 w-4" aria-hidden="true" />
-                                    ) : (
-                                      <ChevronRight className="h-4 w-4" aria-hidden="true" />
-                                    )}
-                                  </button>
-                                </td>
-                                <td className="bg-white/[0.02] px-2 py-1.5 align-middle">
-                                  <span className="block truncate">{story.title}</span>
-                                </td>
-                                <td className="bg-white/[0.02] px-2 py-1.5 align-middle">
-                                  <span className="af-text-secondary block truncate">
-                                    {assigneeName}
-                                  </span>
-                                </td>
-                                <td className="bg-white/[0.02] px-2 py-1.5 align-middle text-white/70">
-                                  {formatStatusLabel(story.status)}
-                                </td>
-                                <td className="bg-white/[0.02] px-2 py-1.5 align-middle text-white/70">
-                                  {formatValueLabel(story.businessValue)}
-                                </td>
-                                <td className="bg-white/[0.02] px-2 py-1.5 align-middle text-white/70">
-                                  {formatComplexityLabel(story.complexity)}
-                                </td>
-                              </tr>
+                                {isExpanded ? (
+                                  <tr>
+                                    <td colSpan={6} className="px-0 pt-0.5">
+                                      <div className="af-surface-md bg-transparent px-3 py-3">
+                                        <div className="grid gap-3 lg:grid-cols-[minmax(0,1.45fr)_minmax(0,1fr)]">
+                                          <div className="space-y-3">
+                                            <div>
+                                              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/50">
+                                                Persona
+                                              </p>
+                                              <p className="af-text-secondary mt-1 text-xs">
+                                                {story.persona}
+                                              </p>
+                                            </div>
 
-                              {isExpanded ? (
-                                <tr>
-                                  <td colSpan={6} className="px-0 pt-0.5">
-                                    <div className="af-surface-md bg-transparent px-3 py-3">
-                                      <div className="grid gap-3 lg:grid-cols-[minmax(0,1.45fr)_minmax(0,1fr)]">
-                                        <div className="space-y-3">
-                                          <div>
-                                            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/50">
-                                              Persona
-                                            </p>
-                                            <p className="af-text-secondary mt-1 text-xs">
-                                              {story.persona}
-                                            </p>
+                                            <div>
+                                              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/50">
+                                                Description
+                                              </p>
+                                              <p className="af-text-secondary mt-1 text-xs leading-relaxed">
+                                                {story.description}
+                                              </p>
+                                            </div>
+
+                                            <div>
+                                              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/50">
+                                                Acceptance Criteria
+                                              </p>
+                                              <p className="af-text-secondary mt-1 whitespace-pre-line text-xs leading-relaxed">
+                                                {story.acceptanceCriteria}
+                                              </p>
+                                            </div>
+
+                                            <div>
+                                              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/50">
+                                                Dependencies
+                                              </p>
+                                              <p className="af-text-secondary mt-1 text-xs leading-relaxed">
+                                                {story.dependencies}
+                                              </p>
+                                            </div>
                                           </div>
 
-                                          <div>
+                                          <div className="space-y-2">
                                             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/50">
-                                              Description
+                                              Story Details
                                             </p>
-                                            <p className="af-text-secondary mt-1 text-xs leading-relaxed">
-                                              {story.description}
-                                            </p>
-                                          </div>
-
-                                          <div>
-                                            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/50">
-                                              Acceptance Criteria
-                                            </p>
-                                            <p className="af-text-secondary mt-1 whitespace-pre-line text-xs leading-relaxed">
-                                              {story.acceptanceCriteria}
-                                            </p>
-                                          </div>
-
-                                          <div>
-                                            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/50">
-                                              Dependencies
-                                            </p>
-                                            <p className="af-text-secondary mt-1 text-xs leading-relaxed">
-                                              {story.dependencies}
-                                            </p>
-                                          </div>
-                                        </div>
-
-                                        <div className="space-y-2">
-                                          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/50">
-                                            Story Details
-                                          </p>
-                                          <div className="flex flex-wrap gap-1.5 text-[10px] text-white/72">
-                                            <span className="af-surface-sm inline-flex h-6 items-center bg-white/5 px-2 py-0 leading-none">
-                                              Effort {story.effort}
-                                            </span>
-                                            <span className="af-surface-sm inline-flex h-6 items-center bg-white/5 px-2 py-0 leading-none">
-                                              {formatPriorityLabel(story.priority)}
-                                            </span>
-                                            <span className="af-surface-sm inline-flex h-6 items-center bg-white/5 px-2 py-0 leading-none">
-                                              BV {formatValueLabel(story.businessValue)}
-                                            </span>
-                                            <span className="af-surface-sm inline-flex h-6 items-center bg-white/5 px-2 py-0 leading-none">
-                                              {formatComplexityLabel(story.complexity)}
-                                            </span>
-                                            <span className="af-surface-sm inline-flex h-6 items-center bg-white/5 px-2 py-0 leading-none">
-                                              {formatStatusLabel(story.status)}
-                                            </span>
+                                            <div className="flex flex-wrap gap-1.5 text-[10px] text-white/72">
+                                              <span className="af-surface-sm inline-flex h-6 items-center bg-white/5 px-2 py-0 leading-none">
+                                                Effort {story.effort}
+                                              </span>
+                                              <span className="af-surface-sm inline-flex h-6 items-center bg-white/5 px-2 py-0 leading-none">
+                                                {formatPriorityLabel(story.priority)}
+                                              </span>
+                                              <span className="af-surface-sm inline-flex h-6 items-center bg-white/5 px-2 py-0 leading-none">
+                                                BV {formatValueLabel(story.businessValue)}
+                                              </span>
+                                              <span className="af-surface-sm inline-flex h-6 items-center bg-white/5 px-2 py-0 leading-none">
+                                                {formatComplexityLabel(story.complexity)}
+                                              </span>
+                                              <span className="af-surface-sm inline-flex h-6 items-center bg-white/5 px-2 py-0 leading-none">
+                                                {formatStatusLabel(story.status)}
+                                              </span>
+                                            </div>
                                           </div>
                                         </div>
                                       </div>
-                                    </div>
-                                  </td>
-                                </tr>
-                              ) : null}
-                            </Fragment>
-                          );
-                        })}
-                      </tbody>
-                    </table>
+                                    </td>
+                                  </tr>
+                                ) : null}
+                              </Fragment>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
-                </div>
-              </article>
-            );
-          })}
-        </div>
+                </article>
+              );
+            })}
+          </div>
+        )
       }
-      sideColumn={
+      sideColumn={backlog.epics.length === 0 ? undefined : (
         <>
           <TriageQueue
             counts={triageCounts}
@@ -445,7 +457,7 @@ export default function ProductBacklogPage({
             </dl>
           </section>
         </>
-      }
+      )}
     />
   );
 }
