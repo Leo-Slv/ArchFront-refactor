@@ -1,0 +1,9 @@
+{
+  "/page": "app/page.js",
+  "/signup/page": "app/signup/page.js",
+  "/projects/page": "app/projects/page.js",
+  "/projects/[projectId]/backlog/page": "app/projects/[projectId]/backlog/page.js",
+  "/projects/[projectId]/sprint-backlog/page": "app/projects/[projectId]/sprint-backlog/page.js",
+  "/projects/[projectId]/sprint/page": "app/projects/[projectId]/sprint/page.js",
+  "/projects/[projectId]/kanban/page": "app/projects/[projectId]/kanban/page.js"
+}
