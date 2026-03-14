@@ -1,4 +1,4 @@
-import type { AssigneeWorkloadView } from "../../pages/projects/sprint-backlog/_mocks/sprintBacklog.mock";
+import type { AssigneeWorkloadView } from "../../views/projects/sprint-backlog/_mocks/sprintBacklog.mock";
 import UserAvatar from "../ui/UserAvatar";
 
 interface AssigneeWorkloadCardProps {

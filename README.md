@@ -1,10 +1,52 @@
-# Agile Tracker – Preview de Design
+# ArchFlow
 
 ## Visão Geral
 
-Este repositório contém **apenas um preview de design** da aplicação **Agile Tracker**.
+Este repositório contém a aplicação **ArchFlow** – architecture-driven project management.
 
-O objetivo deste projeto é demonstrar e validar:
+O projeto foi migrado de **Vite** para **Next.js 15** com App Router, seguindo uma arquitetura enterprise com estrutura baseada em features.
+
+### Tecnologias
+
+* **Next.js 15** (App Router)
+* **React 19**
+* **Tailwind CSS**
+* **Recharts**
+* **Axios** (service layer)
+* **Zod** (validation)
+* **shadcn/ui** (componentes base)
+
+### Estrutura do Projeto
+
+```
+src
+├── app/              # Next.js App Router (rotas, layouts)
+├── views/            # Componentes de página (ex-“pages”)
+├── components/       # Componentes reutilizáveis (ui, charts, layout, …)
+├── features/         # Lógica de domínio por feature
+├── services/         # Camada de API (Axios)
+├── hooks/            # Hooks reutilizáveis
+├── lib/              # Utilitários, http-client, schemas
+├── types/            # Tipos TypeScript compartilhados
+└── contexts/         # Contextos React
+```
+
+### Scripts
+
+```bash
+npm run dev      # Servidor de desenvolvimento
+npm run build    # Build de produção
+npm run start    # Servidor de produção
+npm run lint     # ESLint
+```
+
+---
+
+## Histórico: Preview de Design
+
+Este projeto evoluiu de um **preview de design** para uma aplicação estruturada.
+
+O objetivo original era demonstrar e validar:
 
 * Interface do usuário (UI)
 * Fluxos de navegação

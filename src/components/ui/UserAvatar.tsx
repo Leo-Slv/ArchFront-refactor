@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 
-import { cx } from "../../pages/ArchFlowLanding/utils/cx";
+import { cx } from "@/lib/utils/cx";
 import type { User } from "../../types/user";
 
 interface UserAvatarProps {

@@ -1,3 +1,5 @@
+"use client";
+
 import type { LucideIcon } from "lucide-react";
 import type { MouseEvent, ReactNode } from "react";
 import { useEffect, useState } from "react";
@@ -9,13 +11,10 @@ import {
   Layers2,
 } from "lucide-react";
 
-import { cx } from "../../pages/ArchFlowLanding/utils/cx";
-import type { User } from "../../types/user";
+import { cx } from "@/lib/utils/cx";
+import type { User } from "@/types/user";
 import UserAvatar from "../ui/UserAvatar";
-import {
-  navigateToPath,
-  shouldHandleNavigationClick,
-} from "./sidebarNavigation";
+import { useAppNavigate, shouldHandleNavigationClick } from "@/hooks/useAppNavigate";
 import {
   Sidebar,
   SidebarContent,
@@ -57,6 +56,7 @@ export default function ProjectSidebar({
   className,
   footer,
 }: ProjectSidebarProps) {
+  const { navigate } = useAppNavigate();
   const ownerLabel = `owner: ${projectOwner.name}`;
   const scrumItemIds: ProjectSidebarNavItemId[] = [
     "backlog",
@@ -83,7 +83,7 @@ export default function ProjectSidebar({
     }
 
     event.preventDefault();
-    navigateToPath(href);
+    navigate(href);
   }
 
   function getNavRowClassName(isActive: boolean, options?: { indented?: boolean }) {

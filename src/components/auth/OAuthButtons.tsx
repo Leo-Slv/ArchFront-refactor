@@ -7,7 +7,7 @@ interface OAuthButtonsProps {
 interface ProviderDefinition {
   id: OAuthProvider;
   label: string;
-  icon: JSX.Element;
+  icon: React.ReactNode;
 }
 
 const iconClassName = "h-4 w-4 shrink-0 text-white/82";

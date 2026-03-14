@@ -6,7 +6,7 @@ import {
 } from "react";
 import { Eye, EyeOff } from "lucide-react";
 
-import { cx } from "../../pages/ArchFlowLanding/utils/cx";
+import { cx } from "@/lib/utils/cx";
 
 export interface AuthInputProps
   extends Omit<InputHTMLAttributes<HTMLInputElement>, "size"> {

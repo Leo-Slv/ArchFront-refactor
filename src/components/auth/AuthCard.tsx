@@ -1,6 +1,6 @@
 import type { CSSProperties, ReactNode } from "react";
 
-import { cx } from "../../pages/ArchFlowLanding/utils/cx";
+import { cx } from "@/lib/utils/cx";
 
 const cardStyle: CSSProperties & Record<"--af-surface-shadow", string> = {
   "--af-surface-shadow": "0 24px 70px rgba(0,0,0,.55)",

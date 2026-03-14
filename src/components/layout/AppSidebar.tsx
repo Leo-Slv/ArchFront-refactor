@@ -1,11 +1,13 @@
+"use client";
+
 import { LogOut } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type { MouseEvent, ReactNode } from "react";
 
-import { cx } from "../../pages/ArchFlowLanding/utils/cx";
-import type { User } from "../../types/user";
+import { cx } from "@/lib/utils/cx";
+import type { User } from "@/types/user";
+import { useAppNavigate } from "@/hooks/useAppNavigate";
 import {
-  navigateToPath,
   shouldHandleNavigationClick,
 } from "./sidebarNavigation";
 import UserAvatar from "../ui/UserAvatar";
@@ -51,9 +53,11 @@ interface AppSidebarProps {
 function SidebarItem({
   item,
   active,
+  onNavigate,
 }: {
   item: AppSidebarItem;
   active: boolean;
+  onNavigate: (href: string) => void;
 }) {
   const Icon = item.icon;
   const baseClassName =
@@ -68,7 +72,7 @@ function SidebarItem({
     }
 
     event.preventDefault();
-    navigateToPath(item.href);
+    onNavigate(item.href);
   }
 
   const content = (
@@ -135,6 +139,8 @@ export default function AppSidebar({
   onSignOut,
   signOutLabel = "Sair",
 }: AppSidebarProps) {
+  const { navigate } = useAppNavigate();
+
   function handleSignOut(event: MouseEvent<HTMLAnchorElement>): void {
     if (!shouldHandleNavigationClick(event)) {
       return;
@@ -147,7 +153,7 @@ export default function AppSidebar({
     }
 
     event.preventDefault();
-    navigateToPath("/");
+    navigate("/");
   }
 
   return (
@@ -228,6 +234,7 @@ export default function AppSidebar({
                 key={item.id}
                 item={item}
                 active={item.id === activeItem}
+                onNavigate={navigate}
               />
             ))}
           </div>

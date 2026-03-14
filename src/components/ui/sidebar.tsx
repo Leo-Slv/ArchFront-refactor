@@ -1,3 +1,5 @@
+"use client";
+
 import {
   createContext,
   forwardRef,
@@ -9,7 +11,7 @@ import {
   type ReactNode,
 } from "react";
 
-import { cx } from "../../pages/ArchFlowLanding/utils/cx";
+import { cx } from "@/lib/utils/cx";
 
 interface SidebarContextValue {
   open: boolean;

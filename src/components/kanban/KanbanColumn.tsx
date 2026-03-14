@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Plus } from "lucide-react";
 
-import type { KanbanColumnView } from "../../pages/projects/kanban/_mocks/kanban.mock";
+import type { KanbanColumnView } from "../../views/projects/kanban/_mocks/kanban.mock";
 import KanbanCard from "./KanbanCard";
 import SystemBadge from "./SystemBadge";
 

@@ -1,10 +1,9 @@
+"use client";
+
 import type { KeyboardEvent, MouseEvent } from "react";
 
-import type { Project } from "../../pages/projects/_mocks/projects.mock";
-import {
-  navigateToPath,
-  shouldHandleNavigationClick,
-} from "../layout/sidebarNavigation";
+import type { Project } from "@/views/projects/_mocks/projects.mock";
+import { useAppNavigate, shouldHandleNavigationClick } from "@/hooks/useAppNavigate";
 
 interface ProjectCardProps {
   project: Project;
@@ -20,6 +19,7 @@ function getStatusTone(status: string): string {
 }
 
 export default function ProjectCard({ project }: ProjectCardProps) {
+  const { navigate } = useAppNavigate();
   const backlogPath = `/projects/${project.id}/backlog`;
 
   function shouldIgnoreCardNavigation(target: EventTarget | null): boolean {
@@ -42,7 +42,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
       return;
     }
 
-    navigateToPath(backlogPath);
+    navigate(backlogPath);
   }
 
   function handleCardKeyDown(event: KeyboardEvent<HTMLElement>): void {
@@ -55,7 +55,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
     }
 
     event.preventDefault();
-    navigateToPath(backlogPath);
+    navigate(backlogPath);
   }
 
   return (

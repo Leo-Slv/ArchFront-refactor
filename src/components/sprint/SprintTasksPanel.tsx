@@ -1,4 +1,4 @@
-import type { SprintTaskView } from "../../pages/projects/sprint/_mocks/sprint.mock";
+import type { SprintTaskView } from "../../views/projects/sprint/_mocks/sprint.mock";
 import TaskRowCard from "./TaskRowCard";
 
 interface SprintTasksPanelProps {
@@ -6,7 +6,7 @@ interface SprintTasksPanelProps {
 }
 
 export default function SprintTasksPanel({ tasks }: SprintTasksPanelProps) {
-  const orderedTasks = [...tasks].sort((a, b) => a.id - b.id);
+  const orderedTasks = [...tasks].sort((a, b) => a.id.localeCompare(b.id));
 
   return (
     <section className="af-surface-lg bg-[#14121a]/70 px-4 py-4 sm:px-5 sm:py-4">
